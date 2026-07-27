@@ -2,32 +2,77 @@
  * Turn MCP SDK transport failures into playground-friendly copy.
  * These errors come from the user-supplied MCP URL, not from mcplint's /api/lint or /api/mcp.
  */
+
+const REMOTE_SOURCE_NOTE =
+  "(This response came from the MCP URL you entered, not from mcplint's audit API.)";
+
+const OAUTH_AUTH_ERROR_CODES = new Set([
+  "invalid_token",
+  "invalid_client",
+  "invalid_grant",
+  "access_denied",
+  "insufficient_scope",
+  "unauthorized_client"
+]);
+
 export function humanizeCaptureError(error: unknown): string {
   const raw = error instanceof Error ? error.message : String(error);
 
   const payload = extractJsonPayload(raw);
   if (payload && isTargetAuthFailure(payload)) {
+    return authFailureMessage();
+  }
+
+  if (isPlainTextAuthFailure(raw)) {
+    return authFailureMessage();
+  }
+
+  const couldNotResolve = raw.match(/^Could not resolve ([^.\s]+(?:\.[^.\s]+)*)\.$/);
+  if (couldNotResolve) {
+    const host = couldNotResolve[1]!;
     return (
-      "That MCP server rejected the connection because it requires authentication. " +
-      "Remote audits connect from mcplint's server to your URL — they do not use your Cursor " +
-      "session or browser cookies. If the endpoint expects a Bearer token or API key, add it " +
-      'under Optional request headers as {"Authorization":"Bearer …"} (or the header name that ' +
-      "server documents). For private credentials, use the CLI instead of the hosted playground."
+      `DNS does not list a public address for "${host}". Check the MCP URL for typos ` +
+      "(some vendors publish both .com and .xyz). If the hostname is correct, the operator " +
+      `may have moved or retired that endpoint. ${REMOTE_SOURCE_NOTE}`
     );
   }
 
   if (raw.includes("Streamable HTTP error")) {
-    return (
-      `${stripStreamablePrefix(raw)} ` +
-      "(This response came from the MCP URL you entered, not from mcplint's /api/lint endpoint.)"
-    );
+    return `${stripStreamablePrefix(raw)} ${REMOTE_SOURCE_NOTE}`;
   }
 
   return raw;
 }
 
+function authFailureMessage(): string {
+  return (
+    "That MCP server requires authentication before mcplint can read tools/list. " +
+    "The playground connects from mcplint's server to your URL — it does not use your " +
+    "Cursor session or browser cookies. " +
+    'Expand Optional request headers and add credentials, for example {"Authorization":"Bearer …"} ' +
+    "or the vendor-specific API key header the server documents. " +
+    "If the server only supports interactive OAuth, switch to Paste tools/list or run mcplint via the CLI. " +
+    REMOTE_SOURCE_NOTE
+  );
+}
+
 function stripStreamablePrefix(message: string): string {
   return message.replace(/^Streamable HTTP error:\s*/i, "").trim();
+}
+
+function isPlainTextAuthFailure(message: string): boolean {
+  const core = stripStreamablePrefix(message);
+  const lower = core.toLowerCase();
+
+  if (/\bunauthorized\b/.test(lower)) return true;
+  if (/\b401\b/.test(core)) return true;
+  if (/www-authenticate/i.test(message)) return true;
+  if (/\bauthentication required\b/.test(lower)) return true;
+  if (/\binvalid[_\s-]?token\b/.test(lower)) return true;
+  if (/\binvalid[_\s-]?client\b/.test(lower)) return true;
+  if (/\baccess[_\s-]?denied\b/.test(lower)) return true;
+
+  return false;
 }
 
 function extractJsonPayload(message: string): Record<string, unknown> | undefined {
@@ -58,7 +103,7 @@ function extractJsonPayload(message: string): Record<string, unknown> | undefine
 
 function isTargetAuthFailure(body: Record<string, unknown>): boolean {
   const errorCode = typeof body.error === "string" ? body.error : undefined;
-  if (errorCode === "invalid_token" || errorCode === "invalid_client") return true;
+  if (errorCode && OAUTH_AUTH_ERROR_CODES.has(errorCode)) return true;
 
   const name = typeof body.name === "string" ? body.name : undefined;
   if (name === "AuthenticationRequiredError" || name === "InvalidAuthenticationError") {
@@ -66,5 +111,13 @@ function isTargetAuthFailure(body: Record<string, unknown>): boolean {
   }
 
   const message = typeof body.message === "string" ? body.message.toLowerCase() : "";
-  return message.includes("authentication required") || message.includes("unauthorized");
+  const errorDescription =
+    typeof body.error_description === "string" ? body.error_description.toLowerCase() : "";
+
+  return (
+    message.includes("authentication required") ||
+    message.includes("unauthorized") ||
+    errorDescription.includes("access token") ||
+    errorDescription.includes("invalid token")
+  );
 }
