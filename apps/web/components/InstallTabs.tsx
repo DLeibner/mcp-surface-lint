@@ -128,8 +128,8 @@ export function InstallTabs({ endpoint }: { endpoint: string }) {
           href={active.installHref}
           onClick={() =>
             track("mcp_install_clicked", {
-              install_target: active.id,
-              entry_surface: "install_page"
+              install_target: active.id === "cursor" ? "cursor" : "",
+              entry_surface: "cursor_install"
             })
           }
         >

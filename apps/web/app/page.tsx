@@ -1,4 +1,5 @@
 import { LintForm } from "@/components/LintForm";
+import { CliDocsAnalytics } from "@/components/CliDocsAnalytics";
 
 export default function HomePage() {
   return (
@@ -23,6 +24,7 @@ export default function HomePage() {
       </p>
 
       <h2>It runs locally too</h2>
+      <CliDocsAnalytics />
       <p className="lede">
         Keep private schemas and credentials on your machine, audit stdio servers, or add a
         deterministic quality gate to CI.

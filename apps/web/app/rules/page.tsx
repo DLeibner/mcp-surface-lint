@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Docs, RuleRegistry, Scorer, type Category } from "mcp-surface-lint";
+import { RulePageAnalytics } from "@/components/RulePageAnalytics";
 
 export const metadata: Metadata = {
   title: "Rules — mcplint",
@@ -23,6 +24,7 @@ export default function RulesPage() {
 
   return (
     <main>
+      <RulePageAnalytics />
       <h1>Rules</h1>
       <p className="lede">
         {rules.length} rules, six categories. Each finding in a report links back to its rule here.

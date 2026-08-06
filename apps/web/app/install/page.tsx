@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { InstallTabs } from "@/components/InstallTabs";
+import { InstallPageAnalytics } from "@/components/InstallPageAnalytics";
+import { CliDocsAnalytics } from "@/components/CliDocsAnalytics";
 import { mcpEndpointUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -13,6 +15,7 @@ export default function InstallPage() {
 
   return (
     <main>
+      <InstallPageAnalytics />
       <h1>Give your AI client an MCP reviewer.</h1>
       <p className="lede">
         The hosted mcplint server exposes one read-only tool: <code>check_mcp_server</code>. It
@@ -57,6 +60,7 @@ export default function InstallPage() {
       </div>
 
       <h2>Safety boundary</h2>
+      <CliDocsAnalytics />
       <p className="lede">
         This is static analysis. The hosted tool reads only MCP initialization and{" "}
         <code>tools/list</code>; it never invokes a target tool and makes no LLM calls of its own.

@@ -60,7 +60,12 @@ export function initAnalytics(): void {
     person_profiles: "always",
     capture_pageview: true
   });
-  posthog.register(campaignProperties());
+  const campaign = campaignProperties();
+  posthog.register(campaign);
+  if (Object.keys(campaign).length > 0 && !window.sessionStorage.getItem("mcplint_campaign_landing_sent")) {
+    window.sessionStorage.setItem("mcplint_campaign_landing_sent", "1");
+    posthog.capture("campaign_landing", campaign);
+  }
   started = true;
 }
 

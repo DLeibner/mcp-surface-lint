@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { projectReport } from "mcp-surface-lint";
 import { ReportView } from "@/components/ReportView";
+import { ReportPageAnalytics } from "@/components/ReportPageAnalytics";
 import { ShareControls } from "@/components/ShareControls";
 import { AuditCta } from "@/components/AuditCta";
 import { currentTier } from "@/lib/lint";
@@ -34,6 +35,7 @@ export default async function ReportPage({ params }: Props) {
 
   return (
     <main>
+      <ReportPageAnalytics id={id} visibility={run.visibility} />
       <ReportView report={projectReport(run.report, currentTier())} />
       {isOwner && <ShareControls id={id} initialVisibility={run.visibility} />}
       <AuditCta id={id} />
