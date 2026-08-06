@@ -1,7 +1,14 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GET, POST } from "./route";
+
+vi.mock("@/lib/analytics-server", () => ({
+  mcpAuditMode: (mode: "paste" | "url") => (mode === "paste" ? "snapshot" : "url"),
+  trackServer: vi.fn()
+}));
+
+import { trackServer } from "@/lib/analytics-server";
 
 const endpoint = "http://localhost:3000/api/mcp";
 
@@ -26,6 +33,14 @@ async function mcpPost(body: unknown) {
 }
 
 describe("/api/mcp", () => {
+  beforeEach(() => {
+    vi.mocked(trackServer).mockClear();
+  });
+
+  afterEach(() => {
+    vi.mocked(trackServer).mockClear();
+  });
+
   it("works end-to-end with the SDK Streamable HTTP client", async () => {
     const transport = new StreamableHTTPClientTransport(new URL(endpoint), {
       fetch: async (input, init) => POST(new Request(input, init))
@@ -50,6 +65,24 @@ describe("/api/mcp", () => {
         targetToolsInvoked: false,
         stats: { toolCount: 1 }
       });
+      expect(trackServer).toHaveBeenCalledWith(
+        "lint_started",
+        expect.objectContaining({
+          mode: "paste",
+          audit_mode: "snapshot",
+          entry_surface: "mcp_client"
+        }),
+        expect.any(String)
+      );
+      expect(trackServer).toHaveBeenCalledWith(
+        "lint_succeeded",
+        expect.objectContaining({
+          mode: "paste",
+          audit_mode: "snapshot",
+          entry_surface: "mcp_client"
+        }),
+        expect.any(String)
+      );
     } finally {
       await client.close();
     }
@@ -162,6 +195,7 @@ describe("/api/mcp", () => {
     });
 
     expect(body.result).toMatchObject({ isError: true });
+    expect(trackServer).not.toHaveBeenCalled();
   });
 
   it("rejects oversized requests before protocol handling", async () => {

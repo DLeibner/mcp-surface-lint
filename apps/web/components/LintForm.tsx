@@ -101,7 +101,7 @@ export function LintForm() {
     }
 
     setBusy(true);
-    track("lint_started", { mode, audit_mode: mode });
+    track("lint_started", { mode, audit_mode: mode, entry_surface: "web" });
     try {
       const response = await fetch("/api/lint", {
         method: "POST",
@@ -110,15 +110,15 @@ export function LintForm() {
       });
       const data = (await response.json()) as { id?: string; error?: string };
       if (!response.ok || !data.id) {
-        track("lint_failed", { mode, audit_mode: mode, status: response.status });
+        track("lint_failed", { mode, audit_mode: mode, entry_surface: "web", status: response.status });
         setError(data.error ?? "Something went wrong.");
         setBusy(false);
         return;
       }
-      track("lint_succeeded", { mode, audit_mode: mode });
+      track("lint_succeeded", { mode, audit_mode: mode, entry_surface: "web" });
       router.push(`/r/${data.id}`);
     } catch {
-      track("lint_failed", { mode, audit_mode: mode, status: 0 });
+      track("lint_failed", { mode, audit_mode: mode, entry_surface: "web", status: 0 });
       setError("Could not reach the server. Check your connection and try again.");
       setBusy(false);
     }

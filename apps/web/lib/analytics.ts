@@ -49,6 +49,8 @@ function campaignProperties(): Record<string, string> {
  *
  * We never send report contents, server names, or tool schemas. Only the shape
  * of the interaction: which mode was used, whether it worked, what it scored.
+ *
+ * MCP tool calls from AI clients are tracked server-side in analytics-server.ts.
  */
 export function initAnalytics(): void {
   const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;

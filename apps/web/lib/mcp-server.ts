@@ -1,8 +1,9 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { Scorer, countFindings } from "mcp-surface-lint";
 import { z } from "zod";
+import { mcpAuditMode, trackServer } from "./analytics-server";
 import { checkRateLimit } from "./rate-limit";
-import { runLint, type LintRequest } from "./lint";
+import { LintError, runLint, type LintRequest } from "./lint";
 import { ENGINE_VERSION } from "./version";
 
 const categoriesSchema = z.object({
@@ -144,8 +145,26 @@ export function createMcplintMcpServer(options: McplintMcpServerOptions): McpSer
       }
 
       const request = asLintRequest(input);
+      const mode = request.mode;
+      const audit_mode = mcpAuditMode(mode);
+      const analytics = {
+        mode,
+        audit_mode,
+        entry_surface: "mcp_client" as const
+      };
+
+      trackServer("lint_started", analytics, options.rateLimitKey);
+
       const limit = await checkRateLimit(request.mode, options.rateLimitKey);
       if (!limit.ok) {
+        trackServer(
+          "lint_failed",
+          {
+            ...analytics,
+            status: limit.reason === "not_configured" ? 503 : 429
+          },
+          options.rateLimitKey
+        );
         if (limit.reason === "not_configured") {
           throw new Error(
             "Audits are unavailable until production rate limiting is configured."
@@ -154,9 +173,19 @@ export function createMcplintMcpServer(options: McplintMcpServerOptions): McpSer
         throw new Error("Rate limit reached. Try again shortly.");
       }
 
-      // runLint captures only tools/list for URL inputs. The snapshot is held
-      // for this invocation and deliberately never passed to the report store.
-      const { report } = await runLint(request);
+      let report;
+      try {
+        // runLint captures only tools/list for URL inputs. The snapshot is held
+        // for this invocation and deliberately never passed to the report store.
+        ({ report } = await runLint(request));
+      } catch (error) {
+        const status =
+          error instanceof LintError ? (error.kind === "too_large" ? 413 : 422) : 500;
+        trackServer("lint_failed", { ...analytics, status }, options.rateLimitKey);
+        throw error;
+      }
+
+      trackServer("lint_succeeded", analytics, options.rateLimitKey);
       const output: CheckMcpServerOutput = {
         staticAnalysis: true,
         targetToolsInvoked: false,
