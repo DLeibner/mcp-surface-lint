@@ -65,6 +65,23 @@ describe("/api/mcp", () => {
         targetToolsInvoked: false,
         stats: { toolCount: 1 }
       });
+      const text = Array.isArray(called.content)
+        ? called.content
+            .filter(
+              (part): part is { type: "text"; text: string } =>
+                typeof part === "object" &&
+                part !== null &&
+                "type" in part &&
+                part.type === "text" &&
+                "text" in part &&
+                typeof part.text === "string"
+            )
+            .map((part) => part.text)
+            .join("\n")
+        : "";
+      expect(text).toMatch(/Static audit complete:/);
+      expect(text).toMatch(/# mcplint report/);
+      expect(text).toMatch(/Composite score:/);
       expect(trackServer).toHaveBeenCalledWith(
         "lint_started",
         expect.objectContaining({
@@ -200,6 +217,7 @@ describe("/api/mcp", () => {
     expect(response.status).toBe(200);
     const result = body.result as {
       isError?: boolean;
+      content?: Array<{ type?: string; text?: string }>;
       structuredContent: Record<string, unknown>;
     };
     expect(result.isError).not.toBe(true);
@@ -238,6 +256,11 @@ describe("/api/mcp", () => {
     });
     expect(result.structuredContent).not.toHaveProperty("snapshot");
     expect(result.structuredContent).not.toHaveProperty("tools");
+    const text = result.content?.map((part) => part.text ?? "").join("\n") ?? "";
+    expect(text).toMatch(/Static audit complete:/);
+    expect(text).toMatch(/# mcplint report — test-server/);
+    expect(text).toMatch(/\| Category \| Score \|/);
+    expect(text).toMatch(/Composite score:/);
   });
 
   it("requires exactly one input source", async () => {

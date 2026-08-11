@@ -1,5 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { Scorer, countFindings } from "mcp-surface-lint";
+import { MdReporter, Scorer, countFindings } from "mcp-surface-lint";
 import { z } from "zod";
 import { mcpAuditMode, trackServer } from "./analytics-server";
 import { checkRateLimit } from "./rate-limit";
@@ -203,13 +203,17 @@ export function createMcplintMcpServer(options: McplintMcpServerOptions): McpSer
         findings: report.findings
       };
 
+      // Agents typically read content[].text; structuredContent alone looks truncated.
+      const summary =
+        `Static audit complete: ${output.grade} (${output.scores.composite}/100) across ` +
+        `${output.stats.toolCount} tools (${output.stats.approxTokens} approximate tokens).\n\n` +
+        new MdReporter().render(report);
+
       return {
         content: [
           {
             type: "text",
-            text:
-              `Static audit complete: ${output.grade} (${output.scores.composite}/100) across ` +
-              `${output.stats.toolCount} tools (${output.stats.approxTokens} approximate tokens).`
+            text: summary
           }
         ],
         structuredContent: output
