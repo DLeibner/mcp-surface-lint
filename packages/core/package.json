@@ -1,6 +1,6 @@
 {
   "name": "mcp-surface-lint",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Lighthouse for MCP servers — static, design-level linting for MCP tool surfaces",
   "license": "MIT",
   "type": "module",
