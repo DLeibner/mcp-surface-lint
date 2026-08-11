@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Analytics } from "@/components/Analytics";
+import { ExternalLinkIcon } from "@/components/ExternalLinkIcon";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,8 +23,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <nav className="nav">
               <Link href="/install">Install</Link>
               <Link href="/rules">Rules</Link>
-              <a href="https://modelcontextprotocol.io" target="_blank" rel="noreferrer">
+              <a
+                className="nav-external"
+                href="https://modelcontextprotocol.io"
+                target="_blank"
+                rel="noreferrer"
+              >
                 MCP
+                <ExternalLinkIcon />
+                <span className="visually-hidden"> (opens in new tab)</span>
               </a>
             </nav>
           </header>
