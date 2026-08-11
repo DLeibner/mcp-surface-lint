@@ -85,7 +85,11 @@ const checkMcpServerInputSchema = z.object({
   snapshot: z
     .unknown()
     .optional()
-    .describe("A tools/list JSON response or mcplint snapshot containing a tools array.")
+    .describe(
+      "A tools/list JSON response, mcplint snapshot, or client tool dump containing a tools array. " +
+        "Each tool needs `name`, or the Cursor-style `tool` alias. Forward another installed " +
+        "server's complete tool definitions here — do not invent schemas."
+    )
 });
 
 function validateCheckMcpServerInput(
@@ -126,9 +130,10 @@ export function createMcplintMcpServer(options: McplintMcpServerOptions): McpSer
       description:
         "Statically audit an MCP tool surface from a public HTTPS URL or tools/list snapshot. " +
         "Returns deterministic scores and findings without invoking any target tool or making LLM calls. " +
-        "When the user asks to check another installed MCP server, forward that server's complete " +
-        "tool definitions from client context as snapshot. If those definitions are unavailable, " +
-        "ask the user for its public endpoint or tools/list JSON instead of inventing an audit.",
+        "When the user asks to check another installed MCP server, read that server's complete tool " +
+        "definitions from client context and pass them as snapshot (MCP `name` or Cursor-style `tool` " +
+        "both work; do not use file paths or $ref). If those definitions are unavailable, ask the " +
+        "user for its public endpoint or tools/list JSON instead of inventing an audit.",
       inputSchema: checkMcpServerInputSchema,
       outputSchema: checkMcpServerOutputSchema,
       annotations: {

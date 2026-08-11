@@ -76,8 +76,10 @@ and [`packages/core/docs/rules.md`](packages/core/docs/rules.md) for the rule ca
 
 The web app also serves a stateless Streamable HTTP MCP endpoint at `/api/mcp`. It exposes one
 read-only tool, `check_mcp_server`, which accepts either a public HTTPS MCP URL (plus optional
-headers) or an inline `tools/list` snapshot. The result includes structured composite/category
-scores, footprint stats, and findings.
+headers) or an inline `tools/list` snapshot. To audit another MCP server already installed in the
+client, agents should forward that server's tool definitions as `snapshot` (MCP `name` or
+Cursor-style `tool` on each entry). The result includes structured composite/category scores,
+footprint stats, and findings.
 
 Each protocol request gets a fresh MCP server and transport. Tool inputs and captured schemas are
 not written to the report store. See `/install` in the running web app for current Cursor, VS Code,

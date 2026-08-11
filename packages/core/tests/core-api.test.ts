@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { ZodError } from "zod";
-import { SnapshotLoader } from "../src/ingest/index.js";
+import {
+  SnapshotLoader,
+  SnapshotValidationError
+} from "../src/ingest/index.js";
 import { Scorer } from "../src/scoring.js";
 import { projectReport, countFindings } from "../src/project.js";
 import { LintEngine } from "../src/engine.js";
@@ -23,16 +25,56 @@ describe("SnapshotLoader.fromJson", () => {
     expect(snapshot.source).toBe("file");
   });
 
+  it("accepts Cursor-style dumps that use tools[].tool instead of name", () => {
+    const snapshot = SnapshotLoader.fromJson({
+      mode: "server",
+      server: "user-playwright",
+      tools: [
+        {
+          tool: "browser_navigate",
+          description: "Navigate to a URL",
+          inputSchema: {
+            type: "object",
+            properties: { url: { type: "string" } },
+            required: ["url"]
+          }
+        }
+      ]
+    });
+    expect(snapshot.tools).toEqual([
+      expect.objectContaining({
+        name: "browser_navigate",
+        description: "Navigate to a URL"
+      })
+    ]);
+    expect(snapshot.tools[0]).not.toHaveProperty("tool");
+  });
+
+  it("prefers name when both name and tool are present", () => {
+    const snapshot = SnapshotLoader.fromJson({
+      tools: [{ name: "canonical", tool: "alias", description: "Keep the MCP name." }]
+    });
+    expect(snapshot.tools[0]?.name).toBe("canonical");
+  });
+
   it("stamps capturedAt when the dump omits it, and honours the source override", () => {
     const snapshot = SnapshotLoader.fromJson({ tools: [] }, "http");
     expect(snapshot.source).toBe("http");
     expect(Date.parse(snapshot.capturedAt)).not.toBeNaN();
   });
 
-  it("rejects malformed input", () => {
-    expect(() => SnapshotLoader.fromJson({ tools: "nope" })).toThrow(ZodError);
-    expect(() => SnapshotLoader.fromJson({ tools: [{ description: "no name" }] })).toThrow(ZodError);
-    expect(() => SnapshotLoader.fromJson(null)).toThrow(ZodError);
+  it("rejects malformed input with actionable messages", () => {
+    expect(() => SnapshotLoader.fromJson({ tools: "nope" })).toThrow(SnapshotValidationError);
+    expect(() => SnapshotLoader.fromJson({ tools: "nope" })).toThrow(/tools` must be an array/);
+    expect(() => SnapshotLoader.fromJson({ tools: [{ description: "no name" }] })).toThrow(
+      /tools\[0\] is missing `name`/
+    );
+    expect(() => SnapshotLoader.fromJson({ tools: [{ description: "no name" }] })).toThrow(
+      /Cursor-style/
+    );
+    expect(() => SnapshotLoader.fromJson({ foo: 1 })).toThrow(/Missing `tools` array/);
+    expect(() => SnapshotLoader.fromJson(null)).toThrow(SnapshotValidationError);
+    expect(() => SnapshotLoader.fromJson(null)).toThrow(/got nothing/);
   });
 });
 

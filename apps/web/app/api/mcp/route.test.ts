@@ -110,6 +110,66 @@ describe("/api/mcp", () => {
     });
   });
 
+  it("accepts Cursor-style tool dumps that use tools[].tool", async () => {
+    const { response, body } = await mcpPost({
+      jsonrpc: "2.0",
+      id: 21,
+      method: "tools/call",
+      params: {
+        name: "check_mcp_server",
+        arguments: {
+          snapshot: {
+            mode: "server",
+            server: "user-example",
+            tools: [
+              {
+                tool: "search_things",
+                description: "Search things by query.",
+                inputSchema: {
+                  type: "object",
+                  properties: { query: { type: "string" } },
+                  required: ["query"]
+                }
+              }
+            ]
+          }
+        }
+      }
+    });
+
+    expect(response.status).toBe(200);
+    const result = body.result as {
+      isError?: boolean;
+      structuredContent: Record<string, unknown>;
+    };
+    expect(result.isError).not.toBe(true);
+    expect(result.structuredContent).toMatchObject({
+      staticAnalysis: true,
+      stats: { toolCount: 1 }
+    });
+  });
+
+  it("returns an actionable error for snapshots missing tool names", async () => {
+    const { body } = await mcpPost({
+      jsonrpc: "2.0",
+      id: 22,
+      method: "tools/call",
+      params: {
+        name: "check_mcp_server",
+        arguments: {
+          snapshot: {
+            tools: [{ description: "no name field" }]
+          }
+        }
+      }
+    });
+
+    expect(body.result).toMatchObject({ isError: true });
+    const result = body.result as { content?: Array<{ text?: string }> };
+    const text = result.content?.map((part) => part.text ?? "").join("\n") ?? "";
+    expect(text).toMatch(/tools\[0\] is missing `name`/);
+  });
+
   it("returns structured scores for an inline snapshot", async () => {
     const { response, body } = await mcpPost({
       jsonrpc: "2.0",

@@ -4,7 +4,13 @@ export { Scorer } from "./scoring.js";
 export { TokenCounter } from "./tokens.js";
 export { countFindings, isGated, projectReport } from "./project.js";
 export { ConfigLoader, configSchema, type McplintConfig } from "./config.js";
-export { SnapshotLoader, type IngestRequest } from "./ingest/index.js";
+export {
+  SnapshotLoader,
+  SnapshotValidationError,
+  describeSnapshotError,
+  normalizeClientToolDump,
+  type IngestRequest
+} from "./ingest/index.js";
 export { snapshotFileSchema, type SnapshotFile } from "./ingest/snapshot-schema.js";
 export {
   McpCapture,

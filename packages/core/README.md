@@ -27,7 +27,7 @@ npx mcp-surface-lint snapshot.json                      # offline: a saved tools
 npx mcp-surface-lint --stdio "…" --dump snapshot.json   # capture a snapshot, then exit
 ```
 
-Offline snapshots are first-class, not a fallback: they make CI trivial, work for private servers, and your schemas never leave the machine.
+Offline snapshots are first-class, not a fallback: they make CI trivial, work for private servers, and your schemas never leave the machine. Dumps may use MCP `tools[].name` or the Cursor-style `tools[].tool` alias — both normalize to the same snapshot.
 
 ### Options
 

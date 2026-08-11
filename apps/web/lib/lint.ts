@@ -4,6 +4,7 @@ import {
   McpCapture,
   RuleRegistry,
   SnapshotLoader,
+  SnapshotValidationError,
   type LintReport,
   type ServerSnapshot,
   type Tier
@@ -63,12 +64,13 @@ export async function buildSnapshot(request: LintRequest): Promise<ServerSnapsho
     let snapshot: ServerSnapshot;
     try {
       snapshot = SnapshotLoader.fromJson(request.snapshot, "file");
-    } catch {
-      throw new LintError(
-        "That doesn't look like a tools/list dump. Expected an object with a `tools` array, " +
-          "each entry having at least a `name`.",
-        "invalid_snapshot"
-      );
+    } catch (error) {
+      const message =
+        error instanceof SnapshotValidationError
+          ? error.message
+          : "That doesn't look like a tools/list dump. Expected an object with a `tools` array, " +
+            "each entry having at least a `name` (Cursor-style `tool` is accepted).";
+      throw new LintError(message, "invalid_snapshot");
     }
     if (snapshot.tools.length > MAX_TOOLS) {
       throw new LintError(`Snapshots are limited to ${MAX_TOOLS} tools.`, "too_large");

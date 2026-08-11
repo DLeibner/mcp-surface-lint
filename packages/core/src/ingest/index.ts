@@ -2,6 +2,17 @@ import { readFile, writeFile } from "node:fs/promises";
 import type { ServerSnapshot, ToolDef } from "../types.js";
 import { snapshotFileSchema } from "./snapshot-schema.js";
 import { McpCapture } from "./mcp-capture.js";
+import {
+  SnapshotValidationError,
+  describeSnapshotError,
+  normalizeClientToolDump
+} from "./normalize-snapshot.js";
+
+export {
+  SnapshotValidationError,
+  describeSnapshotError,
+  normalizeClientToolDump
+} from "./normalize-snapshot.js";
 
 export interface IngestRequest {
   target?: string;
@@ -23,14 +34,19 @@ export class SnapshotLoader {
    * point for callers that never touch disk (a request handler holding a pasted
    * body); `fromFile` delegates here so both paths share one validation.
    *
-   * Throws a `ZodError` on malformed input.
+   * Accepts Cursor-style dumps where each tool uses `tool` instead of `name`.
+   * Throws {@link SnapshotValidationError} on malformed input.
    */
   static fromJson(raw: unknown, source: ServerSnapshot["source"] = "file"): ServerSnapshot {
-    const parsed = snapshotFileSchema.parse(raw);
+    const normalized = normalizeClientToolDump(raw);
+    const parsed = snapshotFileSchema.safeParse(normalized);
+    if (!parsed.success) {
+      throw new SnapshotValidationError(describeSnapshotError(raw, parsed.error));
+    }
     return {
-      serverInfo: parsed.serverInfo,
-      tools: parsed.tools as ToolDef[],
-      capturedAt: parsed.capturedAt ?? new Date().toISOString(),
+      serverInfo: parsed.data.serverInfo,
+      tools: parsed.data.tools as ToolDef[],
+      capturedAt: parsed.data.capturedAt ?? new Date().toISOString(),
       source
     };
   }

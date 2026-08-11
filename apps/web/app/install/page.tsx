@@ -30,9 +30,12 @@ export default function InstallPage() {
         <p className="hint">Installed-server workflow</p>
         <code>Check my installed Grafana MCP server using the MCPLint tool.</code>
         <p className="hint">
-          If your client exposes Grafana&apos;s complete tool definitions to the agent, it can forward
-          them to mcplint as a snapshot. Otherwise the agent must ask you for Grafana&apos;s public
-          endpoint or a <code>tools/list</code> JSON export. MCPLint never guesses missing schemas.
+          If your client exposes Grafana&apos;s complete tool definitions to the agent, it should
+          forward them inline as <code>check_mcp_server</code>&apos;s <code>snapshot</code> argument
+          — a <code>tools</code> array with MCP <code>name</code> or Cursor-style <code>tool</code> on
+          each entry. File paths and <code>$ref</code> are not supported. Otherwise the agent must ask
+          you for Grafana&apos;s public endpoint or a <code>tools/list</code> JSON export. MCPLint never
+          guesses missing schemas.
         </p>
       </div>
       <div className="use-case-grid">
