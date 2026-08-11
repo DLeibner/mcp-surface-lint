@@ -73,7 +73,7 @@ Configure the Vercel project:
 - Node.js: 24
 - Install Command: `cd ../.. && npm ci`
 - Build Command:
-  `cd ../.. && npm run build -w mcp-surface-lint && npm run build -w @mcplint/web`
+  `cd ../.. && npm run build -w mcp-surface-lint && npm run build -w mcp-surface-lint-web`
 - Output Directory: `.next`
 
 Configure these Vercel **Production** environment variables:
@@ -94,7 +94,7 @@ Create the Neon database and apply the checked-in schema once:
 
 ```bash
 export DATABASE_URL='the Neon connection string'
-npm run db:migrate -w @mcplint/web
+npm run db:migrate -w mcp-surface-lint-web
 ```
 
 Create Upstash Redis and generate independent secrets:
@@ -179,7 +179,7 @@ git status --short
 
 ### Default: bump every package and tag
 
-One command bumps the root, syncs `mcp-surface-lint` and `@mcplint/web` to the same version, creates the
+One command bumps the root, syncs `mcp-surface-lint` and `mcp-surface-lint-web` to the same version, creates the
 version commit, tags, and pushes — triggering `.github/workflows/release.yml`:
 
 ```bash
@@ -212,9 +212,9 @@ The release tag still follows the root version, deploy always runs, and npm/Regi
 skipped automatically when `packages/core` was not bumped:
 
 ```bash
-npm version patch -w @mcplint/web --include-workspace-root --ignore-scripts
+npm version patch -w mcp-surface-lint-web --include-workspace-root --ignore-scripts
 # or: npm version patch -w mcp-surface-lint --include-workspace-root --ignore-scripts
-# or: npm version minor|major -w @mcplint/web|mcp-surface-lint --include-workspace-root --ignore-scripts
+# or: npm version minor|major -w mcp-surface-lint-web|mcp-surface-lint --include-workspace-root --ignore-scripts
 git add package.json apps/*/package.json packages/*/package.json package-lock.json
 git commit -m "$(node -p \"require('./package.json').version\")"
 git tag "$(node -p \"require('./package.json').version\")"

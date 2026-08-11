@@ -65,11 +65,11 @@ jobs:
 
       - name: Install browser
         if: steps.release.outputs.skip != 'true'
-        run: npm exec -w @mcplint/web -- playwright install --with-deps chromium
+        run: npm exec -w mcp-surface-lint-web -- playwright install --with-deps chromium
 
       - name: Browser smoke tests
         if: steps.release.outputs.skip != 'true'
-        run: npm run test:e2e -w @mcplint/web
+        run: npm run test:e2e -w mcp-surface-lint-web
 
       - name: Build
         if: steps.release.outputs.skip != 'true'

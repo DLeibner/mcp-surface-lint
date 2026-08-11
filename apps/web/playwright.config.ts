@@ -17,7 +17,7 @@ export default defineConfig({
     }
   ],
   webServer: {
-    command: "npm run dev -w @mcplint/web -- --hostname 127.0.0.1",
+    command: "npm run dev -w mcp-surface-lint-web -- --hostname 127.0.0.1",
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000

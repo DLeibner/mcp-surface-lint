@@ -69,10 +69,10 @@ jobs:
         run: npm test
 
       - name: Install Chromium
-        run: npm exec -w @mcplint/web -- playwright install --with-deps chromium
+        run: npm exec -w mcp-surface-lint-web -- playwright install --with-deps chromium
 
       - name: Run Chromium browser tests
-        run: npm exec -w @mcplint/web -- playwright test --project=chromium
+        run: npm exec -w mcp-surface-lint-web -- playwright test --project=chromium
 
       - name: Build production artifacts
         run: npm run build

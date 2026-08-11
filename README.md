@@ -7,7 +7,7 @@ This is a monorepo:
 | Package | What it is |
 | --- | --- |
 | [`packages/core`](packages/core) | The linter — 19 rules, the scoring engine, and the `mcplint` CLI (`mcp-surface-lint` on npm). Publishable to npm. |
-| [`apps/web`](apps/web) | The hosted playground: paste a `tools/list` dump or point it at a remote MCP URL, get a score and an audit. |
+| [`apps/web`](apps/web) | The hosted playground (`mcp-surface-lint-web`): paste a `tools/list` dump or point it at a remote MCP URL, get a score and an audit. |
 
 ## Quick start
 
@@ -36,7 +36,7 @@ npm version patch
 ```
 
 That bumps the root version, runs `preversion` (`npm run typecheck`), then the `version` lifecycle
-syncs `mcp-surface-lint` and `@mcplint/web` to the same semver, stages workspace `package.json` files and
+syncs `mcp-surface-lint` and `mcp-surface-lint-web` to the same semver, stages workspace `package.json` files and
 `package-lock.json`, commits, and tags. `postversion` pushes the branch and tags to `origin`.
 
 ### Advanced: bump one workspace only
@@ -45,7 +45,7 @@ When only the web app or CLI changed, you may want a partial bump. The default `
 **all** workspaces to the root version, so partial bumps need `--ignore-scripts` and manual staging:
 
 ```bash
-npm version patch -w @mcplint/web --include-workspace-root --ignore-scripts
+npm version patch -w mcp-surface-lint-web --include-workspace-root --ignore-scripts
 # or: npm version patch -w mcp-surface-lint --include-workspace-root --ignore-scripts
 git add package.json apps/*/package.json packages/*/package.json package-lock.json
 git commit -m "$(node -p \"require('./package.json').version\")"
