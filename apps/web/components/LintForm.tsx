@@ -181,7 +181,7 @@ export function LintForm() {
             >
               Load sample
             </button>
-            <Link className="ghost button-link" href={EXAMPLE_REPORT_PATH}>
+            <Link className="ghost" href={EXAMPLE_REPORT_PATH}>
               See example report
             </Link>
             {pasted && (
