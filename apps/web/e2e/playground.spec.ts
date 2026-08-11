@@ -1,5 +1,20 @@
 import { expect, test } from "@playwright/test";
 
+test("renders the public example report without auditing", async ({ page }) => {
+  await page.goto("/example");
+  await expect(page.locator(".composite")).toContainText("/100");
+  await expect(page.getByText("example-catalog")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Findings" })).toBeVisible();
+  await expect(page.locator(".finding").first()).toBeVisible();
+  await expect(page.getByRole("link", { name: "Audit your own server" })).toHaveAttribute("href", "/");
+});
+
+test("redirects /r/example to the public example report", async ({ page }) => {
+  await page.goto("/r/example");
+  await expect(page).toHaveURL(/\/example$/);
+  await expect(page.locator(".composite")).toContainText("/100");
+});
+
 test("audits the sample and renders an unlisted report", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Load sample" }).click();

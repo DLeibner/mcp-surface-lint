@@ -1,0 +1,345 @@
+{
+  "serverInfo": {
+    "name": "example-catalog",
+    "version": "1.0.0"
+  },
+  "capturedAt": "2026-07-13T00:00:00.000Z",
+  "source": "file",
+  "tools": [
+    {
+      "name": "search_widgets",
+      "description": "IMPORTANT: RENDER RESULTS IMMEDIATELY. Always display the map widget and format every widget link as markdown. Do not call get_widget after this tool returns. Search the widget catalog by structured filters.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "Free-text filter applied to widget names."
+          },
+          "sort": {
+            "type": "string",
+            "description": "Sort order. One of: relevance, price, rating."
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of results to return."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "search_widgets_by_text",
+      "description": "IMPORTANT: RENDER RESULTS IMMEDIATELY. Always display the map widget and format every widget link as markdown. Do not call get_widget after this tool returns. Search the widget catalog with a natural language query.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Natural language description of the widgets to find."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "search_widgets_nearby",
+      "description": "IMPORTANT: RENDER RESULTS IMMEDIATELY. Always display the map widget and format every widget link as markdown. Do not call get_widget after this tool returns. Search the widget catalog around a coordinate.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "lat": {
+            "type": "number",
+            "description": "Latitude of the search center."
+          },
+          "lon": {
+            "type": "number",
+            "description": "Longitude of the search center."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_widget",
+      "description": "Get full details for a single widget. Only call when the user explicitly asks for details about a specific widget. Do not call speculatively; each call consumes trial quota.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "widget_id": {
+            "type": "string",
+            "description": "Identifier of the widget to fetch."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_widget_images",
+      "description": "Get the image gallery for a single widget from the widget catalog with captions and thumbnails included.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "widget_id": {
+            "type": "string",
+            "description": "Identifier of the widget whose images to fetch."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_widget_reviews",
+      "description": "Get the review feed for a single widget from the widget catalog with ratings and review text included.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "widget_id": {
+            "type": "string",
+            "description": "Identifier of the widget whose reviews to fetch."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "create_record",
+      "description": "Create a new record attached to a widget.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "widget_id": {
+            "type": "string",
+            "description": "Widget the record belongs to."
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_record",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "widgetId": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "update_record",
+      "description": "Update.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "description": "Record to update."
+          },
+          "name": {
+            "type": "string",
+            "description": "New name for the record."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "delete_record",
+      "description": "Delete a record permanently from the system.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "description": "Record to delete."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "create_entry",
+      "description": "Create a new entry inside an existing record.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "description": "Record to add the entry to."
+          },
+          "value": {
+            "type": "string",
+            "description": "Entry payload."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "get_entry",
+      "description": "Get a single entry by its identifier.",
+      "inputSchema": {
+        "type": "object"
+      }
+    },
+    {
+      "name": "update_entry",
+      "description": "Update an entry with a full replacement payload.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entry": {
+            "type": "object",
+            "description": "Replacement entry.",
+            "properties": {
+              "metadata": {
+                "type": "object",
+                "description": "Entry metadata.",
+                "properties": {
+                  "details": {
+                    "type": "object",
+                    "description": "Detailed attributes.",
+                    "properties": {
+                      "value": {
+                        "type": "string",
+                        "description": "Innermost value."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "delete_entry",
+      "description": "Delete an entry permanently from its record.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "entry_id": {
+            "type": "string",
+            "description": "Entry to delete."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_records",
+      "description": "Returns a list of records matching the given identifiers.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "list_entries",
+      "description": "Returns a list of entries for a record.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "record_id": {
+            "type": "string",
+            "description": "Record whose entries to list."
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    {
+      "name": "exportData",
+      "description": "Export all records and entries as a downloadable archive file.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "description": "Archive format, for example zip or tar."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "fetchAllItems",
+      "description": "Fetch items.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "description": "Kind of item to fetch."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "do_thing",
+      "description": "This tool performs a thing. It is extremely configurable and this description explains every option inline instead of moving detail into parameter descriptions where it belongs. This tool performs a thing. It is extremely configurable and this description explains every option inline instead of moving detail into parameter descriptions where it belongs. This tool performs a thing. It is extremely configurable and this description explains every option inline instead of moving detail into parameter descriptions where it belongs. This tool performs a thing. It is extremely configurable and this description explains every option inline instead of moving detail into parameter descriptions where it belongs. This tool performs a thing. It is extremely configurable and this description explains every option inline instead of moving detail into parameter descriptions where it belongs. This tool performs a thing. It is extremely configurable and this description explains every option inline instead of moving detail into parameter descriptions where it belongs. This tool performs a thing. It is extremely configurable and this description explains every option inline instead of moving detail into parameter descriptions where it belongs. This tool performs a thing. It is extremely configurable and this description explains every option inline instead of moving detail into parameter descriptions where it belongs. This tool performs a thing. It is extremely configurable and this description explains every option inline instead of moving detail into parameter descriptions where it belongs.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "description": "Execution mode."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "shared_enum_a",
+      "description": "Apply a tier to product family A.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tier": {
+            "type": "string",
+            "enum": [
+              "basic",
+              "pro",
+              "max"
+            ],
+            "description": "Tier to apply."
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    {
+      "name": "shared_enum_b",
+      "description": "Apply a tier to product family B.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tier": {
+            "type": "string",
+            "enum": [
+              "basic",
+              "pro",
+              "max"
+            ],
+            "description": "Tier to apply."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  ]
+}

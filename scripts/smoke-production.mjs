@@ -66,7 +66,7 @@ async function rpc(id, method, params) {
 }
 
 async function smoke() {
-  await Promise.all(["/", "/install", "/rules"].map(request));
+  await Promise.all(["/", "/install", "/rules", "/example"].map(request));
 
   const initialized = await rpc(1, "initialize", {
     protocolVersion: "2025-06-18",

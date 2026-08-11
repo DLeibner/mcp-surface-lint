@@ -1,8 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { track } from "@/lib/analytics";
+import { EXAMPLE_REPORT_PATH } from "@/lib/example-report-path";
 
 type Mode = "paste" | "url";
 
@@ -179,6 +181,9 @@ export function LintForm() {
             >
               Load sample
             </button>
+            <Link className="ghost button-link" href={EXAMPLE_REPORT_PATH}>
+              See example report
+            </Link>
             {pasted && (
               <button className="ghost" type="button" onClick={() => setPasted("")}>
                 Clear

@@ -1,5 +1,7 @@
 import { LintForm } from "@/components/LintForm";
 import { CliDocsAnalytics } from "@/components/CliDocsAnalytics";
+import Link from "next/link";
+import { EXAMPLE_REPORT_PATH } from "@/lib/example-report-path";
 
 export default function HomePage() {
   return (
@@ -13,6 +15,12 @@ export default function HomePage() {
       </p>
 
       <LintForm />
+
+      <p className="lede">
+        New here?{" "}
+        <Link href={EXAMPLE_REPORT_PATH}>Open the public example report</Link> — full scores and
+        findings, no paste required.
+      </p>
 
       <h2>What it checks</h2>
       <p className="lede">

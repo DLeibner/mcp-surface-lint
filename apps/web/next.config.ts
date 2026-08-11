@@ -18,6 +18,9 @@ const config: NextConfig = {
   outputFileTracingRoot: path.resolve(appRoot, "../.."),
   env: {
     MCPLINT_DOCS_BASE: `${siteOrigin.replace(/\/$/, "")}/rules`
+  },
+  async redirects() {
+    return [{ source: "/r/example", destination: "/example", permanent: true }];
   }
 };
 

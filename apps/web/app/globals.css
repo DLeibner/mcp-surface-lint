@@ -295,12 +295,17 @@ button.ghost:hover {
 }
 
 .cta-panel,
-.config-head {
+.config-head,
+.example-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+.example-banner {
+  margin-bottom: 1.5rem;
 }
 
 .cta-panel strong {
