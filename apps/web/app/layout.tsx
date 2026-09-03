@@ -7,8 +7,10 @@ import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  // `metadataBase` resolves every relative canonical and OG URL against the
-  // apex host, so nothing ever emits a vercel.app or legacy-subdomain URL.
+  // `metadataBase` resolves every relative canonical and OG URL against one
+  // origin. That origin must be the apex in production: with
+  // NEXT_PUBLIC_SITE_URL unset, `siteUrl()` falls back to the deployment host
+  // — correct for previews, wrong for production — and warns when it does.
   metadataBase: new URL(siteUrl()),
   title: `${SITE_NAME} — audit your MCP server's tool surface`,
   description:
