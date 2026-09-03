@@ -1,8 +1,12 @@
+import { existsSync, readdirSync, readFileSync } from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { parse } from "yaml";
 import { Docs, RuleRegistry } from "mcp-surface-lint";
 import sitemap from "@/app/sitemap";
 import robots from "@/app/robots";
 import { loadCatalog, relatedServers, resolveRedirect } from "./catalog";
+import { dataRoot } from "./data";
 import { indexablePages, indexableServers, serverIndexability } from "./indexing";
 import { MIN_PROSE_WORDS, buildProse } from "./prose";
 import { serverDescription, serverTitle } from "./seo-copy";
@@ -30,6 +34,31 @@ describe("seed data", () => {
   it("never redirects a slug that is still live", () => {
     for (const { seed } of catalog.entries) {
       expect(resolveRedirect(seed.slug), seed.slug).toBeUndefined();
+    }
+  });
+});
+
+describe("data hygiene", () => {
+  it("has no result directory without a matching seed", () => {
+    // A parked or renamed server leaves its results behind otherwise, and stale
+    // data that nothing renders is data nobody notices is wrong.
+    const dir = path.join(dataRoot(), "results");
+    const stored = existsSync(dir)
+      ? readdirSync(dir, { withFileTypes: true })
+          .filter((e) => e.isDirectory())
+          .map((e) => e.name)
+      : [];
+    const seeded = new Set(catalog.entries.map((e) => e.seed.slug));
+    expect(stored.filter((slug) => !seeded.has(slug))).toEqual([]);
+  });
+
+  it("keeps the live seed and the parked seed disjoint", () => {
+    const parked = parse(
+      readFileSync(path.join(dataRoot(), "seeds/pending.yaml"), "utf8")
+    ) as { slug: string }[];
+    const live = new Set(catalog.entries.map((e) => e.seed.slug));
+    for (const entry of parked) {
+      expect(live.has(entry.slug), `${entry.slug} is in both seed files`).toBe(false);
     }
   });
 });

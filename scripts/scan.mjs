@@ -13,6 +13,7 @@
  *   node scripts/scan.mjs --slug github   # one seed
  *   node scripts/scan.mjs --concurrency 4
  *   node scripts/scan.mjs --skip-stdio    # HTTP only, spawns nothing
+ *   node scripts/scan.mjs --pending       # retry the parked servers, write nothing
  *
  * `--skip-stdio` exists because a stdio scan executes third-party packages.
  * That belongs in CI's throwaway container, not on a workstation.
@@ -50,11 +51,12 @@ const ENGINE_VERSION = JSON.parse(
 ).version;
 
 function parseArgs(argv) {
-  const args = { slug: undefined, concurrency: 4, skipStdio: false };
+  const args = { slug: undefined, concurrency: 4, skipStdio: false, pending: false };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--slug") args.slug = argv[++i];
     else if (argv[i] === "--concurrency") args.concurrency = Number(argv[++i]);
     else if (argv[i] === "--skip-stdio") args.skipStdio = true;
+    else if (argv[i] === "--pending") args.pending = true;
   }
   if (!Number.isInteger(args.concurrency) || args.concurrency < 1) {
     throw new Error("--concurrency must be a positive integer.");
@@ -340,8 +342,42 @@ async function mapWithConcurrency(items, limit, fn) {
   return out;
 }
 
+/**
+ * Dry run over data/seeds/pending.yaml: attempt each parked server and report
+ * what would now succeed, without writing a result. Parking a server should not
+ * mean forgetting it, and this is the loop that closes — a server that opens up
+ * its `tools/list` is a cut and paste back into servers.yaml.
+ */
+async function retryPending(args) {
+  const seeds = parse(await readFile(path.join(DATA, "seeds/pending.yaml"), "utf8"));
+  const targets = args.slug ? seeds.filter((s) => s.slug === args.slug) : seeds;
+  if (targets.length === 0) throw new Error(`No pending seed matches --slug ${args.slug}`);
+
+  const promoted = [];
+  await mapWithConcurrency(targets, args.concurrency, async (seed) => {
+    try {
+      const snapshot = await capture(seed);
+      if (!snapshot) throw new Error("no snapshot");
+      promoted.push(seed.slug);
+      console.log(`SCANNABLE     ${seed.slug.padEnd(20)} ${snapshot.tools.length} tools`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log(`still blocked  ${seed.slug.padEnd(20)} ${message.split("\n")[0].slice(0, 100)}`);
+    }
+  });
+
+  console.log(
+    promoted.length === 0
+      ? "\nNothing has opened up. Nothing written."
+      : `\n${promoted.length} now scannable: ${promoted.join(", ")}` +
+          "\nMove them from data/seeds/pending.yaml into data/seeds/servers.yaml and re-scan."
+  );
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
+  if (args.pending) return retryPending(args);
+
   const seeds = parse(await readFile(path.join(DATA, "seeds/servers.yaml"), "utf8"));
   const targets = args.slug ? seeds.filter((s) => s.slug === args.slug) : seeds;
   if (targets.length === 0) throw new Error(`No seed matches --slug ${args.slug}`);

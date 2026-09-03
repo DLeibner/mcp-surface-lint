@@ -21,41 +21,7 @@
 # credential, and no deployment secrets, and hands its results to a separate
 # job across an artifact boundary.
 
-# --- developer-tools --------------------------------------------------------
-
-- slug: github
-  name: GitHub
-  vendor: GitHub
-  category: developer-tools
-  official_url: https://github.com/github/github-mcp-server
-  repo_url: https://github.com/github/github-mcp-server
-  docs_url: https://docs.github.com/en/copilot/customizing-copilot/using-model-context-protocol
-  transport: remote
-  endpoint: https://api.githubcopilot.com/mcp/
-  auth: oauth
-  stdio_command: null
-  stdio_env: {}
-  snapshot_override: null
-  description: "Official GitHub MCP server for repositories, issues, pull requests and Actions."
-  tags: [official, git, code-review]
-
-- slug: gitlab
-  name: GitLab
-  vendor: GitLab
-  category: developer-tools
-  official_url: https://github.com/modelcontextprotocol/servers/tree/main/src/gitlab
-  repo_url: https://github.com/modelcontextprotocol/servers
-  docs_url: https://docs.gitlab.com/ee/user/gitlab_duo/
-  transport: stdio
-  endpoint: null
-  auth: apikey
-  stdio_command: "npx -y @modelcontextprotocol/server-gitlab"
-  stdio_env:
-    GITLAB_PERSONAL_ACCESS_TOKEN: "dummy"
-    GITLAB_API_URL: "https://gitlab.com/api/v4"
-  snapshot_override: null
-  description: "Reference GitLab MCP server covering projects, issues and merge requests."
-  tags: [git, code-review]
+# --- developer-tools -----------------------------------------------------------
 
 - slug: playwright
   name: Playwright
@@ -88,22 +54,6 @@
   snapshot_override: null
   description: "Drives a real Chrome instance for performance traces, DOM inspection and network capture."
   tags: [official, browser, debugging]
-
-- slug: sentry
-  name: Sentry
-  vendor: Sentry
-  category: developer-tools
-  official_url: https://github.com/getsentry/sentry-mcp
-  repo_url: https://github.com/getsentry/sentry-mcp
-  docs_url: https://docs.sentry.io/product/sentry-mcp/
-  transport: remote
-  endpoint: https://mcp.sentry.dev/mcp
-  auth: oauth
-  stdio_command: null
-  stdio_env: {}
-  snapshot_override: null
-  description: "Official Sentry server for issues, releases and error triage from an agent."
-  tags: [official, errors]
 
 - slug: context7
   name: Context7
@@ -153,7 +103,7 @@
   description: "The reference filesystem server: sandboxed read, write and directory traversal."
   tags: [reference, official]
 
-# --- data-and-databases -----------------------------------------------------
+# --- data-and-databases --------------------------------------------------------
 
 - slug: postgres
   name: PostgreSQL
@@ -169,22 +119,6 @@
   stdio_env: {}
   snapshot_override: null
   description: "Reference read-only Postgres server exposing schema inspection and queries."
-  tags: [reference, sql]
-
-- slug: sqlite
-  name: SQLite
-  vendor: Model Context Protocol
-  category: data-and-databases
-  official_url: https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite
-  repo_url: https://github.com/modelcontextprotocol/servers
-  docs_url: https://modelcontextprotocol.io/examples
-  transport: stdio
-  endpoint: null
-  auth: none
-  stdio_command: "uvx mcp-server-sqlite --db-path /tmp/mcp-surface-lint-scan.db"
-  stdio_env: {}
-  snapshot_override: null
-  description: "Reference SQLite server with query, schema and lightweight analysis tools."
   tags: [reference, sql]
 
 - slug: mongodb
@@ -221,7 +155,7 @@
   description: "Official Supabase server for database, storage, edge functions and project config."
   tags: [official, postgres, backend]
 
-# --- cloud-and-infrastructure -----------------------------------------------
+# --- cloud-and-infrastructure --------------------------------------------------
 
 - slug: cloudflare-docs
   name: Cloudflare Docs
@@ -239,73 +173,7 @@
   description: "Cloudflare's public documentation server — the unauthenticated half of their MCP fleet."
   tags: [official, docs, public]
 
-- slug: neon
-  name: Neon
-  vendor: Neon
-  category: cloud-and-infrastructure
-  official_url: https://github.com/neondatabase-labs/mcp-server-neon
-  repo_url: https://github.com/neondatabase-labs/mcp-server-neon
-  docs_url: https://neon.com/docs/ai/neon-mcp-server
-  transport: remote
-  endpoint: https://mcp.neon.tech/mcp
-  auth: oauth
-  stdio_command: null
-  stdio_env: {}
-  snapshot_override: null
-  description: "Official Neon server for serverless Postgres projects, branches and migrations."
-  tags: [official, postgres]
-
-- slug: vercel
-  name: Vercel
-  vendor: Vercel
-  category: cloud-and-infrastructure
-  official_url: https://vercel.com/docs/mcp/vercel-mcp
-  repo_url: null
-  docs_url: https://vercel.com/docs/mcp/vercel-mcp
-  transport: remote
-  endpoint: https://mcp.vercel.com
-  auth: oauth
-  stdio_command: null
-  stdio_env: {}
-  snapshot_override: null
-  description: "Official Vercel server for projects, deployments and build log inspection."
-  tags: [official, hosting]
-
-# --- project-management -----------------------------------------------------
-
-- slug: linear
-  name: Linear
-  vendor: Linear
-  category: project-management
-  official_url: https://linear.app/docs/mcp
-  repo_url: null
-  docs_url: https://linear.app/docs/mcp
-  transport: remote
-  endpoint: https://mcp.linear.app/mcp
-  auth: oauth
-  stdio_command: null
-  stdio_env: {}
-  snapshot_override: null
-  description: "Official Linear server for issues, projects, cycles and comments."
-  tags: [official, issues]
-
-- slug: atlassian
-  name: Atlassian
-  vendor: Atlassian
-  category: project-management
-  official_url: https://support.atlassian.com/rovo/docs/setting-up-ides/
-  repo_url: null
-  docs_url: https://support.atlassian.com/rovo/docs/setting-up-ides/
-  transport: remote
-  endpoint: https://mcp.atlassian.com/v1/sse
-  auth: oauth
-  stdio_command: null
-  stdio_env: {}
-  snapshot_override: null
-  description: "Official Atlassian server covering Jira issues and Confluence pages in one surface."
-  tags: [official, issues, docs]
-
-# --- communication ----------------------------------------------------------
+# --- communication -------------------------------------------------------------
 
 - slug: slack
   name: Slack
@@ -325,23 +193,7 @@
   description: "Reference Slack server for channels, messages, threads and reactions."
   tags: [reference, chat]
 
-- slug: intercom
-  name: Intercom
-  vendor: Intercom
-  category: communication
-  official_url: https://developers.intercom.com/docs/guides/mcp
-  repo_url: null
-  docs_url: https://developers.intercom.com/docs/guides/mcp
-  transport: remote
-  endpoint: https://mcp.intercom.com/mcp
-  auth: oauth
-  stdio_command: null
-  stdio_env: {}
-  snapshot_override: null
-  description: "Official Intercom server for conversations, contacts and help-centre content."
-  tags: [official, support]
-
-# --- productivity-and-docs --------------------------------------------------
+# --- productivity-and-docs -----------------------------------------------------
 
 - slug: notion
   name: Notion
@@ -392,7 +244,7 @@
   description: "The reference knowledge-graph memory server: entities, relations and observations."
   tags: [reference, official]
 
-# --- search-and-browsing ----------------------------------------------------
+# --- search-and-browsing -------------------------------------------------------
 
 - slug: brave-search
   name: Brave Search
@@ -459,42 +311,7 @@
   description: "Official Hugging Face server for searching models, datasets, Spaces and papers."
   tags: [official, ml, search, public]
 
-# --- payments-and-commerce --------------------------------------------------
-
-- slug: stripe
-  name: Stripe
-  vendor: Stripe
-  category: payments-and-commerce
-  official_url: https://github.com/stripe/agent-toolkit
-  repo_url: https://github.com/stripe/agent-toolkit
-  docs_url: https://docs.stripe.com/mcp
-  # `@stripe/mcp` only proxies stdio to this endpoint; it is not a local server.
-  transport: remote
-  endpoint: https://mcp.stripe.com
-  auth: apikey
-  stdio_command: null
-  stdio_env: {}
-  snapshot_override: null
-  description: "Official Stripe server for customers, products, prices, invoices and payment links."
-  tags: [official, payments]
-
-- slug: paypal
-  name: PayPal
-  vendor: PayPal
-  category: payments-and-commerce
-  official_url: https://www.paypal.ai/
-  repo_url: null
-  docs_url: https://developer.paypal.com/tools/mcp-server/
-  transport: remote
-  endpoint: https://mcp.paypal.com/mcp
-  auth: oauth
-  stdio_command: null
-  stdio_env: {}
-  snapshot_override: null
-  description: "Official PayPal server for invoices, orders, subscriptions and disputes."
-  tags: [official, payments]
-
-# --- observability ----------------------------------------------------------
+# --- observability -------------------------------------------------------------
 
 - slug: grafana
   name: Grafana
@@ -513,21 +330,3 @@
   snapshot_override: null
   description: "Official Grafana server for dashboards, Prometheus and Loki queries, alerts and incidents."
   tags: [official, metrics, logs]
-
-# --- design -----------------------------------------------------------------
-
-- slug: figma
-  name: Figma
-  vendor: Figma
-  category: design
-  official_url: https://help.figma.com/hc/en-us/articles/32132100833559
-  repo_url: null
-  docs_url: https://help.figma.com/hc/en-us/articles/32132100833559
-  transport: remote
-  endpoint: https://mcp.figma.com/mcp
-  auth: oauth
-  stdio_command: null
-  stdio_env: {}
-  snapshot_override: null
-  description: "Official Figma server exposing design context, variables and code generation to agents."
-  tags: [official, design]

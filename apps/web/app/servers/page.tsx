@@ -47,7 +47,9 @@ export default function ServersHubPage() {
         <Link href="/rules">19 static rules</Link>: what its <code>tools/list</code> costs in tokens,
         how tightly its schemas are typed, and whether its surface is shaped around user intents or
         around REST endpoints. Nothing here calls a tool or runs an LLM.{" "}
-        {ranked.length} of {catalog.entries.length} servers have a published scan as of {year}.
+        {ranked.length === catalog.entries.length
+          ? `All ${ranked.length} carry a published scan as of ${year}.`
+          : `${ranked.length} of ${catalog.entries.length} carry a published scan as of ${year}.`}
       </p>
 
       <div className="table-scroll">

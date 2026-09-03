@@ -46,6 +46,19 @@ Results are written to `data/results/{slug}/`. A scan only rewrites a result whe
 or the engine version actually changed, so the dates on the pages — and in the sitemap — mean
 something.
 
+Servers that cannot be audited are parked in [`data/seeds/pending.yaml`](data/seeds/pending.yaml),
+which the app does not read: the directory only ever shows servers with a real surface, because a
+scorecard with no score is worse than no scorecard. Most are behind OAuth, and the scanner never
+authenticates — those need a `snapshot_override` their maintainers provide. To check whether any has
+opened up:
+
+```bash
+npm run scan -- --pending
+```
+
+That attempts each parked server and reports what would now succeed, writing nothing. Promoting one
+is a cut and paste back into `servers.yaml`.
+
 Slugs are permanent public URLs. Rename by adding an entry to
 [`data/redirects.yaml`](data/redirects.yaml), which becomes a real 301; never by editing a slug.
 
