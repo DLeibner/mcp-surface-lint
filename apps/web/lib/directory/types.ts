@@ -101,7 +101,12 @@ export const scanResultSchema = z.object({
   status: scanStatusSchema,
   /** Present only when the most recent attempt failed. */
   last_error: z.string().nullable().default(null),
-  /** ISO date of the last attempt, successful or not. */
+  /**
+   * When the attempt that produced this payload ran. A run that finds no change
+   * leaves the file alone, so this is not "the last time we looked" — it is the
+   * last time looking changed something. For a failing server it is the last
+   * failed attempt, which is what makes it worth keeping alongside `scanned_at`.
+   */
   last_attempt_at: z.string().datetime(),
   snapshot_hash: z.string().nullable(),
   server_info: z.object({ name: z.string().optional(), version: z.string().optional() }).default({}),

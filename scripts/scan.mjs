@@ -185,9 +185,28 @@ function lint(snapshot) {
   };
 }
 
+/**
+ * Everything a result says except when it was attempted.
+ *
+ * `last_attempt_at` moves on every run by definition, so comparing whole files
+ * would report all 30 servers as changed every week: the workflow's
+ * "nothing to deploy" guard would never fire and each Monday would ship a
+ * no-op deploy whose diff is nothing but timestamps.
+ */
+function contentFingerprint(result) {
+  const { last_attempt_at: _attempted, ...content } = result;
+  return JSON.stringify(content);
+}
+
 async function scanOne(seed, now, options = {}) {
   const previous = await readLatest(seed.slug);
   const attemptedAt = now.toISOString();
+
+  const settle = (outcome, result) => ({
+    outcome,
+    result,
+    changed: previous === undefined || contentFingerprint(previous) !== contentFingerprint(result)
+  });
 
   if (options.skipStdio && seed.transport === "stdio" && !seed.snapshot_override) {
     return { outcome: "skipped", result: previous ?? emptyResult(seed, attemptedAt), changed: false };
@@ -200,33 +219,25 @@ async function scanOne(seed, now, options = {}) {
     const message = error instanceof Error ? error.message : String(error);
     // Keep the last good payload. A page that went dark for one week should say
     // "last successful scan: <date>", not lose its content.
-    return {
-      outcome: "unreachable",
-      result: {
-        ...(previous ?? emptyResult(seed, attemptedAt)),
-        slug: seed.slug,
-        status: "unreachable",
-        last_error: message.slice(0, 500),
-        last_attempt_at: attemptedAt,
-        engine_version: ENGINE_VERSION
-      },
-      changed: true
-    };
+    return settle("unreachable", {
+      ...(previous ?? emptyResult(seed, attemptedAt)),
+      slug: seed.slug,
+      status: "unreachable",
+      last_error: message.slice(0, 500),
+      last_attempt_at: attemptedAt,
+      engine_version: ENGINE_VERSION
+    });
   }
 
   if (!snapshot) {
-    return {
-      outcome: "needs-snapshot",
-      result: {
-        ...(previous ?? emptyResult(seed, attemptedAt)),
-        slug: seed.slug,
-        status: "needs-snapshot",
-        last_error: `${seed.auth} authentication required; commit a snapshot_override to include this server.`,
-        last_attempt_at: attemptedAt,
-        engine_version: ENGINE_VERSION
-      },
-      changed: true
-    };
+    return settle("needs-snapshot", {
+      ...(previous ?? emptyResult(seed, attemptedAt)),
+      slug: seed.slug,
+      status: "needs-snapshot",
+      last_error: `${seed.auth} authentication required; commit a snapshot_override to include this server.`,
+      last_attempt_at: attemptedAt,
+      engine_version: ENGINE_VERSION
+    });
   }
 
   const hash = snapshotHash(snapshot.tools);
@@ -238,27 +249,19 @@ async function scanOne(seed, now, options = {}) {
   if (unchanged) {
     // Idempotence: same surface, same engine. Do not touch `scanned_at` — the
     // sitemap's lastmod is derived from it and must reflect real change.
-    return {
-      outcome: "unchanged",
-      result: { ...previous, last_attempt_at: attemptedAt, last_error: null },
-      changed: false
-    };
+    return settle("unchanged", { ...previous, last_attempt_at: attemptedAt, last_error: null });
   }
 
-  return {
-    outcome: "ok",
-    result: {
-      slug: seed.slug,
-      scanned_at: attemptedAt,
-      engine_version: ENGINE_VERSION,
-      status: "ok",
-      last_error: null,
-      last_attempt_at: attemptedAt,
-      snapshot_hash: hash,
-      ...lint(snapshot)
-    },
-    changed: true
-  };
+  return settle("ok", {
+    slug: seed.slug,
+    scanned_at: attemptedAt,
+    engine_version: ENGINE_VERSION,
+    status: "ok",
+    last_error: null,
+    last_attempt_at: attemptedAt,
+    snapshot_hash: hash,
+    ...lint(snapshot)
+  });
 }
 
 function emptyResult(seed, at) {
@@ -314,7 +317,10 @@ async function main() {
   const results = await mapWithConcurrency(targets, args.concurrency, async (seed) => {
     const started = Date.now();
     const outcome = await scanOne(seed, now, { skipStdio: args.skipStdio });
-    if (outcome.outcome !== "skipped") await write(outcome.result, outcome.outcome === "ok");
+    // An unchanged result is deliberately left untouched on disk. The record
+    // that we did look lives in the workflow run and the summary below; a file
+    // rewritten only to bump a timestamp would force a commit and a deploy.
+    if (outcome.changed) await write(outcome.result, outcome.outcome === "ok");
     const ms = Date.now() - started;
     console.log(
       `${outcome.outcome.padEnd(14)} ${seed.slug.padEnd(20)} ${String(ms).padStart(6)}ms` +
