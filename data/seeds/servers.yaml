@@ -468,10 +468,11 @@
   official_url: https://github.com/stripe/agent-toolkit
   repo_url: https://github.com/stripe/agent-toolkit
   docs_url: https://docs.stripe.com/mcp
-  transport: stdio
-  endpoint: null
+  # `@stripe/mcp` only proxies stdio to this endpoint; it is not a local server.
+  transport: remote
+  endpoint: https://mcp.stripe.com
   auth: apikey
-  stdio_command: "npx -y @stripe/mcp --tools=all --api-key=sk_test_dummy"
+  stdio_command: null
   stdio_env: {}
   snapshot_override: null
   description: "Official Stripe server for customers, products, prices, invoices and payment links."

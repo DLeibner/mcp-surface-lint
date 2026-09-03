@@ -124,9 +124,44 @@ function summariseTool(tool) {
   };
 }
 
+/** Thrown when a server declines an unauthenticated `tools/list`. */
+class AuthRequiredError extends Error {
+  constructor(detail) {
+    super(`The server requires authentication to read tools/list. ${detail}`.trim());
+    this.name = "AuthRequiredError";
+  }
+}
+
 /**
- * Snapshot acquisition, in the order set out in the plan. A committed override
- * always wins: it is the escape hatch for servers we refuse to authenticate to.
+ * Does this failure mean "you need credentials" rather than "this is broken"?
+ *
+ * The distinction decides whether a server is recorded as `needs-snapshot` (we
+ * could publish it from a snapshot its maintainers provide) or `unreachable`
+ * (something is wrong at the endpoint).
+ */
+function isAuthFailure(error) {
+  const message = (error instanceof Error ? error.message : String(error)).toLowerCase();
+  return (
+    /\b401\b|\b403\b/.test(message) ||
+    message.includes("unauthorized") ||
+    message.includes("forbidden") ||
+    message.includes("authentication") ||
+    message.includes("authorization") ||
+    message.includes("invalid_token") ||
+    message.includes("access_denied") ||
+    message.includes("www-authenticate")
+  );
+}
+
+/**
+ * Snapshot acquisition. A committed override always wins; it is the escape
+ * hatch for servers that will not talk to us at all.
+ *
+ * Remote servers are always *attempted* regardless of their declared `auth`,
+ * because most MCP servers answer `tools/list` to anyone and gate only
+ * `tools/call`. Attempting an unauthenticated read is not authenticating: no
+ * credential is ever sent, and no tool is ever invoked. A server that declines
+ * tells us so in one request, which is strictly better than assuming it would.
  */
 async function capture(seed) {
   if (seed.snapshot_override) {
@@ -144,13 +179,19 @@ async function capture(seed) {
     );
   }
 
-  if (seed.auth !== "none") return undefined; // caller records `needs-snapshot`
   if (!seed.endpoint) throw new Error("transport is remote but endpoint is null.");
-  return withTimeout(
-    McpCapture.fromHttp(seed.endpoint, LIMITS),
-    CAPTURE_TIMEOUT_MS + GRACE_MS,
-    "http capture"
-  );
+  try {
+    return await withTimeout(
+      McpCapture.fromHttp(seed.endpoint, LIMITS),
+      CAPTURE_TIMEOUT_MS + GRACE_MS,
+      "http capture"
+    );
+  } catch (error) {
+    if (isAuthFailure(error)) {
+      throw new AuthRequiredError(error instanceof Error ? error.message.slice(0, 200) : "");
+    }
+    throw error;
+  }
 }
 
 async function readLatest(slug) {
@@ -216,25 +257,17 @@ async function scanOne(seed, now, options = {}) {
   try {
     snapshot = await capture(seed);
   } catch (error) {
+    const authRequired = error instanceof AuthRequiredError;
     const message = error instanceof Error ? error.message : String(error);
-    // Keep the last good payload. A page that went dark for one week should say
-    // "last successful scan: <date>", not lose its content.
-    return settle("unreachable", {
+    // Keep the last good payload either way. A page that went dark for one week
+    // should say "last successful scan: <date>", not lose its content.
+    return settle(authRequired ? "needs-snapshot" : "unreachable", {
       ...(previous ?? emptyResult(seed, attemptedAt)),
       slug: seed.slug,
-      status: "unreachable",
-      last_error: message.slice(0, 500),
-      last_attempt_at: attemptedAt,
-      engine_version: ENGINE_VERSION
-    });
-  }
-
-  if (!snapshot) {
-    return settle("needs-snapshot", {
-      ...(previous ?? emptyResult(seed, attemptedAt)),
-      slug: seed.slug,
-      status: "needs-snapshot",
-      last_error: `${seed.auth} authentication required; commit a snapshot_override to include this server.`,
+      status: authRequired ? "needs-snapshot" : "unreachable",
+      last_error: authRequired
+        ? `${message.slice(0, 400)} Commit a snapshot_override to include this server.`
+        : message.slice(0, 500),
       last_attempt_at: attemptedAt,
       engine_version: ENGINE_VERSION
     });

@@ -1,0 +1,15 @@
+{
+  "slug": "sqlite",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "unreachable",
+  "last_error": "MCP error -32000: Connection closed",
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": null,
+  "server_info": {},
+  "score": null,
+  "token_footprint": null,
+  "tool_count": null,
+  "findings": [],
+  "tools": []
+}

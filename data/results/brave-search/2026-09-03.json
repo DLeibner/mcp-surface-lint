@@ -1,0 +1,202 @@
+{
+  "slug": "brave-search",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:dbe7328cab47681da91d6d69586375b4dd5a22e2ab08d8fbbc69c0233ce08778",
+  "server_info": {
+    "name": "brave-search-mcp-server",
+    "version": "2.1.3"
+  },
+  "score": {
+    "composite": 96,
+    "categories": {
+      "surface": 85,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 88,
+      "annotations": 100,
+      "design": 100
+    }
+  },
+  "token_footprint": {
+    "tokens": 25498,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 8,
+  "findings": [
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "brave_web_search",
+      "message": "Input schema has 15 top-level properties (budget 12)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "brave_web_search",
+      "message": "Input schema uses oneOf/anyOf 3 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "brave_local_search",
+      "message": "Input schema has 15 top-level properties (budget 12)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "brave_local_search",
+      "message": "Input schema uses oneOf/anyOf 3 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "brave_news_search",
+      "message": "Input schema uses oneOf/anyOf 3 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "brave_llm_context",
+      "message": "Input schema has 26 top-level properties (budget 12)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "brave_place_search",
+      "message": "Input schema has 17 top-level properties (budget 12)."
+    },
+    {
+      "rule_id": "surface/token-budget",
+      "severity": "warn",
+      "category": "surface",
+      "message": "tools/list footprint is ~25498 tokens (o200k_base, approximate) — above the 10000-token budget. Every conversation pays this before the first user message."
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [ALL, AR, AU, AT, BE, BR, CA, CL, DK, FI, FR, DE, HK, IN, ID, IT, JP, KR, MY, MX, NL, NZ, NO, CN, PL, PT, PH, RU, SA, ZA, ES, SE, CH, TW, TR, GB, US] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "brave_web_search/properties/country; brave_local_search/properties/country"
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [ar, eu, bn, bg, ca, zh-hans, zh-hant, hr, cs, da, nl, en, en-gb, et, fi, fr, gl, de, gu, he, hi, hu, is, it, jp, kn, ko, lv, lt, ms, ml, mr, nb, pl, pt-br, pt-pt, pa, ro, ru, sr, sk, sl, es, sv, ta, te, th, tr, uk, vi] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "brave_web_search/properties/search_lang; brave_local_search/properties/search_lang"
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [es-AR, en-AU, de-AT, nl-BE, fr-BE, pt-BR, en-CA, fr-CA, es-CL, da-DK, fi-FI, fr-FR, de-DE, zh-HK, en-IN, en-ID, it-IT, ja-JP, ko-KR, en-MY, es-MX, nl-NL, en-NZ, no-NO, zh-CN, pl-PL, en-PH, ru-RU, en-ZA, es-ES, sv-SE, fr-CH, de-CH, zh-TW, tr-TR, en-GB, en-US, es-US] is shared across 3 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "brave_web_search/properties/ui_lang; brave_local_search/properties/ui_lang; brave_place_search/properties/ui_lang"
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [off, moderate, strict] is shared across 3 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "brave_web_search/properties/safesearch; brave_local_search/properties/safesearch; brave_place_search/properties/safesearch"
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [ar, eu, bn, bg, ca, zh-hans, zh-hant, hr, cs, da, nl, en, en-gb, et, fi, fr, gl, de, el, gu, he, hi, hu, is, it, jp, kn, ko, lv, lt, ms, ml, mr, nb, pl, pt-br, pt-pt, pa, ro, ru, sr, sk, sl, es, sv, ta, te, th, tr, uk, vi] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "brave_llm_context/properties/search_lang; brave_place_search/properties/search_lang"
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [application/json, */*] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "brave_llm_context/properties/accept; brave_place_search/properties/accept"
+    }
+  ],
+  "tools": [
+    {
+      "name": "brave_web_search",
+      "description_length": 682,
+      "has_annotations": true,
+      "property_count": 15,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 1398
+    },
+    {
+      "name": "brave_local_search",
+      "description_length": 801,
+      "has_annotations": true,
+      "property_count": 15,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 1418
+    },
+    {
+      "name": "brave_video_search",
+      "description_length": 441,
+      "has_annotations": true,
+      "property_count": 9,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 691
+    },
+    {
+      "name": "brave_image_search",
+      "description_length": 315,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 817
+    },
+    {
+      "name": "brave_news_search",
+      "description_length": 1175,
+      "has_annotations": true,
+      "property_count": 11,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 1005
+    },
+    {
+      "name": "brave_summarizer",
+      "description_length": 903,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 309
+    },
+    {
+      "name": "brave_llm_context",
+      "description_length": 887,
+      "has_annotations": true,
+      "property_count": 26,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 2556
+    },
+    {
+      "name": "brave_place_search",
+      "description_length": 1390,
+      "has_annotations": true,
+      "property_count": 17,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 17302
+    }
+  ]
+}

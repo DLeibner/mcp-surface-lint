@@ -1,0 +1,531 @@
+{
+  "slug": "chrome-devtools",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:8b04663de778d437c0abed36ebaa192a0c95b57b753056943c5fd58a00a7f3fa",
+  "server_info": {
+    "name": "chrome_devtools",
+    "version": "1.8.0"
+  },
+  "score": {
+    "composite": 95,
+    "categories": {
+      "surface": 85,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 88,
+      "annotations": 100,
+      "design": 97
+    }
+  },
+  "token_footprint": {
+    "tokens": 5593,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 29,
+  "findings": [
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_pages",
+      "message": "\"list_pages\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "click",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "close_page",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "drag",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "emulate",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "evaluate_script",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "fill",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "fill_form",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "get_console_message",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "get_network_request",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "handle_dialog",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "hover",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "lighthouse_audit",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_console_messages",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_network_requests",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_pages",
+      "message": "Bare \"type: object\" with no properties at /inputSchema — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_pages",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "navigate_page",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "new_page",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "performance_analyze_insight",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "performance_start_trace",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "performance_stop_trace",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "press_key",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "resize_page",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "select_page",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "take_heapsnapshot",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "take_screenshot",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "take_snapshot",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "type_text",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "upload_file",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "wait_for",
+      "message": "\"additionalProperties: true\" at /inputSchema — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "surface/tool-budget",
+      "severity": "warn",
+      "category": "surface",
+      "message": "Server exposes 29 tools (warn threshold 20 exceeded). Consider consolidating into fewer intent-shaped tools."
+    },
+    {
+      "rule_id": "annotations/missing-hints",
+      "severity": "info",
+      "category": "annotations",
+      "tool_name": "upload_file",
+      "message": "Mutating tool \"upload_file\" has no title — clients show the raw name in confirmation prompts."
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [accept, dismiss] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "handle_dialog/properties/action; navigate_page/properties/handleBeforeUnload"
+    }
+  ],
+  "tools": [
+    {
+      "name": "click",
+      "description_length": 30,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 152
+    },
+    {
+      "name": "close_page",
+      "description_length": 66,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 102
+    },
+    {
+      "name": "drag",
+      "description_length": 36,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 150
+    },
+    {
+      "name": "emulate",
+      "description_length": 45,
+      "has_annotations": true,
+      "property_count": 8,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 413
+    },
+    {
+      "name": "evaluate_script",
+      "description_length": 133,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 315
+    },
+    {
+      "name": "fill",
+      "description_length": 79,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 182
+    },
+    {
+      "name": "fill_form",
+      "description_length": 318,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 3,
+      "tokens": 261
+    },
+    {
+      "name": "get_console_message",
+      "description_length": 92,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 126
+    },
+    {
+      "name": "get_network_request",
+      "description_length": 125,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 211
+    },
+    {
+      "name": "handle_dialog",
+      "description_length": 61,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 137
+    },
+    {
+      "name": "hover",
+      "description_length": 31,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 131
+    },
+    {
+      "name": "lighthouse_audit",
+      "description_length": 173,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 192
+    },
+    {
+      "name": "list_console_messages",
+      "description_length": 72,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 328
+    },
+    {
+      "name": "list_network_requests",
+      "description_length": 77,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 273
+    },
+    {
+      "name": "list_pages",
+      "description_length": 40,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 66
+    },
+    {
+      "name": "navigate_page",
+      "description_length": 85,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 262
+    },
+    {
+      "name": "new_page",
+      "description_length": 74,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 201
+    },
+    {
+      "name": "performance_analyze_insight",
+      "description_length": 144,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 184
+    },
+    {
+      "name": "performance_start_trace",
+      "description_length": 151,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 245
+    },
+    {
+      "name": "performance_stop_trace",
+      "description_length": 66,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 139
+    },
+    {
+      "name": "press_key",
+      "description_length": 166,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 186
+    },
+    {
+      "name": "resize_page",
+      "description_length": 66,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 119
+    },
+    {
+      "name": "select_page",
+      "description_length": 49,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 121
+    },
+    {
+      "name": "take_heapsnapshot",
+      "description_length": 128,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 133
+    },
+    {
+      "name": "take_screenshot",
+      "description_length": 41,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 273
+    },
+    {
+      "name": "take_snapshot",
+      "description_length": 302,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 206
+    },
+    {
+      "name": "type_text",
+      "description_length": 56,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 133
+    },
+    {
+      "name": "upload_file",
+      "description_length": 41,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 3,
+      "max_depth": 2,
+      "tokens": 193
+    },
+    {
+      "name": "wait_for",
+      "description_length": 59,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 157
+    }
+  ]
+}

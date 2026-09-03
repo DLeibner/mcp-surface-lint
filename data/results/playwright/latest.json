@@ -1,0 +1,279 @@
+{
+  "slug": "playwright",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:9f7489d4fe8c3ec039e601825ed15a3c280c3e5b11ffd71d406dd0251888f640",
+  "server_info": {
+    "name": "Playwright",
+    "version": "1.63.0-alpha-2026-08-31"
+  },
+  "score": {
+    "composite": 96,
+    "categories": {
+      "surface": 85,
+      "naming": 100,
+      "descriptions": 91,
+      "schemas": 100,
+      "annotations": 100,
+      "design": 100
+    }
+  },
+  "token_footprint": {
+    "tokens": 4008,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 24,
+  "findings": [
+    {
+      "rule_id": "descriptions/too-short",
+      "severity": "warn",
+      "category": "descriptions",
+      "tool_name": "browser_close",
+      "message": "Description is 14 chars (minimum 20) — too short to disambiguate.",
+      "evidence": "Close the page"
+    },
+    {
+      "rule_id": "descriptions/too-short",
+      "severity": "warn",
+      "category": "descriptions",
+      "tool_name": "browser_handle_dialog",
+      "message": "Description is 15 chars (minimum 20) — too short to disambiguate.",
+      "evidence": "Handle a dialog"
+    },
+    {
+      "rule_id": "descriptions/too-short",
+      "severity": "warn",
+      "category": "descriptions",
+      "tool_name": "browser_navigate",
+      "message": "Description is 17 chars (minimum 20) — too short to disambiguate.",
+      "evidence": "Navigate to a URL"
+    },
+    {
+      "rule_id": "surface/tool-budget",
+      "severity": "warn",
+      "category": "surface",
+      "message": "Server exposes 24 tools (warn threshold 20 exceeded). Consider consolidating into fewer intent-shaped tools."
+    }
+  ],
+  "tools": [
+    {
+      "name": "browser_close",
+      "description_length": 14,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 70
+    },
+    {
+      "name": "browser_resize",
+      "description_length": 25,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 106
+    },
+    {
+      "name": "browser_console_messages",
+      "description_length": 28,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 180
+    },
+    {
+      "name": "browser_handle_dialog",
+      "description_length": 15,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 111
+    },
+    {
+      "name": "browser_evaluate",
+      "description_length": 49,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 183
+    },
+    {
+      "name": "browser_file_upload",
+      "description_length": 28,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 111
+    },
+    {
+      "name": "browser_drop",
+      "description_length": 135,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 242
+    },
+    {
+      "name": "browser_find",
+      "description_length": 340,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 221
+    },
+    {
+      "name": "browser_fill_form",
+      "description_length": 25,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 3,
+      "tokens": 254
+    },
+    {
+      "name": "browser_press_key",
+      "description_length": 27,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 109
+    },
+    {
+      "name": "browser_type",
+      "description_length": 31,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 197
+    },
+    {
+      "name": "browser_navigate",
+      "description_length": 17,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 91
+    },
+    {
+      "name": "browser_navigate_back",
+      "description_length": 43,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 78
+    },
+    {
+      "name": "browser_network_requests",
+      "description_length": 132,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 183
+    },
+    {
+      "name": "browser_network_request",
+      "description_length": 149,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 206
+    },
+    {
+      "name": "browser_run_code_unsafe",
+      "description_length": 124,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 202
+    },
+    {
+      "name": "browser_take_screenshot",
+      "description_length": 123,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 329
+    },
+    {
+      "name": "browser_snapshot",
+      "description_length": 82,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 184
+    },
+    {
+      "name": "browser_click",
+      "description_length": 27,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 204
+    },
+    {
+      "name": "browser_drag",
+      "description_length": 42,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 182
+    },
+    {
+      "name": "browser_hover",
+      "description_length": 26,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 121
+    },
+    {
+      "name": "browser_select_option",
+      "description_length": 30,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 161
+    },
+    {
+      "name": "browser_tabs",
+      "description_length": 45,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 153
+    },
+    {
+      "name": "browser_wait_for",
+      "description_length": 64,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 128
+    }
+  ]
+}
