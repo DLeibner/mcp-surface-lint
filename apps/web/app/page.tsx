@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import { LintForm } from "@/components/LintForm";
 import { CliDocsAnalytics } from "@/components/CliDocsAnalytics";
 import Link from "next/link";
 import { EXAMPLE_REPORT_PATH } from "@/lib/example-report-path";
+import { pageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = pageMetadata({
+  path: "/",
+  title: "MCP Surface Lint — audit your MCP server's tool surface",
+  description:
+    "Measure what an MCP server costs your context window, then statically audit its tool surface against 19 design rules. Deterministic, no LLM calls, no tool invocation."
+});
 
 export default function HomePage() {
   return (
@@ -9,9 +18,9 @@ export default function HomePage() {
       <h1>Your tools cost tokens in every single conversation.</h1>
       <p className="lede">
         Every MCP server ships its whole <code>tools/list</code> payload into the model&apos;s context
-        before the user has typed a word. mcplint measures that footprint, then statically audits the
-        tool surface for the design smells that make agents pick the wrong tool — naming drift, CRUD
-        mirrors, overlapping descriptions, unbounded lists.
+        before the user has typed a word. MCP Surface Lint measures that footprint, then statically
+        audits the tool surface for the design smells that make agents pick the wrong tool — naming
+        drift, CRUD mirrors, overlapping descriptions, unbounded lists.
       </p>
 
       <LintForm />

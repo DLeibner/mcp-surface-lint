@@ -2,10 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Analytics } from "@/components/Analytics";
 import { ExternalLinkIcon } from "@/components/ExternalLinkIcon";
+import { SITE_NAME } from "@/lib/seo";
+import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "mcplint — audit your MCP server's tool surface",
+  // `metadataBase` resolves every relative canonical and OG URL against the
+  // apex host, so nothing ever emits a vercel.app or legacy-subdomain URL.
+  metadataBase: new URL(siteUrl()),
+  title: `${SITE_NAME} — audit your MCP server's tool surface`,
   description:
     "Static, deterministic analysis of an MCP tool surface: token footprint, design smells, and a 0–100 score. No LLM calls."
 };
@@ -18,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="wrap">
           <header className="site-header">
             <Link href="/" className="brand">
-              mcp<span>lint</span>
+              MCP Surface <span>Lint</span>
             </Link>
             <nav className="nav">
               <Link href="/install">Install</Link>
@@ -37,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </header>
           {children}
           <footer>
-            Static analysis only — mcplint never invokes your tools and makes no LLM calls.
+            Static analysis only — {SITE_NAME} never invokes your tools and makes no LLM calls.
           </footer>
         </div>
       </body>

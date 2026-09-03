@@ -1,4 +1,4 @@
-import type { McplintConfig, RuleSetting } from "./config.js";
+import type { RuleSetting, SurfaceLintConfig } from "./config.js";
 import { Scorer } from "./scoring.js";
 import { TokenCounter } from "./tokens.js";
 import type {
@@ -19,7 +19,7 @@ interface ResolvedRule {
 export class LintEngine {
   private readonly resolved: ResolvedRule[];
 
-  constructor(rules: Rule[], private readonly config: McplintConfig) {
+  constructor(rules: Rule[], private readonly config: SurfaceLintConfig) {
     this.resolved = rules
       .map((rule) => this.resolveRule(rule))
       .filter((r): r is ResolvedRule => r !== undefined);

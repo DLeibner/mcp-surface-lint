@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
 import { Docs, RuleRegistry, Scorer, type Category } from "mcp-surface-lint";
 import { RulePageAnalytics } from "@/components/RulePageAnalytics";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Rules — mcplint",
-  description: "The rule catalogue: what mcplint checks on an MCP tool surface, and why."
-};
+export const metadata: Metadata = pageMetadata({
+  path: "/rules",
+  title: "MCP Tool Surface Rules — the full catalogue",
+  description:
+    "All 19 rules MCP Surface Lint checks on a tools/list surface, across six categories: surface, naming, descriptions, schemas, annotations, and design."
+});
 
 const BLURBS: Record<Category, string> = {
   surface: "How much of the context window the tool surface consumes before anyone says anything.",
@@ -28,7 +31,8 @@ export default function RulesPage() {
       <h1>Rules</h1>
       <p className="lede">
         {rules.length} rules, six categories. Each finding in a report links back to its rule here.
-        Everything is static: mcplint reads your <code>tools/list</code> and never calls a tool.
+        Everything is static: MCP Surface Lint reads your <code>tools/list</code> and never calls a
+        tool.
       </p>
 
       {Scorer.categories.map((category) => {

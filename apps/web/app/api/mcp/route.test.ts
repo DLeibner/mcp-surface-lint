@@ -80,7 +80,7 @@ describe("/api/mcp", () => {
             .join("\n")
         : "";
       expect(text).toMatch(/Static audit complete:/);
-      expect(text).toMatch(/# mcplint report/);
+      expect(text).toMatch(/# MCP Surface Lint report/);
       expect(text).toMatch(/Composite score:/);
       expect(trackServer).toHaveBeenCalledWith(
         "lint_started",
@@ -258,7 +258,7 @@ describe("/api/mcp", () => {
     expect(result.structuredContent).not.toHaveProperty("tools");
     const text = result.content?.map((part) => part.text ?? "").join("\n") ?? "";
     expect(text).toMatch(/Static audit complete:/);
-    expect(text).toMatch(/# mcplint report — test-server/);
+    expect(text).toMatch(/# MCP Surface Lint report — test-server/);
     expect(text).toMatch(/\| Category \| Score \|/);
     expect(text).toMatch(/Composite score:/);
   });

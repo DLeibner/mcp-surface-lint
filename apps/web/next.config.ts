@@ -16,8 +16,11 @@ const config: NextConfig = {
   transpilePackages: ["mcp-surface-lint"],
   serverExternalPackages: ["@modelcontextprotocol/sdk", "gpt-tokenizer", "undici"],
   outputFileTracingRoot: path.resolve(appRoot, "../.."),
+  // One canonical spelling per URL: `/rules/` 308-redirects to `/rules`. This is
+  // the framework default, pinned explicitly because the SEO checks assert it.
+  trailingSlash: false,
   env: {
-    MCPLINT_DOCS_BASE: `${siteOrigin.replace(/\/$/, "")}/rules`
+    MCP_SURFACE_LINT_DOCS_BASE: `${siteOrigin.replace(/\/$/, "")}/rules`
   },
   async redirects() {
     return [{ source: "/r/example", destination: "/example", permanent: true }];

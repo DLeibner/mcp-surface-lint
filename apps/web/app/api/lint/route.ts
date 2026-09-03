@@ -65,6 +65,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     const response = NextResponse.json({ id, composite: report.scores.composite });
     // The delete token never goes in the URL or the page — it lives in an
     // httpOnly cookie so only the browser that created the run can remove it.
+    // Cookie name predates the rename and is deliberately unchanged: renaming it
+    // would sign every existing report owner out of their own share controls.
     response.cookies.set(`mcplint_owner_${id}`, deleteToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

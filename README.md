@@ -6,7 +6,7 @@ This is a monorepo:
 
 | Package | What it is |
 | --- | --- |
-| [`packages/core`](packages/core) | The linter — 19 rules, the scoring engine, and the `mcplint` CLI (`mcp-surface-lint` on npm). Publishable to npm. |
+| [`packages/core`](packages/core) | The linter — 19 rules, the scoring engine, and the `mcp-surface-lint` CLI (`mcp-surface-lint` on npm). Publishable to npm. |
 | [`apps/web`](apps/web) | The hosted playground (`mcp-surface-lint-web`): paste a `tools/list` dump or point it at a remote MCP URL, get a score and an audit. |
 
 ## Quick start
@@ -64,9 +64,9 @@ Full runbook: [`DEPLOYMENT.md`](DEPLOYMENT.md).
 ## The CLI
 
 ```bash
-npm run mcplint -- --stdio "node dist/server.js"
-npm run mcplint -- https://example.com/mcp
-npm run mcplint -- snapshot.json
+npm run lint:surface -- --stdio "node dist/server.js"
+npm run lint:surface -- https://example.com/mcp
+npm run lint:surface -- snapshot.json
 ```
 
 See [`packages/core/README.md`](packages/core/README.md) for the full CLI, config, and scoring model,

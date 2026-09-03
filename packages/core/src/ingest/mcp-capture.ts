@@ -44,7 +44,7 @@ export class McpCapture {
     limits: CaptureLimits = {}
   ): Promise<ServerSnapshot> {
     const { maxPages, maxTools } = { ...DEFAULT_LIMITS, ...limits };
-    const client = new Client({ name: "mcplint", version: "0.1.0" });
+    const client = new Client({ name: "mcp-surface-lint", version: "0.1.0" });
     await client.connect(transport);
     try {
       const tools: ToolDef[] = [];

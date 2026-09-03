@@ -15,7 +15,7 @@
     "test": "npm run test --workspaces --if-present",
     "typecheck": "npm run build -w mcp-surface-lint && npm run typecheck --workspaces --if-present",
     "dev": "npm run dev -w mcp-surface-lint-web",
-    "mcplint": "npm exec -w mcp-surface-lint -- tsx src/cli.ts",
+    "lint:surface": "npm exec -w mcp-surface-lint -- tsx src/cli.ts",
     "preversion": "npm run typecheck",
     "version": "npm version \"$npm_package_version\" --workspaces --no-git-tag-version --allow-same-version --ignore-scripts && git add packages/*/package.json apps/*/package.json package-lock.json",
     "postversion": "git push origin $(git rev-parse --abbrev-ref HEAD) --tags"

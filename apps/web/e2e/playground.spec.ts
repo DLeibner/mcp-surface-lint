@@ -55,7 +55,7 @@ test("rejects a non-HTTPS remote endpoint", async ({ page }) => {
 test("shows provider install links and the installed Grafana prompt", async ({ page }) => {
   await page.goto("/install");
   await expect(
-    page.getByText("Check my installed Grafana MCP server using the MCPLint tool.")
+    page.getByText("Check my installed Grafana MCP server using the MCP Surface Lint tool.")
   ).toBeVisible();
 
   const cursor = page.getByRole("link", { name: "Install in Cursor" });

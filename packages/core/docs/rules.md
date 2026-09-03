@@ -1,6 +1,6 @@
-# mcplint rule catalog
+# MCP Surface Lint rule catalog
 
-Every rule is a pure, deterministic function over the captured `tools/list` snapshot. No LLM calls, no network, no API keys. Thresholds are configurable in `.mcplintrc.json`; the defaults below are anchored in [Anthropic's tool-writing guidance](https://www.anthropic.com/engineering/writing-tools-for-agents) and the [MCP tools spec](https://modelcontextprotocol.io/specification/2025-06-18/server/tools).
+Every rule is a pure, deterministic function over the captured `tools/list` snapshot. No LLM calls, no network, no API keys. Thresholds are configurable in `.mcp-surface-lintrc.json`; the defaults below are anchored in [Anthropic's tool-writing guidance](https://www.anthropic.com/engineering/writing-tools-for-agents) and the [MCP tools spec](https://modelcontextprotocol.io/specification/2025-06-18/server/tools).
 
 Severity legend: **error** — actively harms tool selection; **warn** — measurable degradation; **info** — advisory, no score deduction.
 

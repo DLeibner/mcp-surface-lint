@@ -69,7 +69,7 @@ export function describeSnapshotError(raw: unknown, zodError?: ZodError): string
   const root = raw as Record<string, unknown>;
   if (!("tools" in root)) {
     return (
-      "Missing `tools` array. Pass an MCP tools/list response, an mcplint snapshot, " +
+      "Missing `tools` array. Pass an MCP tools/list response, an MCP Surface Lint snapshot, " +
       "or a client tool dump that includes `tools`."
     );
   }
