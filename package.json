@@ -16,8 +16,12 @@
     "typecheck": "npm run build -w mcp-surface-lint && npm run typecheck --workspaces --if-present",
     "dev": "npm run dev -w mcp-surface-lint-web",
     "lint:surface": "npm exec -w mcp-surface-lint -- tsx src/cli.ts",
+    "scan": "node scripts/scan.mjs",
     "preversion": "npm run typecheck",
     "version": "npm version \"$npm_package_version\" --workspaces --no-git-tag-version --allow-same-version --ignore-scripts && git add packages/*/package.json apps/*/package.json package-lock.json",
     "postversion": "git push origin $(git rev-parse --abbrev-ref HEAD) --tags"
+  },
+  "devDependencies": {
+    "yaml": "^2.9.0"
   }
 }

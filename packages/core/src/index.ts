@@ -20,7 +20,8 @@ export { snapshotFileSchema, type SnapshotFile } from "./ingest/snapshot-schema.
 export {
   McpCapture,
   type CaptureLimits,
-  type HttpCaptureOptions
+  type HttpCaptureOptions,
+  type StdioCaptureOptions
 } from "./ingest/mcp-capture.js";
 export { RuleRegistry } from "./rules/index.js";
 export { BaseRule } from "./rules/BaseRule.js";

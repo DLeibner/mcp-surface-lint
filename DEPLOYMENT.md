@@ -113,6 +113,37 @@ The CLI workflow performs the production deployment. Git auto-deploy is disabled
 unverified production path. The Vercel UI toggle for this varies by plan; the checked-in config is
 the source of truth.
 
+## One-time directory scan setup
+
+`.github/workflows/scan.yml` re-audits every seeded server weekly, commits the results under
+`data/results/`, and deploys. It is intentionally separate from the release workflow: a release is a
+reviewed, tagged code change that also publishes to npm and the MCP Registry, while a scan only
+moves data and must not drag a version bump with it.
+
+**A `Content` GitHub Environment.** Create it alongside `Production` with the same three secrets —
+`VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` — and the same `NEXT_PUBLIC_SITE_URL`
+environment variable. Add **no required reviewer**: that is the whole point of the split. Code
+releases keep their approval gate; a Monday-morning data refresh does not wait for one.
+
+**Branch protection.** The scan job pushes `data/results/` straight to `main`. Allow
+`github-actions[bot]` to bypass the protection rule, or the weekly run fails at the push step. It
+only ever stages `data/results`, so it cannot push code.
+
+**IndexNow (optional).** Generate a key and add it as the `INDEXNOW_KEY` secret on the `Content`
+environment and as a Production environment variable in Vercel:
+
+```bash
+openssl rand -hex 16
+```
+
+The app serves it at `/indexnow.txt`, and the deploy job pings IndexNow with the URLs that actually
+changed. Unset, both the route 404s and the ping step no-ops — nothing breaks.
+
+**Running one by hand.** Use the workflow's `workflow_dispatch` trigger; the optional `slug` input
+re-scans a single server. Locally, `npm run scan -- --skip-stdio` audits only the public HTTP
+endpoints and spawns nothing, which is the right mode on a workstation — a full scan executes
+third-party packages and belongs in CI's throwaway runner.
+
 ## One-time domain migration to mcp-surface-lint.com
 
 The apex `mcp-surface-lint.com` is the canonical host. Every page emits a canonical tag pointing at

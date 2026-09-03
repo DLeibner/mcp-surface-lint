@@ -1,0 +1,15 @@
+{
+  "slug": "intercom",
+  "scanned_at": "2026-09-03T06:23:18.641Z",
+  "engine_version": "0.3.3",
+  "status": "needs-snapshot",
+  "last_error": "oauth authentication required; commit a snapshot_override to include this server.",
+  "last_attempt_at": "2026-09-03T06:23:18.641Z",
+  "snapshot_hash": null,
+  "server_info": {},
+  "score": null,
+  "token_footprint": null,
+  "tool_count": null,
+  "findings": [],
+  "tools": []
+}

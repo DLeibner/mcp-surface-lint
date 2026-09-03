@@ -3,6 +3,9 @@ import { LintForm } from "@/components/LintForm";
 import { CliDocsAnalytics } from "@/components/CliDocsAnalytics";
 import Link from "next/link";
 import { EXAMPLE_REPORT_PATH } from "@/lib/example-report-path";
+import { loadCatalog, rankedOverall } from "@/lib/directory/catalog";
+import { jsonLdProps, website } from "@/lib/directory/schema-org";
+import { CATEGORY_LABELS } from "@/lib/directory/types";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = pageMetadata({
@@ -13,8 +16,12 @@ export const metadata: Metadata = pageMetadata({
 });
 
 export default function HomePage() {
+  const catalog = loadCatalog();
+  const top = rankedOverall(catalog).slice(0, 10);
+
   return (
     <main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdProps(website())} />
       <h1>Your tools cost tokens in every single conversation.</h1>
       <p className="lede">
         Every MCP server ships its whole <code>tools/list</code> payload into the model&apos;s context
@@ -29,6 +36,49 @@ export default function HomePage() {
         New here?{" "}
         <Link href={EXAMPLE_REPORT_PATH}>Open the public example report</Link> — full scores and
         findings, no paste required.
+      </p>
+
+      <h2>The directory</h2>
+      <p className="lede">
+        We run the same audit weekly against public MCP servers and publish the result. Every
+        scorecard shows what that server costs your context window, what its schemas leave
+        unconstrained, and where its surface is likely to send an agent to the wrong tool.
+      </p>
+      {top.length > 0 ? (
+        <div className="table-scroll">
+          <table className="server-table">
+            <caption className="visually-hidden">
+              The ten highest-scoring audited MCP servers.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Server</th>
+                <th scope="col">Category</th>
+                <th scope="col">Score</th>
+                <th scope="col">Tokens</th>
+              </tr>
+            </thead>
+            <tbody>
+              {top.map((entry, i) => (
+                <tr key={entry.seed.slug}>
+                  <td>{i + 1}</td>
+                  <th scope="row">
+                    <Link href={`/servers/${entry.seed.slug}`}>{entry.seed.name}</Link>
+                  </th>
+                  <td>{CATEGORY_LABELS[entry.seed.category]}</td>
+                  <td>
+                    <strong>{entry.scanned!.score.composite}</strong>
+                  </td>
+                  <td>{entry.scanned!.token_footprint.tokens.toLocaleString("en-US")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+      <p className="lede">
+        <Link href="/servers">See every audited server →</Link>
       </p>
 
       <h2>What it checks</h2>

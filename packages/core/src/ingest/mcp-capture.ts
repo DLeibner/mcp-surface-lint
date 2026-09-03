@@ -1,5 +1,8 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import {
+  StdioClientTransport,
+  getDefaultEnvironment
+} from "@modelcontextprotocol/sdk/client/stdio.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import type { FetchLike } from "@modelcontextprotocol/sdk/shared/transport.js";
 import type { ServerSnapshot, ToolDef } from "../types.js";
@@ -8,6 +11,16 @@ import type { ServerSnapshot, ToolDef } from "../types.js";
 export interface CaptureLimits {
   maxPages?: number;
   maxTools?: number;
+}
+
+export interface StdioCaptureOptions extends CaptureLimits {
+  /**
+   * Environment for the spawned server. The SDK inherits only a small safe-list
+   * by default, so a server that needs `FOO_TOKEN` to boot will not see it
+   * unless it is passed here. The directory scanner uses this to hand servers
+   * placeholder credentials — enough to reach `tools/list`, never a real secret.
+   */
+  env?: Record<string, string>;
 }
 
 export interface HttpCaptureOptions extends CaptureLimits {
@@ -23,11 +36,18 @@ export interface HttpCaptureOptions extends CaptureLimits {
 const DEFAULT_LIMITS: Required<CaptureLimits> = { maxPages: 50, maxTools: 1000 };
 
 export class McpCapture {
-  static async fromStdio(command: string, limits: CaptureLimits = {}): Promise<ServerSnapshot> {
+  static async fromStdio(
+    command: string,
+    opts: StdioCaptureOptions = {}
+  ): Promise<ServerSnapshot> {
     const [cmd, ...args] = this.splitCommand(command);
     if (!cmd) throw new Error("Empty stdio command.");
-    const transport = new StdioClientTransport({ command: cmd, args });
-    return this.capture(transport, "stdio", limits);
+    const transport = new StdioClientTransport({
+      command: cmd,
+      args,
+      ...(opts.env ? { env: { ...getDefaultEnvironment(), ...opts.env } } : {})
+    });
+    return this.capture(transport, "stdio", opts);
   }
 
   static async fromHttp(url: string, opts: HttpCaptureOptions = {}): Promise<ServerSnapshot> {

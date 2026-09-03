@@ -21,6 +21,7 @@ export default function ExampleReportPage() {
   return (
     <main>
       <ReportPageAnalytics id="example" visibility="public" />
+      <h1>Example MCP tool surface audit report</h1>
       <div className="panel example-banner">
         <p className="hint" style={{ margin: 0 }}>
           Public example — a fictional catalog server with deliberate design smells. No install or

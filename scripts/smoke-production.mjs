@@ -66,14 +66,26 @@ async function rpc(id, method, params) {
 }
 
 async function smoke() {
-  await Promise.all(["/", "/install", "/rules", "/example"].map(request));
+  await Promise.all(
+    [
+      "/",
+      "/install",
+      "/rules",
+      "/example",
+      "/servers",
+      "/methodology",
+      "/audit",
+      "/sitemap.xml",
+      "/robots.txt"
+    ].map(request)
+  );
 
   const initialized = await rpc(1, "initialize", {
     protocolVersion: "2025-06-18",
     capabilities: {},
-    clientInfo: { name: "mcplint-release-smoke", version: "1.0.0" }
+    clientInfo: { name: "mcp-surface-lint-release-smoke", version: "1.0.0" }
   });
-  if (initialized?.serverInfo?.name !== "mcplint") {
+  if (initialized?.serverInfo?.name !== "mcp-surface-lint") {
     throw new Error("MCP initialize returned unexpected server metadata.");
   }
 

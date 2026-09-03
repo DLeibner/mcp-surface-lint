@@ -27,9 +27,9 @@ export class Docs {
   }
 
   static rule(id: string): string {
-    // The hosted catalogue owns stable rule-specific anchors. The repository
-    // fallback is deliberately unanchored because GitHub strips `/` from its
-    // generated Markdown heading IDs.
-    return Docs.docsBase() ? `${Docs.base}#${Docs.slug(id)}` : Docs.base;
+    // The hosted catalogue serves one page per rule at `/rules/{slug}`. The
+    // repository fallback stays a bare file link because GitHub strips `/` from
+    // its generated Markdown heading IDs, so a per-rule anchor would not resolve.
+    return Docs.docsBase() ? `${Docs.base}/${Docs.slug(id)}` : Docs.base;
   }
 }

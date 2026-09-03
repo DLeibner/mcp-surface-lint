@@ -26,8 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               MCP Surface <span>Lint</span>
             </Link>
             <nav className="nav">
-              <Link href="/install">Install</Link>
+              <Link href="/servers">Directory</Link>
               <Link href="/rules">Rules</Link>
+              <Link href="/install">Install</Link>
               <a
                 className="nav-external"
                 href="https://modelcontextprotocol.io"
@@ -42,7 +43,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </header>
           {children}
           <footer>
-            Static analysis only — {SITE_NAME} never invokes your tools and makes no LLM calls.
+            <nav className="footer-nav" aria-label="Footer">
+              <Link href="/servers">Directory</Link>
+              <Link href="/rules">Rules</Link>
+              <Link href="/methodology">Methodology</Link>
+              <Link href="/audit">Fix plan</Link>
+              <Link href="/install">Install</Link>
+              <Link href="/example">Example report</Link>
+              <a href="mailto:hello@mcp-surface-lint.com">Contact</a>
+            </nav>
+            <p>
+              Static analysis only — {SITE_NAME} never invokes your tools and makes no LLM calls.
+            </p>
           </footer>
         </div>
       </body>

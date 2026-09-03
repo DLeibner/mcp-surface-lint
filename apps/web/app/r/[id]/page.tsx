@@ -38,6 +38,7 @@ export default async function ReportPage({ params }: Props) {
   return (
     <main>
       <ReportPageAnalytics id={id} visibility={run.visibility} />
+      <h1>{run.report.server.name ?? "MCP server"} tool surface report</h1>
       <ReportView report={projectReport(run.report, currentTier())} />
       {isOwner && <ShareControls id={id} initialVisibility={run.visibility} />}
       <AuditCta id={id} />
