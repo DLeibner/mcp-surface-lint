@@ -1,0 +1,104 @@
+{
+  "slug": "hugging-face",
+  "scanned_at": "2026-09-03T06:23:18.641Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T06:23:18.641Z",
+  "snapshot_hash": "sha256:8678b64354801e02398f7653744994eafc95b19d8b432ae2103d2d10054091f0",
+  "server_info": {
+    "name": "huggingface.co/mcp",
+    "version": "0.4.15"
+  },
+  "score": {
+    "composite": 98,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 97,
+      "schemas": 92,
+      "annotations": 100,
+      "design": 97
+    }
+  },
+  "token_footprint": {
+    "tokens": 4725,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 4,
+  "findings": [
+    {
+      "rule_id": "descriptions/too-long",
+      "severity": "warn",
+      "category": "descriptions",
+      "tool_name": "hf_fs",
+      "message": "Description is 2285 chars (maximum 1500) — move detail into parameter descriptions."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "hf_fs",
+      "message": "\"hf_fs\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "hf_fs",
+      "message": "Input schema nests 4 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "hf_whoami",
+      "message": "Bare \"type: object\" with no properties at /inputSchema — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "hf_fs",
+      "message": "Parameter \"operations\" has no description."
+    }
+  ],
+  "tools": [
+    {
+      "name": "hf_whoami",
+      "description_length": 191,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 1949
+    },
+    {
+      "name": "hub_repo_search",
+      "description_length": 205,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 365
+    },
+    {
+      "name": "hub_repo_details",
+      "description_length": 366,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 453
+    },
+    {
+      "name": "hf_fs",
+      "description_length": 2285,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 4,
+      "tokens": 1956
+    }
+  ]
+}

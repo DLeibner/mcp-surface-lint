@@ -86,7 +86,7 @@ const checkMcpServerInputSchema = z.object({
     .unknown()
     .optional()
     .describe(
-      "A tools/list JSON response, mcplint snapshot, or client tool dump containing a tools array. " +
+      "A tools/list JSON response, MCP Surface Lint snapshot, or client tool dump containing a tools array. " +
         "Each tool needs `name`, or the Cursor-style `tool` alias. Forward another installed " +
         "server's complete tool definitions here — do not invent schemas."
     )
@@ -106,7 +106,7 @@ function validateCheckMcpServerInput(
   return undefined;
 }
 
-export interface McplintMcpServerOptions {
+export interface SurfaceLintMcpServerOptions {
   rateLimitKey: string;
 }
 
@@ -117,9 +117,9 @@ function asLintRequest(input: z.infer<typeof checkMcpServerInputSchema>): LintRe
   return { mode: "paste", snapshot: input.snapshot };
 }
 
-export function createMcplintMcpServer(options: McplintMcpServerOptions): McpServer {
+export function createSurfaceLintMcpServer(options: SurfaceLintMcpServerOptions): McpServer {
   const server = new McpServer({
-    name: "mcplint",
+    name: "mcp-surface-lint",
     version: ENGINE_VERSION
   });
 

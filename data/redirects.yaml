@@ -1,0 +1,8 @@
+# Slug redirects. Slugs in data/seeds/servers.yaml are permanent public URLs, so
+# a rename is expressed here instead: the old slug 301s to the new one forever.
+#
+#   - from: atlassian
+#     to: atlassian-jira
+#
+# `from` must not also exist as a live slug, and `to` must.
+redirects: []

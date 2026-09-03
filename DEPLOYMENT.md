@@ -42,7 +42,7 @@ Add this **Environment variable**:
 
 | Name | Value |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | The canonical HTTPS production origin, currently `https://mcplint-web.vercel.app` |
+| `NEXT_PUBLIC_SITE_URL` | The canonical HTTPS production origin, currently `https://mcp-surface-lint.com` |
 
 `NEXT_PUBLIC_SITE_URL` must be an origin only: no path, query, fragment, or trailing route. The
 release smoke test also requires `server.json` to advertise this same origin.
@@ -79,7 +79,7 @@ Configure the Vercel project:
 Configure these Vercel **Production** environment variables:
 
 ```text
-NEXT_PUBLIC_SITE_URL=https://mcplint-web.vercel.app
+NEXT_PUBLIC_SITE_URL=https://mcp-surface-lint.com
 DATABASE_URL=...
 UPSTASH_REDIS_REST_URL=...   # must be a real https://... Upstash REST URL (not a placeholder)
 UPSTASH_REDIS_REST_TOKEN=...
@@ -113,6 +113,97 @@ The CLI workflow performs the production deployment. Git auto-deploy is disabled
 unverified production path. The Vercel UI toggle for this varies by plan; the checked-in config is
 the source of truth.
 
+## One-time directory scan setup
+
+`.github/workflows/scan.yml` re-audits every seeded server weekly, commits the results under
+`data/results/`, and deploys. It is intentionally separate from the release workflow: a release is a
+reviewed, tagged code change that also publishes to npm and the MCP Registry, while a scan only
+moves data and must not drag a version bump with it.
+
+**A `Content` GitHub Environment.** Create it alongside `Production` with the same three secrets —
+`VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` — and the same `NEXT_PUBLIC_SITE_URL`
+environment variable. Add **no required reviewer**: that is the whole point of the split. Code
+releases keep their approval gate; a Monday-morning data refresh does not wait for one.
+
+**Branch protection.** The scan job pushes `data/results/` straight to `main`. Allow
+`github-actions[bot]` to bypass the protection rule, or the weekly run fails at the push step. It
+only ever stages `data/results`, so it cannot push code.
+
+**IndexNow (optional).** Generate a key and add it as the `INDEXNOW_KEY` secret on the `Content`
+environment and as a Production environment variable in Vercel:
+
+```bash
+openssl rand -hex 16
+```
+
+The app serves it at `/indexnow.txt`, and the deploy job pings IndexNow with the URLs that actually
+changed. Unset, both the route 404s and the ping step no-ops — nothing breaks.
+
+**Running one by hand.** Use the workflow's `workflow_dispatch` trigger; the optional `slug` input
+re-scans a single server. Locally, `npm run scan -- --skip-stdio` audits only the public HTTP
+endpoints and spawns nothing, which is the right mode on a workstation — a full scan executes
+third-party packages and belongs in CI's throwaway runner.
+
+## One-time domain migration to mcp-surface-lint.com
+
+The apex `mcp-surface-lint.com` is the canonical host. Every page emits a canonical tag pointing at
+it (`apps/web/lib/seo.ts`), so a page served from a `*.vercel.app` alias or the legacy subdomain
+still tells search engines where the real URL is. The redirects below make that true at the HTTP
+level as well, which is what actually passes ranking signal.
+
+Steps, in order. Nothing here is in code — these are Cloudflare, Vercel, and Search Console UIs.
+
+**1. Cloudflare (DNS).** Add `mcp-surface-lint.com` to the account, then point it at Vercel with the
+records Vercel shows in step 2. Leave the records DNS-only (grey cloud); proxying breaks Vercel's
+certificate issuance.
+
+**2. Vercel (domains).** Project → Settings → Domains:
+
+- Add `mcp-surface-lint.com` and mark it the production domain.
+- Add `www.mcp-surface-lint.com` and set it to **redirect to** `mcp-surface-lint.com`, status
+  **301**.
+- Keep `mcplint.petabyte.hr` attached and set it to **redirect to** `mcp-surface-lint.com`, again
+  **301**. Do not remove it — an unattached domain 404s and drops whatever rankings the old URLs
+  hold.
+
+Pick 301 rather than Vercel's 307/308 default on both. Search Console's Change of Address pre-check
+looks specifically for 301s on the old site's pages; a 308 is a permanent redirect too, but it can
+fail that particular check and block the move.
+
+Vercel preserves the path on domain-level redirects. The `*.vercel.app` production alias cannot be
+redirected from the UI; the canonical tag covers it.
+
+**3. Vercel (environment).** Set `NEXT_PUBLIC_SITE_URL=https://mcp-surface-lint.com` for Production.
+This drives canonicals, OG URLs, the MCP install snippets, and the release smoke test — a stale
+value here silently publishes the wrong canonical host on every page. The repository variable
+`NEXT_PUBLIC_SITE_URL` used by the release workflow must match.
+
+**4. Verify the redirects** before touching Search Console:
+
+```bash
+curl -sSI https://www.mcp-surface-lint.com/rules | grep -i '^\(HTTP\|location\)'
+curl -sSI https://mcplint.petabyte.hr/rules | grep -i '^\(HTTP\|location\)'
+curl -sSI https://mcp-surface-lint.com/rules/ | grep -i '^\(HTTP\|location\)'
+```
+
+The first two must return `301` with `location: https://mcp-surface-lint.com/rules` — path
+preserved, not a bare redirect to the homepage. The third is the framework's own trailing-slash
+redirect and returns `308` to `/rules`.
+
+**5. Search Console.** Add `mcp-surface-lint.com` as a *Domain* property and verify with the DNS TXT
+record via Cloudflare. If a property exists for `mcplint.petabyte.hr`, use Settings → Change of
+address on it to point at the new property; that tool needs the 301s from step 2 already live.
+
+**6. Bing Webmaster Tools.** Add the site and import the Search Console property rather than
+re-verifying by hand.
+
+**7. Submit the sitemap.** The app generates it at
+[`apps/web/app/sitemap.ts`](apps/web/app/sitemap.ts) and the release smoke test requires the route
+to respond, so it is live the moment production deploys. Submit
+`https://mcp-surface-lint.com/sitemap.xml` in both Search Console and Bing Webmaster Tools after the
+first deploy to the new domain. It lists only indexable pages — server pages awaiting a first scan
+are withheld by design, and appear once the scan succeeds.
+
 ## One-time npm setup
 
 The package `mcp-surface-lint` does not yet exist on npm. npm cannot attach a Trusted Publisher to a package
@@ -121,8 +212,8 @@ from a disposable copy and publish version `0.0.0`, leaving this repository at `
 
 ```bash
 tmp="$(mktemp -d)"
-git clone --local . "$tmp/mcplint"
-cd "$tmp/mcplint"
+git clone --local . "$tmp/mcp-surface-lint"
+cd "$tmp/mcp-surface-lint"
 npm ci
 npm version 0.0.0 -w mcp-surface-lint --no-git-tag-version
 npm run build -w mcp-surface-lint

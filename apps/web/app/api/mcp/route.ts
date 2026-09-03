@@ -1,5 +1,5 @@
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
-import { createMcplintMcpServer } from "@/lib/mcp-server";
+import { createSurfaceLintMcpServer } from "@/lib/mcp-server";
 import { hashIp } from "@/lib/store";
 import { siteUrl } from "@/lib/site";
 
@@ -86,7 +86,7 @@ async function handleMcpRequest(request: Request): Promise<Response> {
   const parsedBody = request.method === "POST" ? await readJsonBody(request) : undefined;
   if (parsedBody && !parsedBody.ok) return parsedBody.response;
 
-  const server = createMcplintMcpServer({
+  const server = createSurfaceLintMcpServer({
     rateLimitKey: hashIp(clientIp(request))
   });
   const transport = new WebStandardStreamableHTTPServerTransport({

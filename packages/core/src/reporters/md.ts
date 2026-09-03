@@ -11,7 +11,7 @@ export class MdReporter {
   render(report: LintReport): string {
     const lines: string[] = [];
     const name = report.server.name ?? "MCP server";
-    lines.push(`# mcplint report — ${name}`);
+    lines.push(`# MCP Surface Lint report — ${name}`);
     lines.push("");
     lines.push(
       `> **tools/list footprint: ~${report.stats.approxTokens.toLocaleString()} tokens per conversation (${report.stats.toolCount} tools)** — counted with ${report.stats.encoding}, approximate.`

@@ -84,9 +84,13 @@ export async function buildSnapshot(request: LintRequest): Promise<ServerSnapsho
         fetch: createGuardedFetch(),
         headers: request.headers,
         maxTools: MAX_TOOLS,
-        maxPages: MAX_PAGES
+        maxPages: MAX_PAGES,
+        // The capture closes its own socket on expiry. The race below only
+        // shapes the error the API returns; without this the connection to an
+        // unresponsive third party would outlive the request.
+        timeoutMs: CAPTURE_TIMEOUT_MS
       }),
-      CAPTURE_TIMEOUT_MS,
+      CAPTURE_TIMEOUT_MS + 2_000,
       `The server did not respond within ${CAPTURE_TIMEOUT_MS / 1000}s.`
     );
   } catch (error) {

@@ -1,0 +1,204 @@
+name: Directory scan
+
+# Re-audits every seeded MCP server, commits the results, and ships them.
+#
+# This is deliberately NOT the release workflow. A release is a tagged, reviewed
+# change to code that also publishes to npm and the MCP Registry; a scan only
+# changes data under data/results/ and must not drag a version bump along with
+# it. The deploy job below therefore repeats the release workflow's Vercel steps
+# instead of reusing its tag trigger.
+#
+# The scan runs in its own job with `contents: read` and no persisted git
+# credential. That split is the point: reading a server's stdio surface means
+# executing that server's package, so the job that runs third-party code must
+# never be the job that can write to the repository. Results cross the boundary
+# as an artifact.
+
+on:
+  schedule:
+    # Monday 03:00 UTC.
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "Re-scan a single server (leave empty for all)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: directory-scan
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "24"
+  VERCEL_CLI_VERSION: "56.3.2"
+
+jobs:
+  scan:
+    name: Scan seeded servers
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    outputs:
+      summary: ${{ steps.scan.outputs.summary }}
+      changed: ${{ steps.scan.outputs.changed }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # No git credential in the job that executes third-party packages.
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      # Several reference servers are Python and are spawned with `uvx`.
+      - name: Install uv
+        run: pipx install uv
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the engine
+        run: npm run build -w mcp-surface-lint
+
+      - name: Scan
+        id: scan
+        shell: bash
+        # The slug arrives through the environment, never through string
+        # interpolation into the command: a workflow_dispatch input is
+        # attacker-controllable text, and `${{ }}` in a `run:` is shell source.
+        env:
+          SCAN_SLUG: ${{ inputs.slug }}
+        run: |
+          set -euo pipefail
+          if [ -n "${SCAN_SLUG:-}" ]; then
+            node scripts/scan.mjs --concurrency 4 --slug "$SCAN_SLUG"
+          else
+            node scripts/scan.mjs --concurrency 4
+          fi
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-results
+          path: data/results
+          retention-days: 7
+
+  commit:
+    name: Commit results
+    needs: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          name: scan-results
+          path: data/results
+
+      - name: Commit and push
+        id: commit
+        shell: bash
+        env:
+          SUMMARY: ${{ needs.scan.outputs.summary }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Only ever stage scan output. This job holds a write token, so it
+          # must not be able to carry along anything else the runner produced.
+          git add data/results
+          if git diff --cached --quiet; then
+            echo "No result changed; nothing to deploy."
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Pass the message via a file so nothing in it is evaluated by the shell.
+          printf '%s\n' "$SUMMARY" > "$RUNNER_TEMP/scan-commit-message"
+          git commit --file "$RUNNER_TEMP/scan-commit-message"
+          # The credential lives only in this command, never in .git/config.
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
+          echo "committed=true" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    name: Deploy the directory
+    needs:
+      - scan
+      - commit
+    if: needs.commit.outputs.committed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # A content environment, separate from Production: code releases keep their
+    # required reviewer, while a weekly data refresh does not wait on a human.
+    environment: Content
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pull Vercel production settings
+        run: npx "vercel@${VERCEL_CLI_VERSION}" pull --yes --environment=production --token "$VERCEL_TOKEN"
+
+      - name: Build with Vercel production settings
+        run: npx "vercel@${VERCEL_CLI_VERSION}" build --prod --token "$VERCEL_TOKEN"
+
+      - name: Deploy prebuilt production artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          deployment_url="$(npx "vercel@${VERCEL_CLI_VERSION}" deploy --prebuilt --prod --token "$VERCEL_TOKEN")"
+          case "$deployment_url" in
+            https://*) echo "Deployed $deployment_url" ;;
+            *) echo "Vercel did not return a deployment URL." >&2; exit 1 ;;
+          esac
+
+      - name: Smoke-test production
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${NEXT_PUBLIC_SITE_URL:-}" ]; then
+            echo "The Content environment variable NEXT_PUBLIC_SITE_URL is required." >&2
+            exit 1
+          fi
+          node scripts/smoke-production.mjs "$NEXT_PUBLIC_SITE_URL"
+
+      - name: Ping IndexNow
+        continue-on-error: true
+        env:
+          CHANGED_SLUGS: ${{ needs.scan.outputs.changed }}
+        run: node scripts/indexnow.mjs "$CHANGED_SLUGS"

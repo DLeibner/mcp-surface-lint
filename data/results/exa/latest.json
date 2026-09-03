@@ -1,0 +1,50 @@
+{
+  "slug": "exa",
+  "scanned_at": "2026-09-03T06:23:18.641Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T06:23:18.641Z",
+  "snapshot_hash": "sha256:7c5bfd43f026613321864a86942a4ac0537ee2bfa471b8c6bc22dd016d3c96fe",
+  "server_info": {
+    "name": "exa-search-server",
+    "version": "3.2.1"
+  },
+  "score": {
+    "composite": 100,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 100,
+      "annotations": 100,
+      "design": 100
+    }
+  },
+  "token_footprint": {
+    "tokens": 486,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 2,
+  "findings": [],
+  "tools": [
+    {
+      "name": "web_search_exa",
+      "description_length": 566,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 289
+    },
+    {
+      "name": "web_fetch_exa",
+      "description_length": 270,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 195
+    }
+  ]
+}

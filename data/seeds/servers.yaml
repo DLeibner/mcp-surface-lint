@@ -1,0 +1,332 @@
+# MCP Surface Lint directory seed list.
+#
+# Hand-maintained. One entry per public MCP server. `slug` is permanent: renames
+# go in data/redirects.yaml, never here, because the slug is the public URL.
+#
+# `transport` decides how the scanner obtains tools/list:
+#   remote + auth: none  -> Streamable HTTP straight to `endpoint`
+#   stdio                -> run `stdio_command` with `stdio_env` dummy values
+#   remote + oauth/apikey-> `snapshot_override` if present, else status
+#                           `needs-snapshot` and the page is excluded
+#
+# The scanner only ever calls `initialize` and `tools/list`. It never invokes a
+# tool, and it never authenticates with a real credential.
+#
+# `stdio_command` deliberately floats (`@latest`, unpinned `uvx`, a mutable
+# Docker tag). The directory exists to report what a server publishes *today*,
+# so pinning would freeze every page against a stale surface and turn 30 seed
+# entries into 30 standing version bumps. The supply-chain risk that pinning
+# would mitigate is instead contained structurally: .github/workflows/scan.yml
+# runs these commands in a job with `contents: read`, no persisted git
+# credential, and no deployment secrets, and hands its results to a separate
+# job across an artifact boundary.
+
+# --- developer-tools -----------------------------------------------------------
+
+- slug: playwright
+  name: Playwright
+  vendor: Microsoft
+  category: developer-tools
+  official_url: https://github.com/microsoft/playwright-mcp
+  repo_url: https://github.com/microsoft/playwright-mcp
+  docs_url: https://playwright.dev/
+  transport: stdio
+  endpoint: null
+  auth: none
+  stdio_command: "npx -y @playwright/mcp@latest --headless"
+  stdio_env: {}
+  snapshot_override: null
+  description: "Browser automation for agents, driven through Playwright's accessibility tree."
+  tags: [official, browser, testing]
+
+- slug: chrome-devtools
+  name: Chrome DevTools
+  vendor: Google
+  category: developer-tools
+  official_url: https://github.com/ChromeDevTools/chrome-devtools-mcp
+  repo_url: https://github.com/ChromeDevTools/chrome-devtools-mcp
+  docs_url: https://developer.chrome.com/docs/devtools
+  transport: stdio
+  endpoint: null
+  auth: none
+  stdio_command: "npx -y chrome-devtools-mcp@latest"
+  stdio_env: {}
+  snapshot_override: null
+  description: "Drives a real Chrome instance for performance traces, DOM inspection and network capture."
+  tags: [official, browser, debugging]
+
+- slug: context7
+  name: Context7
+  vendor: Upstash
+  category: developer-tools
+  official_url: https://context7.com
+  repo_url: https://github.com/upstash/context7
+  docs_url: https://context7.com
+  transport: remote
+  endpoint: https://mcp.context7.com/mcp
+  auth: none
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Version-accurate library documentation, fetched on demand instead of recalled."
+  tags: [docs, public]
+
+- slug: deepwiki
+  name: DeepWiki
+  vendor: Cognition
+  category: developer-tools
+  official_url: https://deepwiki.com
+  repo_url: null
+  docs_url: https://docs.devin.ai/work-with-devin/deepwiki-mcp
+  transport: remote
+  endpoint: https://mcp.deepwiki.com/mcp
+  auth: none
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Generated architectural documentation for public GitHub repositories."
+  tags: [docs, public]
+
+- slug: filesystem
+  name: Filesystem
+  vendor: Model Context Protocol
+  category: developer-tools
+  official_url: https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem
+  repo_url: https://github.com/modelcontextprotocol/servers
+  docs_url: https://modelcontextprotocol.io/examples
+  transport: stdio
+  endpoint: null
+  auth: none
+  stdio_command: "npx -y @modelcontextprotocol/server-filesystem /tmp"
+  stdio_env: {}
+  snapshot_override: null
+  description: "The reference filesystem server: sandboxed read, write and directory traversal."
+  tags: [reference, official]
+
+# --- data-and-databases --------------------------------------------------------
+
+- slug: postgres
+  name: PostgreSQL
+  vendor: Model Context Protocol
+  category: data-and-databases
+  official_url: https://github.com/modelcontextprotocol/servers/tree/main/src/postgres
+  repo_url: https://github.com/modelcontextprotocol/servers
+  docs_url: https://modelcontextprotocol.io/examples
+  transport: stdio
+  endpoint: null
+  auth: none
+  stdio_command: "npx -y @modelcontextprotocol/server-postgres postgresql://localhost/postgres"
+  stdio_env: {}
+  snapshot_override: null
+  description: "Reference read-only Postgres server exposing schema inspection and queries."
+  tags: [reference, sql]
+
+- slug: mongodb
+  name: MongoDB
+  vendor: MongoDB
+  category: data-and-databases
+  official_url: https://github.com/mongodb-js/mongodb-mcp-server
+  repo_url: https://github.com/mongodb-js/mongodb-mcp-server
+  docs_url: https://www.mongodb.com/docs/mcp-server/
+  transport: stdio
+  endpoint: null
+  auth: apikey
+  stdio_command: "npx -y mongodb-mcp-server@latest --readOnly"
+  stdio_env:
+    MDB_MCP_CONNECTION_STRING: "mongodb://localhost:27017/test"
+  snapshot_override: null
+  description: "Official MongoDB server for collections, aggregation and Atlas administration."
+  tags: [official, nosql]
+
+- slug: supabase
+  name: Supabase
+  vendor: Supabase
+  category: data-and-databases
+  official_url: https://github.com/supabase-community/supabase-mcp
+  repo_url: https://github.com/supabase-community/supabase-mcp
+  docs_url: https://supabase.com/docs/guides/getting-started/mcp
+  transport: stdio
+  endpoint: null
+  auth: apikey
+  stdio_command: "npx -y @supabase/mcp-server-supabase@latest --read-only"
+  stdio_env:
+    SUPABASE_ACCESS_TOKEN: "dummy"
+  snapshot_override: null
+  description: "Official Supabase server for database, storage, edge functions and project config."
+  tags: [official, postgres, backend]
+
+# --- cloud-and-infrastructure --------------------------------------------------
+
+- slug: cloudflare-docs
+  name: Cloudflare Docs
+  vendor: Cloudflare
+  category: cloud-and-infrastructure
+  official_url: https://github.com/cloudflare/mcp-server-cloudflare
+  repo_url: https://github.com/cloudflare/mcp-server-cloudflare
+  docs_url: https://developers.cloudflare.com/agents/model-context-protocol/
+  transport: remote
+  endpoint: https://docs.mcp.cloudflare.com/mcp
+  auth: none
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Cloudflare's public documentation server — the unauthenticated half of their MCP fleet."
+  tags: [official, docs, public]
+
+# --- communication -------------------------------------------------------------
+
+- slug: slack
+  name: Slack
+  vendor: Model Context Protocol
+  category: communication
+  official_url: https://github.com/modelcontextprotocol/servers/tree/main/src/slack
+  repo_url: https://github.com/modelcontextprotocol/servers
+  docs_url: https://api.slack.com/
+  transport: stdio
+  endpoint: null
+  auth: apikey
+  stdio_command: "npx -y @modelcontextprotocol/server-slack"
+  stdio_env:
+    SLACK_BOT_TOKEN: "xoxb-dummy"
+    SLACK_TEAM_ID: "T00000000"
+  snapshot_override: null
+  description: "Reference Slack server for channels, messages, threads and reactions."
+  tags: [reference, chat]
+
+# --- productivity-and-docs -----------------------------------------------------
+
+- slug: notion
+  name: Notion
+  vendor: Notion
+  category: productivity-and-docs
+  official_url: https://github.com/makenotion/notion-mcp-server
+  repo_url: https://github.com/makenotion/notion-mcp-server
+  docs_url: https://developers.notion.com/docs/mcp
+  transport: stdio
+  endpoint: null
+  auth: apikey
+  stdio_command: "npx -y @notionhq/notion-mcp-server"
+  stdio_env:
+    NOTION_TOKEN: "ntn_dummy"
+  snapshot_override: null
+  description: "Official Notion server for pages, databases, comments and search."
+  tags: [official, notes, wiki]
+
+- slug: microsoft-learn
+  name: Microsoft Learn
+  vendor: Microsoft
+  category: productivity-and-docs
+  official_url: https://learn.microsoft.com/en-us/training/support/mcp
+  repo_url: null
+  docs_url: https://learn.microsoft.com/en-us/training/support/mcp
+  transport: remote
+  endpoint: https://learn.microsoft.com/api/mcp
+  auth: none
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Microsoft's public documentation server for Azure, .NET and Microsoft 365 guidance."
+  tags: [official, docs, public]
+
+- slug: memory
+  name: Memory
+  vendor: Model Context Protocol
+  category: productivity-and-docs
+  official_url: https://github.com/modelcontextprotocol/servers/tree/main/src/memory
+  repo_url: https://github.com/modelcontextprotocol/servers
+  docs_url: https://modelcontextprotocol.io/examples
+  transport: stdio
+  endpoint: null
+  auth: none
+  stdio_command: "npx -y @modelcontextprotocol/server-memory"
+  stdio_env: {}
+  snapshot_override: null
+  description: "The reference knowledge-graph memory server: entities, relations and observations."
+  tags: [reference, official]
+
+# --- search-and-browsing -------------------------------------------------------
+
+- slug: brave-search
+  name: Brave Search
+  vendor: Brave
+  category: search-and-browsing
+  official_url: https://github.com/brave/brave-search-mcp-server
+  repo_url: https://github.com/brave/brave-search-mcp-server
+  docs_url: https://brave.com/search/api/
+  transport: stdio
+  endpoint: null
+  auth: apikey
+  stdio_command: "npx -y @brave/brave-search-mcp-server"
+  stdio_env:
+    BRAVE_API_KEY: "dummy"
+  snapshot_override: null
+  description: "Official Brave server for web, image, news and local search."
+  tags: [official, search]
+
+- slug: exa
+  name: Exa
+  vendor: Exa
+  category: search-and-browsing
+  official_url: https://docs.exa.ai/reference/exa-mcp
+  repo_url: https://github.com/exa-labs/exa-mcp-server
+  docs_url: https://docs.exa.ai/reference/exa-mcp
+  transport: remote
+  endpoint: https://mcp.exa.ai/mcp
+  auth: none
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Neural web search built for agents, with content retrieval and research tools."
+  tags: [search, public]
+
+- slug: fetch
+  name: Fetch
+  vendor: Model Context Protocol
+  category: search-and-browsing
+  official_url: https://github.com/modelcontextprotocol/servers/tree/main/src/fetch
+  repo_url: https://github.com/modelcontextprotocol/servers
+  docs_url: https://modelcontextprotocol.io/examples
+  transport: stdio
+  endpoint: null
+  auth: none
+  stdio_command: "uvx mcp-server-fetch"
+  stdio_env: {}
+  snapshot_override: null
+  description: "The reference fetch server: retrieves a URL and converts it to markdown."
+  tags: [reference, official]
+
+- slug: hugging-face
+  name: Hugging Face
+  vendor: Hugging Face
+  category: search-and-browsing
+  official_url: https://huggingface.co/settings/mcp
+  repo_url: https://github.com/evalstate/hf-mcp-server
+  docs_url: https://huggingface.co/docs/hub/en/mcp
+  transport: remote
+  endpoint: https://huggingface.co/mcp
+  auth: none
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official Hugging Face server for searching models, datasets, Spaces and papers."
+  tags: [official, ml, search, public]
+
+# --- observability -------------------------------------------------------------
+
+- slug: grafana
+  name: Grafana
+  vendor: Grafana Labs
+  category: observability
+  official_url: https://github.com/grafana/mcp-grafana
+  repo_url: https://github.com/grafana/mcp-grafana
+  docs_url: https://grafana.com/docs/grafana/latest/observability-as-code/mcp-server/
+  transport: stdio
+  endpoint: null
+  auth: apikey
+  stdio_command: "docker run --rm -i -e GRAFANA_URL -e GRAFANA_API_KEY mcp/grafana -t stdio"
+  stdio_env:
+    GRAFANA_URL: "http://localhost:3000"
+    GRAFANA_API_KEY: "dummy"
+  snapshot_override: null
+  description: "Official Grafana server for dashboards, Prometheus and Loki queries, alerts and incidents."
+  tags: [official, metrics, logs]
