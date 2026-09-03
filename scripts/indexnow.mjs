@@ -27,16 +27,24 @@ const urlList = [
   ...slugs.map((slug) => `${origin}/servers/${slug}`)
 ];
 
-const response = await fetch("https://api.indexnow.org/indexnow", {
-  method: "POST",
-  headers: { "content-type": "application/json; charset=utf-8" },
-  body: JSON.stringify({
-    host,
-    key,
-    keyLocation: `${origin}/indexnow.txt`,
-    urlList
-  })
-});
+let response;
+try {
+  response = await fetch("https://api.indexnow.org/indexnow", {
+    method: "POST",
+    headers: { "content-type": "application/json; charset=utf-8" },
+    body: JSON.stringify({
+      host,
+      key,
+      keyLocation: `${origin}/indexnow.txt`,
+      urlList
+    }),
+    // A deploy must never sit waiting on an optional third-party ping.
+    signal: AbortSignal.timeout(10_000)
+  });
+} catch (error) {
+  console.log(`indexnow: ping failed (${error instanceof Error ? error.message : error}).`);
+  process.exit(0);
+}
 
 // 200 and 202 both mean accepted; anything else is worth seeing in the log but
 // is not a reason to fail the run.

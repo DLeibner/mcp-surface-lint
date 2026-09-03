@@ -7,6 +7,12 @@ name: Directory scan
 # changes data under data/results/ and must not drag a version bump along with
 # it. The deploy job below therefore repeats the release workflow's Vercel steps
 # instead of reusing its tag trigger.
+#
+# The scan runs in its own job with `contents: read` and no persisted git
+# credential. That split is the point: reading a server's stdio surface means
+# executing that server's package, so the job that runs third-party code must
+# never be the job that can write to the repository. Results cross the boundary
+# as an artifact.
 
 on:
   schedule:
@@ -32,18 +38,20 @@ env:
 
 jobs:
   scan:
-    name: Scan and commit results
+    name: Scan seeded servers
     runs-on: ubuntu-latest
     timeout-minutes: 45
     permissions:
-      contents: write
+      contents: read
     outputs:
       summary: ${{ steps.scan.outputs.summary }}
       changed: ${{ steps.scan.outputs.changed }}
-      committed: ${{ steps.commit.outputs.committed }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          # No git credential in the job that executes third-party packages.
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -63,20 +71,60 @@ jobs:
 
       - name: Scan
         id: scan
-        # Scanning spawns third-party packages. That is safe here and only here:
-        # a throwaway runner with no secrets in its environment. The scanner
-        # sends `initialize` and `tools/list` and nothing else.
-        run: node scripts/scan.mjs --concurrency 4 ${{ inputs.slug && format('--slug {0}', inputs.slug) || '' }}
+        shell: bash
+        # The slug arrives through the environment, never through string
+        # interpolation into the command: a workflow_dispatch input is
+        # attacker-controllable text, and `${{ }}` in a `run:` is shell source.
+        env:
+          SCAN_SLUG: ${{ inputs.slug }}
+        run: |
+          set -euo pipefail
+          if [ -n "${SCAN_SLUG:-}" ]; then
+            node scripts/scan.mjs --concurrency 4 --slug "$SCAN_SLUG"
+          else
+            node scripts/scan.mjs --concurrency 4
+          fi
 
-      - name: Commit results
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: scan-results
+          path: data/results
+          retention-days: 7
+
+  commit:
+    name: Commit results
+    needs: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          name: scan-results
+          path: data/results
+
+      - name: Commit and push
         id: commit
         shell: bash
         env:
-          SUMMARY: ${{ steps.scan.outputs.summary }}
+          SUMMARY: ${{ needs.scan.outputs.summary }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Only ever stage scan output. This job holds a write token, so it
+          # must not be able to carry along anything else the runner produced.
           git add data/results
           if git diff --cached --quiet; then
             echo "No result changed; nothing to deploy."
@@ -84,15 +132,18 @@ jobs:
             exit 0
           fi
           # Pass the message via a file so nothing in it is evaluated by the shell.
-          printf '%s\n' "$SUMMARY" > /tmp/scan-commit-message
-          git commit --file /tmp/scan-commit-message
-          git push origin HEAD:main
+          printf '%s\n' "$SUMMARY" > "$RUNNER_TEMP/scan-commit-message"
+          git commit --file "$RUNNER_TEMP/scan-commit-message"
+          # The credential lives only in this command, never in .git/config.
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
           echo "committed=true" >> "$GITHUB_OUTPUT"
 
   deploy:
     name: Deploy the directory
-    needs: scan
-    if: needs.scan.outputs.committed == 'true'
+    needs:
+      - scan
+      - commit
+    if: needs.commit.outputs.committed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # A content environment, separate from Production: code releases keep their
@@ -148,4 +199,6 @@ jobs:
 
       - name: Ping IndexNow
         continue-on-error: true
-        run: node scripts/indexnow.mjs "${{ needs.scan.outputs.changed }}"
+        env:
+          CHANGED_SLUGS: ${{ needs.scan.outputs.changed }}
+        run: node scripts/indexnow.mjs "$CHANGED_SLUGS"

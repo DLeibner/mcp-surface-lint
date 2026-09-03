@@ -84,11 +84,20 @@ describe("indexation", () => {
 });
 
 describe("robots.txt", () => {
-  it("disallows user-submitted reports and advertises the sitemap", () => {
+  it("advertises the sitemap and blocks only the API", () => {
     const result = robots();
     const rule = Array.isArray(result.rules) ? result.rules[0]! : result.rules!;
-    expect(rule.disallow).toContain("/r/");
+    expect(rule.disallow).toContain("/api/");
     expect(result.sitemap).toBe(canonicalUrl("/sitemap.xml"));
+  });
+
+  it("leaves /r/ crawlable so its noindex tag can be read", () => {
+    // Blocking a URL in robots.txt hides the noindex from the crawler, which
+    // leaves a discovered report indexed as a bare URL forever.
+    const result = robots();
+    const rule = Array.isArray(result.rules) ? result.rules[0]! : result.rules!;
+    const disallow = Array.isArray(rule.disallow) ? rule.disallow : [rule.disallow];
+    expect(disallow).not.toContain("/r/");
   });
 });
 

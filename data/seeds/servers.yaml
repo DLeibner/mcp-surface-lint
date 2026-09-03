@@ -11,6 +11,15 @@
 #
 # The scanner only ever calls `initialize` and `tools/list`. It never invokes a
 # tool, and it never authenticates with a real credential.
+#
+# `stdio_command` deliberately floats (`@latest`, unpinned `uvx`, a mutable
+# Docker tag). The directory exists to report what a server publishes *today*,
+# so pinning would freeze every page against a stale surface and turn 30 seed
+# entries into 30 standing version bumps. The supply-chain risk that pinning
+# would mitigate is instead contained structurally: .github/workflows/scan.yml
+# runs these commands in a job with `contents: read`, no persisted git
+# credential, and no deployment secrets, and hands its results to a separate
+# job across an artifact boundary.
 
 # --- developer-tools --------------------------------------------------------
 

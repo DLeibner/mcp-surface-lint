@@ -11,6 +11,16 @@ import type { ServerSnapshot, ToolDef } from "../types.js";
 export interface CaptureLimits {
   maxPages?: number;
   maxTools?: number;
+  /**
+   * Abandon the capture after this many milliseconds.
+   *
+   * Racing the returned promise against a timer is not enough: it rejects the
+   * caller while the underlying connection stays open, so a stdio server that
+   * never answers leaves its child process running and can keep the whole
+   * process alive. Passing the budget in here lets the capture close its own
+   * transport, which is what actually terminates the child.
+   */
+  timeoutMs?: number;
 }
 
 export interface StdioCaptureOptions extends CaptureLimits {
@@ -33,7 +43,18 @@ export interface HttpCaptureOptions extends CaptureLimits {
   fetch?: FetchLike;
 }
 
-const DEFAULT_LIMITS: Required<CaptureLimits> = { maxPages: 50, maxTools: 1000 };
+const DEFAULT_LIMITS: Omit<Required<CaptureLimits>, "timeoutMs"> = {
+  maxPages: 50,
+  maxTools: 1000
+};
+
+/** Thrown when {@link CaptureLimits.timeoutMs} elapses before the surface is read. */
+export class CaptureTimeoutError extends Error {
+  constructor(readonly timeoutMs: number) {
+    super(`The server did not complete tools/list within ${timeoutMs / 1000}s.`);
+    this.name = "CaptureTimeoutError";
+  }
+}
 
 export class McpCapture {
   static async fromStdio(
@@ -64,9 +85,25 @@ export class McpCapture {
     limits: CaptureLimits = {}
   ): Promise<ServerSnapshot> {
     const { maxPages, maxTools } = { ...DEFAULT_LIMITS, ...limits };
+    const { timeoutMs } = limits;
     const client = new Client({ name: "mcp-surface-lint", version: "0.1.0" });
-    await client.connect(transport);
+
+    // The timer starts before `connect`, because a server that accepts the pipe
+    // and then says nothing hangs there rather than in `listTools`.
+    let timedOut = false;
+    const timer =
+      timeoutMs === undefined
+        ? undefined
+        : setTimeout(() => {
+            timedOut = true;
+            // Tearing the transport down is what unblocks the pending request
+            // and kills a stdio child; the caller's rejection alone would not.
+            void transport.close?.().catch(() => {});
+            void client.close().catch(() => {});
+          }, timeoutMs);
+
     try {
+      await client.connect(transport);
       const tools: ToolDef[] = [];
       let cursor: string | undefined;
       let pages = 0;
@@ -90,8 +127,14 @@ export class McpCapture {
         capturedAt: new Date().toISOString(),
         source
       };
+    } catch (error) {
+      // A closed transport surfaces as an opaque connection error; report the
+      // cause the caller actually needs to see.
+      if (timedOut) throw new CaptureTimeoutError(timeoutMs!);
+      throw error;
     } finally {
-      await client.close();
+      if (timer !== undefined) clearTimeout(timer);
+      await client.close().catch(() => {});
     }
   }
 

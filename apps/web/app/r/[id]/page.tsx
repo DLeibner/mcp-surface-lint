@@ -21,8 +21,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${run.report.server.name ?? "MCP server"} — ${run.report.scores.composite}/100 — ${SITE_NAME}`,
     // User-submitted reports never enter the index, public or not: they are
     // someone else's surface, they duplicate the directory's own pages, and a
-    // shared link should not turn into a search result. robots.txt disallows
-    // /r/ as well. Anyone holding the URL can still open one.
+    // shared link should not turn into a search result. This tag is the whole
+    // mechanism — robots.txt deliberately leaves /r/ crawlable so it can be
+    // read. Anyone holding the URL can still open one.
     robots: { index: false, follow: false }
   };
 }

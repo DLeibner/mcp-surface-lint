@@ -37,7 +37,13 @@ const DATA = path.join(ROOT, "data");
 const RESULTS = path.join(DATA, "results");
 
 const CAPTURE_TIMEOUT_MS = 60_000;
-const LIMITS = { maxTools: 500, maxPages: 20 };
+/**
+ * The capture owns the real deadline and closes its own transport, which is
+ * what actually kills a stalled stdio child. The outer race below is a backstop
+ * for a hang somewhere other than the capture, so it must fire second.
+ */
+const GRACE_MS = 5_000;
+const LIMITS = { maxTools: 500, maxPages: 20, timeoutMs: CAPTURE_TIMEOUT_MS };
 
 const ENGINE_VERSION = JSON.parse(
   await readFile(path.join(ROOT, "packages/core/package.json"), "utf8")
@@ -133,7 +139,7 @@ async function capture(seed) {
     if (!seed.stdio_command) throw new Error("transport is stdio but stdio_command is null.");
     return withTimeout(
       McpCapture.fromStdio(seed.stdio_command, { ...LIMITS, env: seed.stdio_env ?? {} }),
-      CAPTURE_TIMEOUT_MS,
+      CAPTURE_TIMEOUT_MS + GRACE_MS,
       "stdio capture"
     );
   }
@@ -142,7 +148,7 @@ async function capture(seed) {
   if (!seed.endpoint) throw new Error("transport is remote but endpoint is null.");
   return withTimeout(
     McpCapture.fromHttp(seed.endpoint, LIMITS),
-    CAPTURE_TIMEOUT_MS,
+    CAPTURE_TIMEOUT_MS + GRACE_MS,
     "http capture"
   );
 }

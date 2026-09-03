@@ -3,6 +3,11 @@ import { Scorer } from "mcp-surface-lint";
 import { findEntry, loadCatalog } from "@/lib/directory/catalog";
 
 export const alt = "MCP Surface Lint audit";
+
+// Route segment config is per-file, so the page's setting does not cover this
+// route: without it an unknown slug renders the fallback image on demand
+// instead of 404ing.
+export const dynamicParams = false;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 

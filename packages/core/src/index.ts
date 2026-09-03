@@ -19,6 +19,7 @@ export {
 export { snapshotFileSchema, type SnapshotFile } from "./ingest/snapshot-schema.js";
 export {
   McpCapture,
+  CaptureTimeoutError,
   type CaptureLimits,
   type HttpCaptureOptions,
   type StdioCaptureOptions

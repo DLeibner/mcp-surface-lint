@@ -125,11 +125,14 @@ test.describe("indexable surface", () => {
 });
 
 test.describe("withheld from the index", () => {
-  test("robots.txt disallows user-submitted reports and names the sitemap", async ({ request }) => {
+  test("robots.txt names the sitemap and keeps /r/ crawlable", async ({ request }) => {
     const response = await request.get("/robots.txt");
     expect(response.status()).toBe(200);
     const body = await response.text();
-    expect(body).toContain("Disallow: /r/");
+    expect(body).toContain("Disallow: /api/");
+    // A crawler must be able to fetch a report to see its noindex; blocking the
+    // path here would strand discovered report URLs in the index.
+    expect(body).not.toContain("Disallow: /r/");
     expect(body).toMatch(/Sitemap: https?:\/\/[^\s]+\/sitemap\.xml/);
   });
 
@@ -142,9 +145,9 @@ test.describe("withheld from the index", () => {
         }
       }
     });
-    // A workstation with real Upstash credentials shares one paste budget across
-    // every spec, so this can lose a race that CI (no Upstash, one worker) never
-    // runs. Skipping on 429 keeps local runs honest without softening CI.
+    // A workstation with real Upstash credentials in .env enforces the hourly
+    // paste budget, which repeated local runs can exhaust. CI configures no
+    // Upstash, so limiting is off there and a 429 can never mask a real failure.
     test.skip(created.status() === 429, "local paste rate limit reached");
     expect(created.status(), await created.text()).toBe(200);
     const { id } = (await created.json()) as { id: string };
@@ -155,7 +158,11 @@ test.describe("withheld from the index", () => {
   });
 
   test("unknown slugs and rules 404 rather than rendering an empty page", async ({ request }) => {
-    for (const path of ["/servers/not-a-real-server", "/rules/not-a-real-rule"]) {
+    for (const path of [
+      "/servers/not-a-real-server",
+      "/servers/not-a-real-server/opengraph-image",
+      "/rules/not-a-real-rule"
+    ]) {
       expect((await request.get(path)).status(), path).toBe(404);
     }
   });

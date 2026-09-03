@@ -160,9 +160,15 @@ certificate issuance.
 **2. Vercel (domains).** Project → Settings → Domains:
 
 - Add `mcp-surface-lint.com` and mark it the production domain.
-- Add `www.mcp-surface-lint.com` and set it to **redirect to** `mcp-surface-lint.com` (308).
-- Keep `mcplint.petabyte.hr` attached and set it to **redirect to** `mcp-surface-lint.com`. Do not
-  remove it — an unattached domain 404s and drops whatever rankings the old URLs hold.
+- Add `www.mcp-surface-lint.com` and set it to **redirect to** `mcp-surface-lint.com`, status
+  **301**.
+- Keep `mcplint.petabyte.hr` attached and set it to **redirect to** `mcp-surface-lint.com`, again
+  **301**. Do not remove it — an unattached domain 404s and drops whatever rankings the old URLs
+  hold.
+
+Pick 301 rather than Vercel's 307/308 default on both. Search Console's Change of Address pre-check
+looks specifically for 301s on the old site's pages; a 308 is a permanent redirect too, but it can
+fail that particular check and block the move.
 
 Vercel preserves the path on domain-level redirects. The `*.vercel.app` production alias cannot be
 redirected from the UI; the canonical tag covers it.
@@ -180,9 +186,9 @@ curl -sSI https://mcplint.petabyte.hr/rules | grep -i '^\(HTTP\|location\)'
 curl -sSI https://mcp-surface-lint.com/rules/ | grep -i '^\(HTTP\|location\)'
 ```
 
-The first two must return a 3xx with `location: https://mcp-surface-lint.com/rules` — path
-preserved, not a bare redirect to the homepage. The third must return 308 to `/rules`, proving the
-no-trailing-slash policy.
+The first two must return `301` with `location: https://mcp-surface-lint.com/rules` — path
+preserved, not a bare redirect to the homepage. The third is the framework's own trailing-slash
+redirect and returns `308` to `/rules`.
 
 **5. Search Console.** Add `mcp-surface-lint.com` as a *Domain* property and verify with the DNS TXT
 record via Cloudflare. If a property exists for `mcplint.petabyte.hr`, use Settings → Change of
@@ -191,7 +197,12 @@ address on it to point at the new property; that tool needs the 301s from step 2
 **6. Bing Webmaster Tools.** Add the site and import the Search Console property rather than
 re-verifying by hand.
 
-Submit the sitemap in both once Phase 1 ships one; there is no `/sitemap.xml` yet.
+**7. Submit the sitemap.** The app generates it at
+[`apps/web/app/sitemap.ts`](apps/web/app/sitemap.ts) and the release smoke test requires the route
+to respond, so it is live the moment production deploys. Submit
+`https://mcp-surface-lint.com/sitemap.xml` in both Search Console and Bing Webmaster Tools after the
+first deploy to the new domain. It lists only indexable pages — server pages awaiting a first scan
+are withheld by design, and appear once the scan succeeds.
 
 ## One-time npm setup
 
