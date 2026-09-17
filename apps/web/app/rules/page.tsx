@@ -5,11 +5,12 @@ import { RulePageAnalytics } from "@/components/RulePageAnalytics";
 import { RULE_CATEGORY_BLURBS } from "@/lib/rule-categories";
 import { pageMetadata } from "@/lib/seo";
 
+const RULE_COUNT = RuleRegistry.all().length;
+
 export const metadata: Metadata = pageMetadata({
   path: "/rules",
   title: "MCP Tool Surface Rules — the full catalogue",
-  description:
-    "All 19 rules MCP Surface Lint checks on a tools/list surface, across six categories: surface, naming, descriptions, schemas, annotations, and design."
+  description: `All ${RULE_COUNT} rules MCP Surface Lint checks on a tools/list surface, across six categories: surface, naming, descriptions, schemas, annotations, and design.`
 });
 
 export default function RulesPage() {

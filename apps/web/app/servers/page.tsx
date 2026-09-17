@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { RuleRegistry } from "mcp-surface-lint";
 import { Breadcrumb } from "@/components/directory/Breadcrumb";
 import { loadCatalog, rankedOverall } from "@/lib/directory/catalog";
 import { indexableServers } from "@/lib/directory/indexing";
@@ -7,6 +8,8 @@ import { breadcrumbList, directoryDataset, jsonLdProps } from "@/lib/directory/s
 import { hubDescription, hubTitle } from "@/lib/directory/seo-copy";
 import { CATEGORIES, CATEGORY_LABELS } from "@/lib/directory/types";
 import { pageMetadata } from "@/lib/seo";
+
+const RULE_COUNT = RuleRegistry.all().length;
 
 function currentYear(lastScannedAt?: string): number {
   return new Date(lastScannedAt ?? Date.now()).getUTCFullYear();
@@ -44,9 +47,9 @@ export default function ServersHubPage() {
       <h1>MCP servers ranked by tool surface quality</h1>
       <p className="lede">
         Every server below is audited with the same {""}
-        <Link href="/rules">19 static rules</Link>: what its <code>tools/list</code> costs in tokens,
-        how tightly its schemas are typed, and whether its surface is shaped around user intents or
-        around REST endpoints. Nothing here calls a tool or runs an LLM.{" "}
+        <Link href="/rules">{RULE_COUNT} static rules</Link>: what its <code>tools/list</code> costs
+        in tokens, how tightly its schemas are typed, and whether its surface is shaped around user
+        intents or around REST endpoints. Nothing here calls a tool or runs an LLM.{" "}
         {ranked.length === catalog.entries.length
           ? `All ${ranked.length} carry a published scan as of ${year}.`
           : `${ranked.length} of ${catalog.entries.length} carry a published scan as of ${year}.`}

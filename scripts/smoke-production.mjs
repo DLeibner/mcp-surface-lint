@@ -41,7 +41,7 @@ async function request(path) {
   if (!response.ok) {
     throw new Error(`${path} returned HTTP ${response.status}.`);
   }
-  await response.arrayBuffer();
+  return response.text();
 }
 
 async function rpc(id, method, params) {
@@ -75,10 +75,16 @@ async function smoke() {
       "/servers",
       "/methodology",
       "/audit",
-      "/sitemap.xml",
       "/robots.txt"
     ].map(request)
   );
+
+  const sitemap = await request("/sitemap.xml");
+  const serverUrl = /<loc>(https?:\/\/[^<]+\/servers\/[^<]+)<\/loc>/.exec(sitemap)?.[1];
+  if (!serverUrl || new URL(serverUrl).origin !== origin) {
+    throw new Error("The sitemap does not contain a scorecard on the production origin.");
+  }
+  await request(new URL(serverUrl).pathname);
 
   const initialized = await rpc(1, "initialize", {
     protocolVersion: "2025-06-18",

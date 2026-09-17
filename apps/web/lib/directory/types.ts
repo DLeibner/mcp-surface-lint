@@ -1,4 +1,17 @@
 import { z } from "zod";
+import {
+  scanFindingSchema,
+  scanResultSchema,
+  scanStatusSchema,
+  scanToolSchema
+} from "./scan-result-schema.js";
+
+export {
+  scanFindingSchema,
+  scanResultSchema,
+  scanStatusSchema,
+  scanToolSchema
+} from "./scan-result-schema.js";
 
 export const CATEGORIES = [
   "developer-tools",
@@ -68,61 +81,11 @@ export type SlugRedirect = z.infer<typeof redirectsSchema>["redirects"][number];
  * behind auth we deliberately do not attempt — see the hard rule in the
  * scanner: never authenticate, never call a tool.
  */
-export const scanStatusSchema = z.enum(["ok", "unreachable", "needs-snapshot"]);
 export type ScanStatus = z.infer<typeof scanStatusSchema>;
-
-export const scanFindingSchema = z.object({
-  rule_id: z.string(),
-  severity: z.enum(["error", "warn", "info"]),
-  category: z.string(),
-  tool_name: z.string().optional(),
-  message: z.string(),
-  evidence: z.string().optional()
-});
 
 export type ScanFinding = z.infer<typeof scanFindingSchema>;
 
-export const scanToolSchema = z.object({
-  name: z.string(),
-  description_length: z.number().int().min(0),
-  has_annotations: z.boolean(),
-  property_count: z.number().int().min(0),
-  required_count: z.number().int().min(0),
-  max_depth: z.number().int().min(0),
-  tokens: z.number().int().min(0)
-});
-
 export type ScanTool = z.infer<typeof scanToolSchema>;
-
-export const scanResultSchema = z.object({
-  slug: slugSchema,
-  scanned_at: z.string().datetime(),
-  engine_version: z.string(),
-  status: scanStatusSchema,
-  /** Present only when the most recent attempt failed. */
-  last_error: z.string().nullable().default(null),
-  /**
-   * When the attempt that produced this payload ran. A run that finds no change
-   * leaves the file alone, so this is not "the last time we looked" — it is the
-   * last time looking changed something. For a failing server it is the last
-   * failed attempt, which is what makes it worth keeping alongside `scanned_at`.
-   */
-  last_attempt_at: z.string().datetime(),
-  snapshot_hash: z.string().nullable(),
-  server_info: z.object({ name: z.string().optional(), version: z.string().optional() }).default({}),
-  score: z
-    .object({
-      composite: z.number().int().min(0).max(100),
-      categories: z.record(z.number().int().min(0).max(100))
-    })
-    .nullable(),
-  token_footprint: z
-    .object({ tokens: z.number().int().min(0), tokenizer: z.string() })
-    .nullable(),
-  tool_count: z.number().int().min(0).nullable(),
-  findings: z.array(scanFindingSchema).default([]),
-  tools: z.array(scanToolSchema).default([])
-});
 
 export type ScanResult = z.infer<typeof scanResultSchema>;
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RuleRegistry } from "mcp-surface-lint";
 import { LintForm } from "@/components/LintForm";
 import { CliDocsAnalytics } from "@/components/CliDocsAnalytics";
 import Link from "next/link";
@@ -8,11 +9,12 @@ import { jsonLdProps, website } from "@/lib/directory/schema-org";
 import { CATEGORY_LABELS } from "@/lib/directory/types";
 import { pageMetadata } from "@/lib/seo";
 
+const RULE_COUNT = RuleRegistry.all().length;
+
 export const metadata: Metadata = pageMetadata({
   path: "/",
   title: "MCP Surface Lint — audit your MCP server's tool surface",
-  description:
-    "Measure what an MCP server costs your context window, then statically audit its tool surface against 19 design rules. Deterministic, no LLM calls, no tool invocation."
+  description: `Measure what an MCP server costs your context window, then statically audit its tool surface against ${RULE_COUNT} design rules. Deterministic, no LLM calls, no tool invocation.`
 });
 
 export default function HomePage() {
@@ -83,11 +85,11 @@ export default function HomePage() {
 
       <h2>What it checks</h2>
       <p className="lede">
-        Nineteen rules across six categories. Tier 1 is hygiene — missing descriptions, loose schemas,
-        absent annotations. Tier 2 is the interesting half: design. Whether your surface mirrors your
-        REST API instead of your users&apos; intents, whether two tools are confusable, whether an enum
-        is buried in prose where the model can&apos;t see it.{" "}
-        <a href="/rules">Read the rule catalogue →</a>
+        {RULE_COUNT} rules across six categories. Tier 1 is hygiene — missing descriptions, loose
+        schemas, absent annotations. Tier 2 is the interesting half: design. Whether your surface
+        mirrors your REST API instead of your users&apos; intents, whether two tools are confusable,
+        whether an enum is buried in prose where the model can&apos;t see it.{" "}
+        <Link href="/rules">Read the rule catalogue →</Link>
       </p>
 
       <h2>It runs locally too</h2>

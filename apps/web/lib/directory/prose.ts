@@ -5,6 +5,7 @@ import { CATEGORY_LABELS, type ScanFinding, type ScannedResult } from "./types";
 
 /** A representative modern context window, used only to make the token bill legible. */
 const REFERENCE_CONTEXT = 200_000;
+const RULE_COUNT = RuleRegistry.all().length;
 
 /** §6.3: below this, a page is too thin to index and gets `noindex` automatically. */
 export const MIN_PROSE_WORDS = 300;
@@ -125,7 +126,7 @@ function summaryProse(entry: DirectoryEntry, scanned: ScannedResult): string[] {
       ? pick(
           [
             `MCP Surface Lint scores that surface ${score} out of 100 (grade ${grade}) with no scored findings against it.`,
-            `Against the 19 static rules in the catalogue the surface scores ${score} out of 100 — grade ${grade} — and triggers no scored findings.`
+            `Against the ${RULE_COUNT} static rules in the catalogue the surface scores ${score} out of 100 — grade ${grade} — and triggers no scored findings.`
           ],
           slug,
           "scoring-clean"
@@ -133,7 +134,7 @@ function summaryProse(entry: DirectoryEntry, scanned: ScannedResult): string[] {
       : pick(
           [
             `MCP Surface Lint scores that surface ${score} out of 100 (grade ${grade}), with ${n(counted.length)} scored findings spread across ${categoriesTouched} of the six rule categories.`,
-            `Against the 19 static rules in the catalogue it scores ${score} out of 100 — grade ${grade} — raising ${n(counted.length)} scored findings in ${categoriesTouched} of the six categories.`,
+            `Against the ${RULE_COUNT} static rules in the catalogue it scores ${score} out of 100 — grade ${grade} — raising ${n(counted.length)} scored findings in ${categoriesTouched} of the six categories.`,
             `The composite score is ${score} out of 100 (grade ${grade}), built from ${n(counted.length)} scored findings touching ${categoriesTouched} of the six rule categories.`
           ],
           slug,
@@ -268,7 +269,7 @@ function strengthsProse(entry: DirectoryEntry, scanned: ScannedResult): string[]
     return [
       pick(
         [
-          `Nothing in the catalogue fires on this surface. ${name} passes all 19 rules: ${list(Scorer.categories.map((c) => RULE_CATEGORY_FRAGMENTS[c]))}.`,
+          `Nothing in the catalogue fires on this surface. ${name} passes all ${RULE_COUNT} rules: ${list(Scorer.categories.map((c) => RULE_CATEGORY_FRAGMENTS[c]))}.`,
           `${name} clears every rule in the catalogue. That means ${list(Scorer.categories.map((c) => RULE_CATEGORY_FRAGMENTS[c]))}.`
         ],
         slug,

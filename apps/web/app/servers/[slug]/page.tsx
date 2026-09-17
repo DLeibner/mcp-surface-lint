@@ -85,6 +85,19 @@ export default async function ServerPage({ params }: Props) {
         <>
           <Verdict entry={entry} scanned={scanned} />
 
+          {result && result.status !== "ok" ? (
+            <div className="panel" role="status">
+              <strong>The latest scan could not refresh this surface.</strong>
+              <p className="hint">
+                The scorecard below is the last successful scan from{" "}
+                <time dateTime={scanned.scanned_at}>{scanned.scanned_at.slice(0, 10)}</time>. The
+                most recent attempt was{" "}
+                <time dateTime={result.last_attempt_at}>{result.last_attempt_at.slice(0, 10)}</time>.
+              </p>
+              {result.last_error ? <p className="evidence">{result.last_error}</p> : null}
+            </div>
+          ) : null}
+
           {prose!.summary.map((paragraph, i) => (
             <p className="lede" key={`summary-${i}`}>
               {paragraph}

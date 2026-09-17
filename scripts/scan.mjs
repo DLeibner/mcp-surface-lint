@@ -19,11 +19,12 @@
  * That belongs in CI's throwaway container, not on a workstation.
  */
 import { createHash } from "node:crypto";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse } from "yaml";
+import { scanResultSchema } from "../apps/web/lib/directory/scan-result-schema.js";
 import {
   ConfigLoader,
   LintEngine,
@@ -169,7 +170,12 @@ async function capture(seed) {
   if (seed.snapshot_override) {
     const file = path.resolve(DATA, seed.snapshot_override);
     if (!existsSync(file)) throw new Error(`snapshot_override not found: ${seed.snapshot_override}`);
-    return SnapshotLoader.fromFile(file);
+    const [dataRoot, snapshotFile] = await Promise.all([realpath(DATA), realpath(file)]);
+    const relative = path.relative(dataRoot, snapshotFile);
+    if (relative.startsWith("..") || path.isAbsolute(relative)) {
+      throw new Error(`snapshot_override must stay inside data/: ${seed.snapshot_override}`);
+    }
+    return SnapshotLoader.fromFile(snapshotFile);
   }
 
   if (seed.transport === "stdio") {
@@ -200,7 +206,8 @@ async function readLatest(slug) {
   const file = path.join(RESULTS, slug, "latest.json");
   if (!existsSync(file)) return undefined;
   try {
-    return JSON.parse(await readFile(file, "utf8"));
+    const parsed = scanResultSchema.safeParse(JSON.parse(await readFile(file, "utf8")));
+    return parsed.success && parsed.data.slug === slug ? parsed.data : undefined;
   } catch {
     return undefined;
   }
@@ -318,12 +325,13 @@ function emptyResult(seed, at) {
 }
 
 async function write(result, writeDated) {
-  const dir = path.join(RESULTS, result.slug);
+  const validated = scanResultSchema.parse(result);
+  const dir = path.join(RESULTS, validated.slug);
   await mkdir(dir, { recursive: true });
-  const json = `${JSON.stringify(result, null, 2)}\n`;
+  const json = `${JSON.stringify(validated, null, 2)}\n`;
   await writeFile(path.join(dir, "latest.json"), json, "utf8");
   if (writeDated) {
-    const date = result.scanned_at.slice(0, 10);
+    const date = validated.scanned_at.slice(0, 10);
     await writeFile(path.join(dir, `${date}.json`), json, "utf8");
   }
 }

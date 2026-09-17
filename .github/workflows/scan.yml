@@ -50,6 +50,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
+          # A manual dispatch may select another ref in the UI, but a directory
+          # refresh always scans and updates the current main branch.
+          ref: main
           # No git credential in the job that executes third-party packages.
           persist-credentials: false
 
@@ -105,6 +108,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
         with:
+          # workflow_dispatch can target any ref; results must always be applied
+          # to main rather than pushing the selected feature branch onto main.
+          ref: main
           persist-credentials: false
 
       - name: Download results
