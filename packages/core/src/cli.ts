@@ -12,7 +12,7 @@ import { RuleRegistry } from "./rules/index.js";
 class Cli {
   static async main(): Promise<void> {
     const program = new Command()
-      .name("mcplint")
+      .name("mcp-surface-lint")
       .description("Lighthouse for MCP servers — static, design-level linting of tool surfaces")
       .version("0.1.0")
       .argument("[target]", "server URL (streamable HTTP) or path to a tools/list snapshot JSON")
@@ -21,7 +21,7 @@ class Cli {
       .option("--json", "output the report as JSON")
       .option("--md", "output the report as Markdown")
       .option("--fail-under <score>", "exit non-zero if the composite score is below this", parseFloat)
-      .option("--config <path>", "path to .mcplintrc.json")
+      .option("--config <path>", `path to ${ConfigLoader.defaultFileName}`)
       .option("--explain <ruleId>", "print a rule's rationale and docs link, then exit")
       .showHelpAfterError();
 

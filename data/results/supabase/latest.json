@@ -1,0 +1,400 @@
+{
+  "slug": "supabase",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:e17c2e8fe95cd69a14a2c48177d0c27c37c18db36b2f0d654a35bba3c852cfba",
+  "server_info": {
+    "name": "supabase",
+    "version": "0.11.0"
+  },
+  "score": {
+    "composite": 96,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 97,
+      "schemas": 92,
+      "annotations": 100,
+      "design": 88
+    }
+  },
+  "token_footprint": {
+    "tokens": 3328,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 19,
+  "findings": [
+    {
+      "rule_id": "descriptions/too-long",
+      "severity": "warn",
+      "category": "descriptions",
+      "tool_name": "search_docs",
+      "message": "Description is 1809 chars (maximum 1500) — move detail into parameter descriptions."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "search_docs",
+      "message": "\"search_docs\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_organizations",
+      "message": "\"list_organizations\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_projects",
+      "message": "\"list_projects\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_tables",
+      "message": "\"list_tables\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_extensions",
+      "message": "\"list_extensions\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_migrations",
+      "message": "\"list_migrations\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "query_logs",
+      "message": "\"query_logs\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_edge_functions",
+      "message": "\"list_edge_functions\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_branches",
+      "message": "\"list_branches\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "get_cost",
+      "message": "Parameter \"type\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "confirm_cost",
+      "message": "Parameter \"type\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "confirm_cost",
+      "message": "Parameter \"recurrence\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "confirm_cost",
+      "message": "Parameter \"amount\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_tables",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_extensions",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_migrations",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "execute_sql",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "query_logs",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "get_advisors",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "get_project_url",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "get_publishable_keys",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "generate_typescript_types",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_edge_functions",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "get_edge_function",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "get_edge_function",
+      "message": "Parameter \"function_slug\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_branches",
+      "message": "Parameter \"project_id\" has no description."
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [project, branch] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "get_cost/properties/type; confirm_cost/properties/type"
+    }
+  ],
+  "tools": [
+    {
+      "name": "search_docs",
+      "description_length": 1809,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 482
+    },
+    {
+      "name": "list_organizations",
+      "description_length": 53,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 83
+    },
+    {
+      "name": "get_organization",
+      "description_length": 61,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 98
+    },
+    {
+      "name": "list_projects",
+      "description_length": 126,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 98
+    },
+    {
+      "name": "get_project",
+      "description_length": 36,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 95
+    },
+    {
+      "name": "get_cost",
+      "description_length": 198,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 148
+    },
+    {
+      "name": "confirm_cost",
+      "description_length": 220,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 161
+    },
+    {
+      "name": "list_tables",
+      "description_length": 168,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 2,
+      "tokens": 188
+    },
+    {
+      "name": "list_extensions",
+      "description_length": 37,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 89
+    },
+    {
+      "name": "list_migrations",
+      "description_length": 37,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 90
+    },
+    {
+      "name": "execute_sql",
+      "description_length": 198,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 142
+    },
+    {
+      "name": "query_logs",
+      "description_length": 493,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 795
+    },
+    {
+      "name": "get_advisors",
+      "description_length": 385,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 180
+    },
+    {
+      "name": "get_project_url",
+      "description_length": 31,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 92
+    },
+    {
+      "name": "get_publishable_keys",
+      "description_length": 435,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 172
+    },
+    {
+      "name": "generate_typescript_types",
+      "description_length": 41,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 95
+    },
+    {
+      "name": "list_edge_functions",
+      "description_length": 47,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 94
+    },
+    {
+      "name": "get_edge_function",
+      "description_length": 67,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 109
+    },
+    {
+      "name": "list_branches",
+      "description_length": 179,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 115
+    }
+  ]
+}

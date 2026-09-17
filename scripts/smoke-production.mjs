@@ -41,7 +41,7 @@ async function request(path) {
   if (!response.ok) {
     throw new Error(`${path} returned HTTP ${response.status}.`);
   }
-  await response.arrayBuffer();
+  return response.text();
 }
 
 async function rpc(id, method, params) {
@@ -66,14 +66,32 @@ async function rpc(id, method, params) {
 }
 
 async function smoke() {
-  await Promise.all(["/", "/install", "/rules", "/example"].map(request));
+  await Promise.all(
+    [
+      "/",
+      "/install",
+      "/rules",
+      "/example",
+      "/servers",
+      "/methodology",
+      "/audit",
+      "/robots.txt"
+    ].map(request)
+  );
+
+  const sitemap = await request("/sitemap.xml");
+  const serverUrl = /<loc>(https?:\/\/[^<]+\/servers\/[^<]+)<\/loc>/.exec(sitemap)?.[1];
+  if (!serverUrl || new URL(serverUrl).origin !== origin) {
+    throw new Error("The sitemap does not contain a scorecard on the production origin.");
+  }
+  await request(new URL(serverUrl).pathname);
 
   const initialized = await rpc(1, "initialize", {
     protocolVersion: "2025-06-18",
     capabilities: {},
-    clientInfo: { name: "mcplint-release-smoke", version: "1.0.0" }
+    clientInfo: { name: "mcp-surface-lint-release-smoke", version: "1.0.0" }
   });
-  if (initialized?.serverInfo?.name !== "mcplint") {
+  if (initialized?.serverInfo?.name !== "mcp-surface-lint") {
     throw new Error("MCP initialize returned unexpected server metadata.");
   }
 

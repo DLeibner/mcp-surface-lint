@@ -1,0 +1,67 @@
+{
+  "slug": "microsoft-learn",
+  "scanned_at": "2026-09-03T06:23:18.641Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T06:23:18.641Z",
+  "snapshot_hash": "sha256:d4e051796ba6dfbd4e1f7900c663af1ea92e2dfac94b4f3e490e83ff989f925f",
+  "server_info": {
+    "name": "Microsoft Learn MCP Server",
+    "version": "1.0.0"
+  },
+  "score": {
+    "composite": 100,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 100,
+      "annotations": 100,
+      "design": 97
+    }
+  },
+  "token_footprint": {
+    "tokens": 973,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 3,
+  "findings": [
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "microsoft_code_sample_search",
+      "message": "\"microsoft_code_sample_search\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    }
+  ],
+  "tools": [
+    {
+      "name": "microsoft_docs_search",
+      "description_length": 716,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 298
+    },
+    {
+      "name": "microsoft_code_sample_search",
+      "description_length": 894,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 396
+    },
+    {
+      "name": "microsoft_docs_fetch",
+      "description_length": 1065,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 277
+    }
+  ]
+}

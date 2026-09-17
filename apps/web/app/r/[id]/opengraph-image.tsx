@@ -3,7 +3,7 @@ import { Scorer } from "mcp-surface-lint";
 import { getStore } from "@/lib/store";
 
 export const runtime = "nodejs";
-export const alt = "mcplint report";
+export const alt = "MCP Surface Lint report";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -32,7 +32,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
             fontSize: 48
           }}
         >
-          mcplint
+          MCP Surface Lint
         </div>
       ),
       size
@@ -58,7 +58,7 @@ export default async function Image({ params }: { params: Promise<{ id: string }
         }}
       >
         <div style={{ display: "flex", fontSize: 30, color: "#939cab" }}>
-          mcplint · {run.report.server.name ?? "MCP server"}
+          MCP Surface Lint · {run.report.server.name ?? "MCP server"}
         </div>
 
         {/* The token bill is the headline. The score is the follow-up. */}

@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import { InstallTabs } from "@/components/InstallTabs";
 import { InstallPageAnalytics } from "@/components/InstallPageAnalytics";
 import { CliDocsAnalytics } from "@/components/CliDocsAnalytics";
+import { pageMetadata } from "@/lib/seo";
 import { mcpEndpointUrl } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Install the mcplint MCP server",
+export const metadata: Metadata = pageMetadata({
+  path: "/install",
+  title: "Install the MCP Surface Lint MCP Server",
   description:
-    "Add mcplint to Cursor, VS Code, Claude, Windsurf, or any Streamable HTTP MCP client."
-};
+    "Add MCP Surface Lint to Cursor, VS Code, Claude, Windsurf, or any Streamable HTTP MCP client, and let your agent audit a tool surface for you."
+});
 
 export default function InstallPage() {
   const endpoint = mcpEndpointUrl();
@@ -18,7 +20,8 @@ export default function InstallPage() {
       <InstallPageAnalytics />
       <h1>Give your AI client an MCP reviewer.</h1>
       <p className="lede">
-        The hosted mcplint server exposes one read-only tool: <code>check_mcp_server</code>. It
+        The hosted MCP Surface Lint server exposes one read-only tool: <code>check_mcp_server</code>.
+        It
         accepts a public HTTPS endpoint or a <code>tools/list</code> snapshot and returns structured
         scores and findings.
       </p>
@@ -28,28 +31,29 @@ export default function InstallPage() {
       <h2>What to ask</h2>
       <div className="panel prompt-panel">
         <p className="hint">Installed-server workflow</p>
-        <code>Check my installed Grafana MCP server using the MCPLint tool.</code>
+        <code>Check my installed Grafana MCP server using the MCP Surface Lint tool.</code>
         <p className="hint">
           If your client exposes Grafana&apos;s complete tool definitions to the agent, it should
           forward them inline as <code>check_mcp_server</code>&apos;s <code>snapshot</code> argument
           — a <code>tools</code> array with MCP <code>name</code> or Cursor-style <code>tool</code> on
           each entry. File paths and <code>$ref</code> are not supported. Otherwise the agent must ask
-          you for Grafana&apos;s public endpoint or a <code>tools/list</code> JSON export. MCPLint never
-          guesses missing schemas.
+          you for Grafana&apos;s public endpoint or a <code>tools/list</code> JSON export. MCP Surface
+          Lint never guesses missing schemas.
         </p>
       </div>
       <div className="use-case-grid">
         <article className="rule-card">
           <h3>Review a remote server</h3>
           <p>
-            “Use mcplint to check <code>https://example.com/mcp</code>. Summarize the three
+            “Use MCP Surface Lint to check <code>https://example.com/mcp</code>. Summarize the three
             highest-impact fixes.”
           </p>
         </article>
         <article className="rule-card">
           <h3>Review a snapshot</h3>
           <p>
-            “Check this <code>tools/list</code> JSON with mcplint and explain why the design score
+            “Check this <code>tools/list</code> JSON with MCP Surface Lint and explain why the design
+            score
             is low.”
           </p>
         </article>

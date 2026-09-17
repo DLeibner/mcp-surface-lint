@@ -1,0 +1,41 @@
+{
+  "slug": "fetch",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:517e61ed3c12317438b7fb5c7b0bbbba3d3715c8115d657fa15ae360c1dd6c08",
+  "server_info": {
+    "name": "mcp-fetch",
+    "version": "1.29.1"
+  },
+  "score": {
+    "composite": 100,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 100,
+      "annotations": 100,
+      "design": 100
+    }
+  },
+  "token_footprint": {
+    "tokens": 238,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 1,
+  "findings": [],
+  "tools": [
+    {
+      "name": "fetch",
+      "description_length": 307,
+      "has_annotations": false,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 236
+    }
+  ]
+}

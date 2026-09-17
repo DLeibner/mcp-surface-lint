@@ -1,0 +1,1214 @@
+{
+  "slug": "mongodb",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:5ec8920cdd31f4ad7b3984f05fa52811fb331d03a40a78096ce3cdf9b5659f2e",
+  "server_info": {
+    "name": "MongoDB MCP Server",
+    "version": "2.1.0"
+  },
+  "score": {
+    "composite": 94,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 80,
+      "annotations": 100,
+      "design": 84
+    }
+  },
+  "token_footprint": {
+    "tokens": 5768,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 20,
+  "findings": [
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list-collections",
+      "message": "\"list-collections\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list-connections",
+      "message": "\"list-connections\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list-databases",
+      "message": "\"list-databases\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list-knowledge-sources",
+      "message": "\"list-knowledge-sources\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "3 tools have overlapping descriptions (trigram Jaccard up to 0.67) — consolidation candidates.",
+      "evidence": "aggregate-db, aggregate, find"
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Input schema nests 5 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Input schema nests 8 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Input schema uses oneOf/anyOf 3 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Input schema nests 8 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Input schema uses oneOf/anyOf 3 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate-db",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate-db",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate-db",
+      "message": "Parameter \"pipeline\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate-db",
+      "message": "Parameter \"responseBytesLimit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"collection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"pipeline\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"responseBytesLimit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"$vectorSearch\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"exact\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"index\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"numCandidates\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"queryVector\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"exact\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"index\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"numCandidates\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"query\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"model\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "aggregate",
+      "message": "Parameter \"text\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-indexes",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-indexes",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-indexes",
+      "message": "Parameter \"collection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-schema",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-schema",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-schema",
+      "message": "Parameter \"collection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-schema",
+      "message": "Parameter \"sampleSize\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-schema",
+      "message": "Parameter \"responseBytesLimit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-storage-size",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-storage-size",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "collection-storage-size",
+      "message": "Parameter \"collection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "connect",
+      "message": "Parameter \"connectionString\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "connect",
+      "message": "Parameter \"connectionName\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "count",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "count",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "count",
+      "message": "Parameter \"collection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "count",
+      "message": "Parameter \"query\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "db-stats",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "db-stats",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "disconnect",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"collection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"method\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"verbosity\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"name\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"arguments\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"pipeline\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"$vectorSearch\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"exact\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"index\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"numCandidates\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"queryVector\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"exact\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"index\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"numCandidates\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"query\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"model\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"text\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"name\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"arguments\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"projection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"sort\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"name\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"arguments\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "explain",
+      "message": "Parameter \"query\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"collection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"exportTitle\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"exportTarget\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"jsonExportFormat\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"name\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"arguments\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"projection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"sort\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"name\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"arguments\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"pipeline\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"$vectorSearch\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"exact\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"index\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"numCandidates\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"queryVector\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"exact\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"index\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"numCandidates\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"query\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"model\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "export",
+      "message": "Parameter \"text\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "find",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "find",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "find",
+      "message": "Parameter \"collection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "find",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "find",
+      "message": "Parameter \"projection\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "find",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "find",
+      "message": "Parameter \"sort\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "find",
+      "message": "Parameter \"responseBytesLimit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list-collections",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list-collections",
+      "message": "Parameter \"database\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list-databases",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "mongodb-logs",
+      "message": "Parameter \"connectionId\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "mongodb-logs",
+      "message": "Parameter \"type\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "mongodb-logs",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "atlas-local-connect-deployment",
+      "message": "Parameter \"deploymentName\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "search-knowledge",
+      "message": "Parameter \"query\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "search-knowledge",
+      "message": "Parameter \"limit\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "search-knowledge",
+      "message": "Parameter \"dataSources\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "search-knowledge",
+      "message": "Parameter \"name\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "search-knowledge",
+      "message": "Parameter \"versionLabel\" has no description."
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [voyage-4, voyage-4-large, voyage-4-lite, voyage-code-3] is shared across 3 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "aggregate/properties/pipeline/items/anyOf/0/properties/$vectorSearch/anyOf/1/properties/model; explain/properties/method/items/anyOf/0/properties/arguments/properties/pipeline/items/anyOf/0/properties/$vectorSearch/anyOf/1/properties/model; export/properties/exportTarget/items/anyOf/1/properties/arguments/properties/pipeline/items/anyOf/0/properties/$vectorSearch/anyOf/1/properties/model"
+    }
+  ],
+  "tools": [
+    {
+      "name": "aggregate-db",
+      "description_length": 45,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 3,
+      "max_depth": 2,
+      "tokens": 254
+    },
+    {
+      "name": "aggregate",
+      "description_length": 47,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 4,
+      "max_depth": 5,
+      "tokens": 522
+    },
+    {
+      "name": "collection-indexes",
+      "description_length": 37,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 336
+    },
+    {
+      "name": "collection-schema",
+      "description_length": 36,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 221
+    },
+    {
+      "name": "collection-storage-size",
+      "description_length": 31,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 181
+    },
+    {
+      "name": "connect",
+      "description_length": 361,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 226
+    },
+    {
+      "name": "count",
+      "description_length": 122,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 200
+    },
+    {
+      "name": "db-stats",
+      "description_length": 66,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 181
+    },
+    {
+      "name": "disconnect",
+      "description_length": 209,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 191
+    },
+    {
+      "name": "explain",
+      "description_length": 118,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 4,
+      "max_depth": 8,
+      "tokens": 811
+    },
+    {
+      "name": "export",
+      "description_length": 68,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 5,
+      "max_depth": 8,
+      "tokens": 656
+    },
+    {
+      "name": "find",
+      "description_length": 45,
+      "has_annotations": true,
+      "property_count": 8,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 373
+    },
+    {
+      "name": "list-collections",
+      "description_length": 41,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 200
+    },
+    {
+      "name": "list-connections",
+      "description_length": 159,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 278
+    },
+    {
+      "name": "list-databases",
+      "description_length": 43,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 205
+    },
+    {
+      "name": "mongodb-logs",
+      "description_length": 44,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 215
+    },
+    {
+      "name": "atlas-local-connect-deployment",
+      "description_length": 106,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 193
+    },
+    {
+      "name": "atlas-local-list-deployments",
+      "description_length": 36,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 203
+    },
+    {
+      "name": "list-knowledge-sources",
+      "description_length": 175,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 132
+    },
+    {
+      "name": "search-knowledge",
+      "description_length": 214,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 3,
+      "tokens": 188
+    }
+  ]
+}

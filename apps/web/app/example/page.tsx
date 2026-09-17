@@ -5,12 +5,14 @@ import { ReportView } from "@/components/ReportView";
 import { ReportPageAnalytics } from "@/components/ReportPageAnalytics";
 import { currentTier } from "@/lib/lint";
 import { getExampleReport } from "@/lib/example-report";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Example report — mcplint",
+export const metadata: Metadata = pageMetadata({
+  path: "/example",
+  title: "Example MCP Tool Surface Audit Report",
   description:
-    "Public sample audit of a fictional MCP tool surface. See token footprint, category scores, and design findings without installing anything."
-};
+    "A public sample audit of a fictional MCP tool surface. See the token footprint, category scores, and design findings without installing anything."
+});
 
 export default function ExampleReportPage() {
   const raw = getExampleReport();
@@ -19,6 +21,7 @@ export default function ExampleReportPage() {
   return (
     <main>
       <ReportPageAnalytics id="example" visibility="public" />
+      <h1>Example MCP tool surface audit report</h1>
       <div className="panel example-banner">
         <p className="hint" style={{ margin: 0 }}>
           Public example — a fictional catalog server with deliberate design smells. No install or

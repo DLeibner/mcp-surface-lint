@@ -24,7 +24,7 @@ export function InstallTabs({ endpoint }: { endpoint: string }) {
         label: "Cursor",
         location: ".cursor/mcp.json or ~/.cursor/mcp.json",
         code: JSON.stringify(
-          { mcpServers: { mcplint: { url: endpoint } } },
+          { mcpServers: { "mcp-surface-lint": { url: endpoint } } },
           null,
           2
         ),
@@ -37,7 +37,7 @@ export function InstallTabs({ endpoint }: { endpoint: string }) {
         label: "VS Code",
         location: ".vscode/mcp.json or your user-profile mcp.json",
         code: JSON.stringify(
-          { servers: { mcplint: { type: "http", url: endpoint } } },
+          { servers: { "mcp-surface-lint": { type: "http", url: endpoint } } },
           null,
           2
         ),
@@ -49,7 +49,7 @@ export function InstallTabs({ endpoint }: { endpoint: string }) {
         id: "claude",
         label: "Claude",
         location: "Claude Code command",
-        code: `claude mcp add --transport http --scope user mcplint ${endpoint}`,
+        code: `claude mcp add --transport http --scope user mcp-surface-lint ${endpoint}`,
         note: "For Claude, Cowork, or Claude Desktop, open Customize → Connectors → Add custom connector and enter the same endpoint URL."
       },
       {
@@ -57,7 +57,7 @@ export function InstallTabs({ endpoint }: { endpoint: string }) {
         label: "Windsurf",
         location: "~/.codeium/windsurf/mcp_config.json",
         code: JSON.stringify(
-          { mcpServers: { mcplint: { serverUrl: endpoint } } },
+          { mcpServers: { "mcp-surface-lint": { serverUrl: endpoint } } },
           null,
           2
         ),
@@ -70,7 +70,7 @@ export function InstallTabs({ endpoint }: { endpoint: string }) {
         code: JSON.stringify(
           {
             mcpServers: {
-              mcplint: {
+              "mcp-surface-lint": {
                 type: "streamable-http",
                 url: endpoint
               }

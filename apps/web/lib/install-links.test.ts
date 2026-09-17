@@ -7,7 +7,7 @@ describe("MCP install links", () => {
   it("encodes a direct Cursor transport object as base64", () => {
     const link = new URL(cursorInstallUrl(endpoint));
     expect(link.protocol).toBe("cursor:");
-    expect(link.searchParams.get("name")).toBe("mcplint");
+    expect(link.searchParams.get("name")).toBe("mcp-surface-lint");
     const encoded = link.searchParams.get("config");
     expect(encoded).toBeTruthy();
     expect(JSON.parse(atob(encoded!))).toEqual({ url: endpoint });
@@ -18,7 +18,7 @@ describe("MCP install links", () => {
     const link = vscodeInstallUrl(endpoint);
     expect(link.startsWith(prefix)).toBe(true);
     expect(JSON.parse(decodeURIComponent(link.slice(prefix.length)))).toEqual({
-      name: "mcplint",
+      name: "mcp-surface-lint",
       type: "http",
       url: endpoint
     });
