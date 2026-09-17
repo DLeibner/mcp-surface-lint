@@ -1,5 +1,7 @@
 const ISSUE_URL =
   "https://github.com/DLeibner/mcp-surface-lint/issues/new?title=Re-scan%20request";
+const CORRECTION_URL =
+  "https://github.com/DLeibner/mcp-surface-lint/issues/new?title=Corrected%20snapshot";
 
 /**
  * Present on every server page from day one. We publish an analysis of somebody
@@ -19,7 +21,11 @@ export function MaintainerBox({ name, slug }: { name: string; slug: string }) {
         <a href={`${ISSUE_URL}%3A%20${encodeURIComponent(slug)}`} target="_blank" rel="noreferrer">
           Request a re-scan
         </a>
-        <a href={`mailto:hello@mcp-surface-lint.com?subject=${encodeURIComponent(`Correction: ${slug}`)}`}>
+        <a
+          href={`${CORRECTION_URL}%3A%20${encodeURIComponent(slug)}`}
+          target="_blank"
+          rel="noreferrer"
+        >
           Send a corrected snapshot
         </a>
       </p>

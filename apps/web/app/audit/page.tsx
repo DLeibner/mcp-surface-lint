@@ -13,8 +13,8 @@ export const metadata: Metadata = pageMetadata({
 
 const CRUMBS = [{ name: "Home", path: "/" }, { name: "Audit" }];
 
-const MAILTO =
-  "mailto:hello@mcp-surface-lint.com?subject=" +
+const CONTACT_URL =
+  "https://github.com/DLeibner/mcp-surface-lint/issues/new?title=" +
   encodeURIComponent("MCP surface fix plan") +
   "&body=" +
   encodeURIComponent(
@@ -68,7 +68,7 @@ export default function AuditPage() {
             Describe the server and what is going wrong. You get a scoped reply, not a sales call.
           </p>
         </div>
-        <a className="button-link" href={MAILTO}>
+        <a className="button-link" href={CONTACT_URL} target="_blank" rel="noreferrer">
           Request a fix plan
         </a>
       </div>

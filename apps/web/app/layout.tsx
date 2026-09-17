@@ -52,7 +52,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/audit">Fix plan</Link>
               <Link href="/install">Install</Link>
               <Link href="/example">Example report</Link>
-              <a href="mailto:hello@mcp-surface-lint.com">Contact</a>
+              <a
+                href="https://github.com/DLeibner/mcp-surface-lint/issues/new"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Contact
+              </a>
             </nav>
             <p>
               Static analysis only — {SITE_NAME} never invokes your tools and makes no LLM calls.

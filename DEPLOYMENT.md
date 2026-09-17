@@ -42,7 +42,7 @@ Add this **Environment variable**:
 
 | Name | Value |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | The canonical HTTPS production origin, currently `https://mcp-surface-lint.com` |
+| `NEXT_PUBLIC_SITE_URL` | The canonical HTTPS production origin, currently `https://mcplint-web.vercel.app` |
 
 `NEXT_PUBLIC_SITE_URL` must be an origin only: no path, query, fragment, or trailing route. The
 release smoke test also requires `server.json` to advertise this same origin.
@@ -79,7 +79,7 @@ Configure the Vercel project:
 Configure these Vercel **Production** environment variables:
 
 ```text
-NEXT_PUBLIC_SITE_URL=https://mcp-surface-lint.com
+NEXT_PUBLIC_SITE_URL=https://mcplint-web.vercel.app
 DATABASE_URL=...
 UPSTASH_REDIS_REST_URL=...   # must be a real https://... Upstash REST URL (not a placeholder)
 UPSTASH_REDIS_REST_TOKEN=...
@@ -143,66 +143,6 @@ changed. Unset, both the route 404s and the ping step no-ops — nothing breaks.
 re-scans a single server. Locally, `npm run scan -- --skip-stdio` audits only the public HTTP
 endpoints and spawns nothing, which is the right mode on a workstation — a full scan executes
 third-party packages and belongs in CI's throwaway runner.
-
-## One-time domain migration to mcp-surface-lint.com
-
-The apex `mcp-surface-lint.com` is the canonical host. Every page emits a canonical tag pointing at
-it (`apps/web/lib/seo.ts`), so a page served from a `*.vercel.app` alias or the legacy subdomain
-still tells search engines where the real URL is. The redirects below make that true at the HTTP
-level as well, which is what actually passes ranking signal.
-
-Steps, in order. Nothing here is in code — these are Cloudflare, Vercel, and Search Console UIs.
-
-**1. Cloudflare (DNS).** Add `mcp-surface-lint.com` to the account, then point it at Vercel with the
-records Vercel shows in step 2. Leave the records DNS-only (grey cloud); proxying breaks Vercel's
-certificate issuance.
-
-**2. Vercel (domains).** Project → Settings → Domains:
-
-- Add `mcp-surface-lint.com` and mark it the production domain.
-- Add `www.mcp-surface-lint.com` and set it to **redirect to** `mcp-surface-lint.com`, status
-  **301**.
-- Keep `mcplint.petabyte.hr` attached and set it to **redirect to** `mcp-surface-lint.com`, again
-  **301**. Do not remove it — an unattached domain 404s and drops whatever rankings the old URLs
-  hold.
-
-Pick 301 rather than Vercel's 307/308 default on both. Search Console's Change of Address pre-check
-looks specifically for 301s on the old site's pages; a 308 is a permanent redirect too, but it can
-fail that particular check and block the move.
-
-Vercel preserves the path on domain-level redirects. The `*.vercel.app` production alias cannot be
-redirected from the UI; the canonical tag covers it.
-
-**3. Vercel (environment).** Set `NEXT_PUBLIC_SITE_URL=https://mcp-surface-lint.com` for Production.
-This drives canonicals, OG URLs, the MCP install snippets, and the release smoke test — a stale
-value here silently publishes the wrong canonical host on every page. The repository variable
-`NEXT_PUBLIC_SITE_URL` used by the release workflow must match.
-
-**4. Verify the redirects** before touching Search Console:
-
-```bash
-curl -sSI https://www.mcp-surface-lint.com/rules | grep -i '^\(HTTP\|location\)'
-curl -sSI https://mcplint.petabyte.hr/rules | grep -i '^\(HTTP\|location\)'
-curl -sSI https://mcp-surface-lint.com/rules/ | grep -i '^\(HTTP\|location\)'
-```
-
-The first two must return `301` with `location: https://mcp-surface-lint.com/rules` — path
-preserved, not a bare redirect to the homepage. The third is the framework's own trailing-slash
-redirect and returns `308` to `/rules`.
-
-**5. Search Console.** Add `mcp-surface-lint.com` as a *Domain* property and verify with the DNS TXT
-record via Cloudflare. If a property exists for `mcplint.petabyte.hr`, use Settings → Change of
-address on it to point at the new property; that tool needs the 301s from step 2 already live.
-
-**6. Bing Webmaster Tools.** Add the site and import the Search Console property rather than
-re-verifying by hand.
-
-**7. Submit the sitemap.** The app generates it at
-[`apps/web/app/sitemap.ts`](apps/web/app/sitemap.ts) and the release smoke test requires the route
-to respond, so it is live the moment production deploys. Submit
-`https://mcp-surface-lint.com/sitemap.xml` in both Search Console and Bing Webmaster Tools after the
-first deploy to the new domain. It lists only indexable pages — server pages awaiting a first scan
-are withheld by design, and appear once the scan succeeds.
 
 ## One-time npm setup
 
