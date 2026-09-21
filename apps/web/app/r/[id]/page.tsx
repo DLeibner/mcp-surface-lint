@@ -7,6 +7,7 @@ import { ReportPageAnalytics } from "@/components/ReportPageAnalytics";
 import { ShareControls } from "@/components/ShareControls";
 import { AuditCta } from "@/components/AuditCta";
 import { currentTier } from "@/lib/lint";
+import { SITE_NAME } from "@/lib/seo";
 import { getStore } from "@/lib/store";
 
 type Props = { params: Promise<{ id: string }> };
@@ -14,14 +15,16 @@ type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const run = await getStore().get(id);
-  if (!run) return { title: "Report not found — mcplint" };
+  if (!run) return { title: `Report not found — ${SITE_NAME}` };
 
-  const isPublic = run.visibility === "public";
   return {
-    title: `${run.report.server.name ?? "MCP server"} — ${run.report.scores.composite}/100 — mcplint`,
-    // Unlisted reports must stay out of search indexes. Anyone holding the
-    // unguessable URL can still view one.
-    robots: isPublic ? undefined : { index: false, follow: false }
+    title: `${run.report.server.name ?? "MCP server"} — ${run.report.scores.composite}/100 — ${SITE_NAME}`,
+    // User-submitted reports never enter the index, public or not: they are
+    // someone else's surface, they duplicate the directory's own pages, and a
+    // shared link should not turn into a search result. This tag is the whole
+    // mechanism — robots.txt deliberately leaves /r/ crawlable so it can be
+    // read. Anyone holding the URL can still open one.
+    robots: { index: false, follow: false }
   };
 }
 
@@ -36,6 +39,7 @@ export default async function ReportPage({ params }: Props) {
   return (
     <main>
       <ReportPageAnalytics id={id} visibility={run.visibility} />
+      <h1>{run.report.server.name ?? "MCP server"} tool surface report</h1>
       <ReportView report={projectReport(run.report, currentTier())} />
       {isOwner && <ShareControls id={id} initialVisibility={run.visibility} />}
       <AuditCta id={id} />

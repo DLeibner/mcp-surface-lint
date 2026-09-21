@@ -3,7 +3,12 @@ export { LintEngine } from "./engine.js";
 export { Scorer } from "./scoring.js";
 export { TokenCounter } from "./tokens.js";
 export { countFindings, isGated, projectReport } from "./project.js";
-export { ConfigLoader, configSchema, type McplintConfig } from "./config.js";
+export {
+  ConfigLoader,
+  configSchema,
+  type SurfaceLintConfig,
+  type McplintConfig
+} from "./config.js";
 export {
   SnapshotLoader,
   SnapshotValidationError,
@@ -14,8 +19,10 @@ export {
 export { snapshotFileSchema, type SnapshotFile } from "./ingest/snapshot-schema.js";
 export {
   McpCapture,
+  CaptureTimeoutError,
   type CaptureLimits,
-  type HttpCaptureOptions
+  type HttpCaptureOptions,
+  type StdioCaptureOptions
 } from "./ingest/mcp-capture.js";
 export { RuleRegistry } from "./rules/index.js";
 export { BaseRule } from "./rules/BaseRule.js";

@@ -6,8 +6,9 @@ This is a monorepo:
 
 | Package | What it is |
 | --- | --- |
-| [`packages/core`](packages/core) | The linter — 19 rules, the scoring engine, and the `mcplint` CLI (`mcp-surface-lint` on npm). Publishable to npm. |
-| [`apps/web`](apps/web) | The hosted playground (`mcp-surface-lint-web`): paste a `tools/list` dump or point it at a remote MCP URL, get a score and an audit. |
+| [`packages/core`](packages/core) | The linter — 19 rules, the scoring engine, and the `mcp-surface-lint` CLI (`mcp-surface-lint` on npm). Publishable to npm. |
+| [`apps/web`](apps/web) | The hosted playground and the public directory (`mcp-surface-lint-web`): paste a `tools/list` dump or point it at a remote MCP URL, get a score and an audit. |
+| [`data/`](data) | The directory's inputs and outputs: a hand-maintained seed list of public MCP servers, and one scan result per server. |
 
 ## Quick start
 
@@ -23,6 +24,43 @@ The web app runs with no cloud accounts configured: reports are held in memory, 
 and no analytics are sent. Copy `apps/web/.env.example` to `.env.local` to wire up the real services.
 See [`DEPLOYMENT.md`](DEPLOYMENT.md) for the production account, migration, publishing, and smoke-test
 checklist.
+
+## The directory
+
+`/servers` publishes an audit of every server in [`data/seeds/servers.yaml`](data/seeds/servers.yaml),
+one static page each, regenerated from a weekly scan.
+
+```bash
+npm run scan -- --skip-stdio       # public HTTP endpoints only; spawns nothing
+npm run scan -- --slug context7    # re-scan one server
+npm run scan                       # everything (CI only — see below)
+```
+
+A full scan executes third-party packages to read their `stdio` tool surfaces. That belongs in the
+throwaway runner `.github/workflows/scan.yml` provides, not on a workstation; `--skip-stdio` is the
+local mode. Whatever the mode, the scanner sends `initialize` and `tools/list` and nothing else — it
+never invokes a tool and never authenticates. Servers behind OAuth are recorded as
+`needs-snapshot` and left out of the index.
+
+Results are written to `data/results/{slug}/`. A scan only rewrites a result when the tool surface
+or the engine version actually changed, so the dates on the pages — and in the sitemap — mean
+something.
+
+Servers that cannot be audited are parked in [`data/seeds/pending.yaml`](data/seeds/pending.yaml),
+which the app does not read: the directory only ever shows servers with a real surface, because a
+scorecard with no score is worse than no scorecard. Most are behind OAuth, and the scanner never
+authenticates — those need a `snapshot_override` their maintainers provide. To check whether any has
+opened up:
+
+```bash
+npm run scan -- --pending
+```
+
+That attempts each parked server and reports what would now succeed, writing nothing. Promoting one
+is a cut and paste back into `servers.yaml`.
+
+Slugs are permanent public URLs. Rename by adding an entry to
+[`data/redirects.yaml`](data/redirects.yaml), which becomes a real 301; never by editing a slug.
 
 ## Releases
 
@@ -64,9 +102,9 @@ Full runbook: [`DEPLOYMENT.md`](DEPLOYMENT.md).
 ## The CLI
 
 ```bash
-npm run mcplint -- --stdio "node dist/server.js"
-npm run mcplint -- https://example.com/mcp
-npm run mcplint -- snapshot.json
+npm run lint:surface -- --stdio "node dist/server.js"
+npm run lint:surface -- https://example.com/mcp
+npm run lint:surface -- snapshot.json
 ```
 
 See [`packages/core/README.md`](packages/core/README.md) for the full CLI, config, and scoring model,

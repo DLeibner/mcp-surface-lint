@@ -18,21 +18,35 @@ export const configSchema = z.object({
   failUnder: z.number().min(0).max(100).optional()
 });
 
-export type McplintConfig = z.infer<typeof configSchema>;
+export type SurfaceLintConfig = z.infer<typeof configSchema>;
+/** @deprecated Renamed to {@link SurfaceLintConfig}. Kept so the 0.3 type name still resolves. */
+export type McplintConfig = SurfaceLintConfig;
 export type RuleSetting = z.infer<typeof ruleSettingSchema>;
 
 export class ConfigLoader {
-  static readonly defaultFileName = ".mcplintrc.json";
+  static readonly defaultFileName = ".mcp-surface-lintrc.json";
 
-  static empty(): McplintConfig {
+  /**
+   * Searched in order. The legacy name stays supported indefinitely — a rename
+   * of the tool should not silently drop a project's existing thresholds.
+   */
+  static readonly fileNames = [ConfigLoader.defaultFileName, ".mcplintrc.json"];
+
+  static empty(): SurfaceLintConfig {
     return configSchema.parse({});
   }
 
-  static async load(explicitPath?: string, cwd = process.cwd()): Promise<McplintConfig> {
-    const path = explicitPath ?? resolve(cwd, this.defaultFileName);
-    if (!explicitPath && !(await this.exists(path))) return this.empty();
-    const raw = await readFile(path, "utf8");
-    return configSchema.parse(JSON.parse(raw));
+  static async load(explicitPath?: string, cwd = process.cwd()): Promise<SurfaceLintConfig> {
+    if (explicitPath) return this.read(explicitPath);
+    for (const name of this.fileNames) {
+      const path = resolve(cwd, name);
+      if (await this.exists(path)) return this.read(path);
+    }
+    return this.empty();
+  }
+
+  private static async read(path: string): Promise<SurfaceLintConfig> {
+    return configSchema.parse(JSON.parse(await readFile(path, "utf8")));
   }
 
   private static async exists(path: string): Promise<boolean> {

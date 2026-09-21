@@ -1,0 +1,1246 @@
+{
+  "slug": "grafana",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:a7b8b891af3b4830b5aa4384700d454267c8eba22db3519b91a6ded604e72ca8",
+  "server_info": {
+    "name": "mcp-grafana",
+    "version": "(devel)"
+  },
+  "score": {
+    "composite": 77,
+    "categories": {
+      "surface": 70,
+      "naming": 100,
+      "descriptions": 97,
+      "schemas": 68,
+      "annotations": 88,
+      "design": 36
+    }
+  },
+  "token_footprint": {
+    "tokens": 16794,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 65,
+  "findings": [
+    {
+      "rule_id": "surface/tool-budget",
+      "severity": "error",
+      "category": "surface",
+      "message": "Server exposes 65 tools (error threshold 40 exceeded). Consider consolidating into fewer intent-shaped tools."
+    },
+    {
+      "rule_id": "annotations/missing-hints",
+      "severity": "warn",
+      "category": "annotations",
+      "tool_name": "add_activity_to_incident",
+      "message": "Mutating tool \"add_activity_to_incident\" declares neither readOnlyHint nor destructiveHint — clients cannot gate it for confirmation."
+    },
+    {
+      "rule_id": "annotations/missing-hints",
+      "severity": "warn",
+      "category": "annotations",
+      "tool_name": "create_annotation",
+      "message": "Mutating tool \"create_annotation\" declares neither readOnlyHint nor destructiveHint — clients cannot gate it for confirmation."
+    },
+    {
+      "rule_id": "annotations/missing-hints",
+      "severity": "warn",
+      "category": "annotations",
+      "tool_name": "create_folder",
+      "message": "Mutating tool \"create_folder\" declares neither readOnlyHint nor destructiveHint — clients cannot gate it for confirmation."
+    },
+    {
+      "rule_id": "annotations/missing-hints",
+      "severity": "warn",
+      "category": "annotations",
+      "tool_name": "create_incident",
+      "message": "Mutating tool \"create_incident\" declares neither readOnlyHint nor destructiveHint — clients cannot gate it for confirmation."
+    },
+    {
+      "rule_id": "annotations/missing-hints",
+      "severity": "warn",
+      "category": "annotations",
+      "tool_name": "create_snapshot",
+      "message": "Mutating tool \"create_snapshot\" declares neither readOnlyHint nor destructiveHint — clients cannot gate it for confirmation."
+    },
+    {
+      "rule_id": "descriptions/too-long",
+      "severity": "warn",
+      "category": "descriptions",
+      "tool_name": "update_dashboard",
+      "message": "Description is 2177 chars (maximum 1500) — move detail into parameter descriptions."
+    },
+    {
+      "rule_id": "design/confusable-params",
+      "severity": "warn",
+      "category": "design",
+      "message": "Same parameter spelled 3 ways across tools — pick one spelling.",
+      "evidence": "\"datasource_uid\" (alerting_manage_routing, alerting_manage_rules) vs \"datasourceUid\" (analyze_loki_labels, generate_deeplink, list_loki_label_names, list_loki_label_values, list_prometheus_label_names, list_prometheus_label_values, list_prometheus_metric_metadata, list_prometheus_metric_names, query_loki_logs, query_loki_patterns, query_loki_stats, query_prometheus, query_prometheus_histogram) vs \"data_source_uid\" (list_pyroscope_label_names, list_pyroscope_label_values, list_pyroscope_profile_types, query_pyroscope)"
+    },
+    {
+      "rule_id": "design/confusable-params",
+      "severity": "warn",
+      "category": "design",
+      "message": "Same parameter spelled 2 ways across tools — pick one spelling.",
+      "evidence": "\"folder_uid\" (alerting_manage_rules) vs \"folderUid\" (update_dashboard)"
+    },
+    {
+      "rule_id": "design/confusable-params",
+      "severity": "warn",
+      "category": "design",
+      "message": "Same parameter spelled 2 ways across tools — pick one spelling.",
+      "evidence": "\"endRfc3339\" (analyze_loki_labels, list_loki_label_names, list_loki_label_values, list_prometheus_label_names, list_prometheus_label_values, list_prometheus_metric_names, query_loki_logs, query_loki_patterns, query_loki_stats) vs \"end_rfc_3339\" (list_pyroscope_label_names, list_pyroscope_label_values, list_pyroscope_profile_types, query_pyroscope)"
+    },
+    {
+      "rule_id": "design/confusable-params",
+      "severity": "warn",
+      "category": "design",
+      "message": "Same parameter spelled 2 ways across tools — pick one spelling.",
+      "evidence": "\"startRfc3339\" (analyze_loki_labels, list_loki_label_names, list_loki_label_values, list_prometheus_label_names, list_prometheus_label_values, list_prometheus_metric_names, query_loki_logs, query_loki_patterns, query_loki_stats) vs \"start_rfc_3339\" (list_pyroscope_label_names, list_pyroscope_label_values, list_pyroscope_profile_types, query_pyroscope)"
+    },
+    {
+      "rule_id": "design/confusable-params",
+      "severity": "warn",
+      "category": "design",
+      "message": "Same parameter spelled 2 ways across tools — pick one spelling.",
+      "evidence": "\"queryType\" (query_loki_logs, query_prometheus) vs \"query_type\" (query_pyroscope)"
+    },
+    {
+      "rule_id": "design/crud-mirror",
+      "severity": "warn",
+      "category": "design",
+      "message": "CRUD mirror over \"annotation\": 3 tools spanning 3 verb classes — one-tool-per-endpoint shape. Consider a workflow-shaped consolidation.",
+      "evidence": "create_annotation, get_annotations, update_annotation"
+    },
+    {
+      "rule_id": "design/crud-mirror",
+      "severity": "warn",
+      "category": "design",
+      "message": "CRUD mirror over \"datasource\": 4 tools spanning 3 verb classes — one-tool-per-endpoint shape. Consider a workflow-shaped consolidation.",
+      "evidence": "create_datasource, get_datasource, list_datasources, update_datasource"
+    },
+    {
+      "rule_id": "design/crud-mirror",
+      "severity": "warn",
+      "category": "design",
+      "message": "CRUD mirror over \"snapshot\": 4 tools spanning 3 verb classes — one-tool-per-endpoint shape. Consider a workflow-shaped consolidation.",
+      "evidence": "create_snapshot, delete_snapshot, get_snapshot, list_snapshots"
+    },
+    {
+      "rule_id": "design/enum-in-prose",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_alert_groups",
+      "message": "Parameter \"state\" enumerates its values in prose but declares no enum.",
+      "evidence": "Filter by alert group state (one of: new, acknowledged, resolved, silenced)"
+    },
+    {
+      "rule_id": "design/enum-in-prose",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_incidents",
+      "message": "Parameter \"status\" enumerates its values in prose but declares no enum.",
+      "evidence": "The status of the incidents to include. Valid values: 'active', 'resolved'"
+    },
+    {
+      "rule_id": "design/enum-in-prose",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_prometheus_label_names",
+      "message": "Parameter \"type\" enumerates its values in prose but declares no enum.",
+      "evidence": "One of the '=' or '!=' or '=~' or '!~'"
+    },
+    {
+      "rule_id": "design/enum-in-prose",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_prometheus_label_values",
+      "message": "Parameter \"type\" enumerates its values in prose but declares no enum.",
+      "evidence": "One of the '=' or '!=' or '=~' or '!~'"
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "find_error_pattern_logs",
+      "message": "\"find_error_pattern_logs\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "find_slow_requests",
+      "message": "\"find_slow_requests\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "get_dashboard_panel_queries",
+      "message": "\"get_dashboard_panel_queries\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_loki_label_names",
+      "message": "\"list_loki_label_names\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_loki_label_values",
+      "message": "\"list_loki_label_values\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_provisioning_repositories",
+      "message": "\"list_provisioning_repositories\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_pyroscope_label_names",
+      "message": "\"list_pyroscope_label_names\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_pyroscope_label_values",
+      "message": "\"list_pyroscope_label_values\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_pyroscope_profile_types",
+      "message": "\"list_pyroscope_profile_types\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "query_loki_patterns",
+      "message": "\"query_loki_patterns\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "query_loki_stats",
+      "message": "\"query_loki_stats\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "query_prometheus",
+      "message": "\"query_prometheus\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "query_prometheus_histogram",
+      "message": "\"query_prometheus_histogram\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "query_pyroscope",
+      "message": "\"query_pyroscope\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "search_folders",
+      "message": "\"search_folders\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "search_plugin_information",
+      "message": "\"search_plugin_information\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "4 tools share the name prefix \"get_dashboard\" — likely one tool with include-flags or a mode parameter.",
+      "evidence": "get_dashboard_by_uid, get_dashboard_panel_queries, get_dashboard_property, get_dashboard_summary"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "3 tools share the name prefix \"list_oncall\" — likely one tool with include-flags or a mode parameter.",
+      "evidence": "list_oncall_schedules, list_oncall_teams, list_oncall_users"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "4 tools share the name prefix \"list_prometheus\" — likely one tool with include-flags or a mode parameter.",
+      "evidence": "list_prometheus_label_names, list_prometheus_label_values, list_prometheus_metric_metadata, list_prometheus_metric_names"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "3 tools share the name prefix \"list_pyroscope\" — likely one tool with include-flags or a mode parameter.",
+      "evidence": "list_pyroscope_label_names, list_pyroscope_label_values, list_pyroscope_profile_types"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "3 tools share the name prefix \"query_loki\" — likely one tool with include-flags or a mode parameter.",
+      "evidence": "query_loki_logs, query_loki_patterns, query_loki_stats"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "3 tools have overlapping descriptions (trigram Jaccard up to 0.74) — consolidation candidates.",
+      "evidence": "list_loki_label_names, list_pyroscope_label_names, list_pyroscope_label_values"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "2 tools have overlapping descriptions (trigram Jaccard up to 0.70) — consolidation candidates.",
+      "evidence": "list_prometheus_label_names, list_prometheus_label_values"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "2 tools have overlapping descriptions (trigram Jaccard up to 0.72) — consolidation candidates.",
+      "evidence": "search_dashboards, search_folders"
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "alerting_manage_rules",
+      "message": "Input schema has 28 top-level properties (budget 12)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Input schema nests 4 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_prometheus_label_names",
+      "message": "Input schema nests 5 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_prometheus_label_values",
+      "message": "Input schema nests 5 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "alerting_manage_rules",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/data/items — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "alerting_manage_rules",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/notification_settings — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "alerting_manage_rules",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/record — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_annotation",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/data — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_datasource",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/fields — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_snapshot",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/dashboard — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "generate_deeplink",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/queries/items — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "update_annotation",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/data — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "update_dashboard",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/dashboard — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "update_datasource",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/jsonData — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"endRfc3339\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"expectedBaseLabels\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"maxLabels\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"startRfc3339\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"name\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"uniqueValues\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"sampleValues\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"unbounded\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"usedInQueries\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"valueKind\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"queueTimeSec\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"chunkRefsFetchTimeSec\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"storeChunksDownloadTimeSec\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"executionTimeSec\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"totalBytes\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"cacheChunkReqs\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"totalLines\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "analyze_loki_labels",
+      "message": "Parameter \"postFilterLines\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_incident",
+      "message": "Parameter \"key\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_incident",
+      "message": "Parameter \"label\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_incident",
+      "message": "Parameter \"description\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_incident",
+      "message": "Parameter \"colorHex\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_prometheus_label_names",
+      "message": "Parameter \"filters\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_prometheus_label_values",
+      "message": "Parameter \"filters\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_pyroscope_label_names",
+      "message": "Parameter \"matchers\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "suggest_loki_alloy_label_config",
+      "message": "Parameter \"componentName\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "suggest_loki_alloy_label_config",
+      "message": "Parameter \"forwardTo\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "suggest_loki_alloy_label_config",
+      "message": "Parameter \"normalizeLogLevel\" has no description."
+    },
+    {
+      "rule_id": "surface/token-budget",
+      "severity": "warn",
+      "category": "surface",
+      "message": "tools/list footprint is ~16794 tokens (o200k_base, approximate) — above the 10000-token budget. Every conversation pays this before the first user message."
+    },
+    {
+      "rule_id": "design/client-directives",
+      "severity": "info",
+      "category": "design",
+      "tool_name": "create_datasource",
+      "message": "Description contains 1 client-directive sentence(s) (~33 tokens) about rendering or other tools — describe what the tool does; put client behaviour elsewhere.",
+      "evidence": "Second call: provide the type, the display name in the top-level name argument, schemaReviewed=true, and the fields map populated with values confirmed by the user."
+    },
+    {
+      "rule_id": "design/negative-guidance-present",
+      "severity": "info",
+      "category": "design",
+      "tool_name": "alerting_manage_routing",
+      "message": "Good pattern: \"alerting_manage_routing\" documents when NOT to use it. Preserve this in any consolidation.",
+      "evidence": "When NOT to use:"
+    },
+    {
+      "rule_id": "design/negative-guidance-present",
+      "severity": "info",
+      "category": "design",
+      "tool_name": "alerting_manage_rules",
+      "message": "Good pattern: \"alerting_manage_rules\" documents when NOT to use it. Preserve this in any consolidation.",
+      "evidence": "When NOT to use:"
+    }
+  ],
+  "tools": [
+    {
+      "name": "add_activity_to_incident",
+      "description_length": 185,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 150
+    },
+    {
+      "name": "alerting_manage_routing",
+      "description_length": 561,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 414
+    },
+    {
+      "name": "alerting_manage_rules",
+      "description_length": 461,
+      "has_annotations": true,
+      "property_count": 28,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 1368
+    },
+    {
+      "name": "analyze_loki_labels",
+      "description_length": 258,
+      "has_annotations": true,
+      "property_count": 8,
+      "required_count": 0,
+      "max_depth": 4,
+      "tokens": 360
+    },
+    {
+      "name": "check_datasources_health",
+      "description_length": 72,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 119
+    },
+    {
+      "name": "create_annotation",
+      "description_length": 125,
+      "has_annotations": true,
+      "property_count": 11,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 259
+    },
+    {
+      "name": "create_datasource",
+      "description_length": 652,
+      "has_annotations": true,
+      "property_count": 10,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 419
+    },
+    {
+      "name": "create_folder",
+      "description_length": 86,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 119
+    },
+    {
+      "name": "create_incident",
+      "description_length": 244,
+      "has_annotations": true,
+      "property_count": 8,
+      "required_count": 3,
+      "max_depth": 3,
+      "tokens": 259
+    },
+    {
+      "name": "create_snapshot",
+      "description_length": 115,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 183
+    },
+    {
+      "name": "delete_snapshot",
+      "description_length": 42,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 65
+    },
+    {
+      "name": "find_error_pattern_logs",
+      "description_length": 172,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 170
+    },
+    {
+      "name": "find_slow_requests",
+      "description_length": 115,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 158
+    },
+    {
+      "name": "generate_deeplink",
+      "description_length": 600,
+      "has_annotations": true,
+      "property_count": 9,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 562
+    },
+    {
+      "name": "get_alert_group",
+      "description_length": 95,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 89
+    },
+    {
+      "name": "get_annotation_tags",
+      "description_length": 99,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 91
+    },
+    {
+      "name": "get_annotations",
+      "description_length": 83,
+      "has_annotations": true,
+      "property_count": 10,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 241
+    },
+    {
+      "name": "get_assertions",
+      "description_length": 100,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 268
+    },
+    {
+      "name": "get_current_oncall_users",
+      "description_length": 178,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 110
+    },
+    {
+      "name": "get_dashboard_by_uid",
+      "description_length": 560,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 177
+    },
+    {
+      "name": "get_dashboard_panel_queries",
+      "description_length": 507,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 221
+    },
+    {
+      "name": "get_dashboard_property",
+      "description_length": 680,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 318
+    },
+    {
+      "name": "get_dashboard_summary",
+      "description_length": 236,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 103
+    },
+    {
+      "name": "get_datasource",
+      "description_length": 260,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 140
+    },
+    {
+      "name": "get_incident",
+      "description_length": 137,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 88
+    },
+    {
+      "name": "get_oncall_shift",
+      "description_length": 201,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 105
+    },
+    {
+      "name": "get_panel_image",
+      "description_length": 428,
+      "has_annotations": true,
+      "property_count": 10,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 602
+    },
+    {
+      "name": "get_plugin",
+      "description_length": 273,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 134
+    },
+    {
+      "name": "get_sift_analysis",
+      "description_length": 147,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 148
+    },
+    {
+      "name": "get_sift_investigation",
+      "description_length": 153,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 151
+    },
+    {
+      "name": "get_snapshot",
+      "description_length": 81,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 71
+    },
+    {
+      "name": "grafana_api_request",
+      "description_length": 224,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 235
+    },
+    {
+      "name": "install_plugin",
+      "description_length": 198,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 163
+    },
+    {
+      "name": "list_alert_groups",
+      "description_length": 503,
+      "has_annotations": true,
+      "property_count": 9,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 407
+    },
+    {
+      "name": "list_datasources",
+      "description_length": 145,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 152
+    },
+    {
+      "name": "list_incidents",
+      "description_length": 158,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 134
+    },
+    {
+      "name": "list_loki_label_names",
+      "description_length": 262,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 222
+    },
+    {
+      "name": "list_loki_label_values",
+      "description_length": 324,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 270
+    },
+    {
+      "name": "list_oncall_schedules",
+      "description_length": 256,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 166
+    },
+    {
+      "name": "list_oncall_teams",
+      "description_length": 112,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 83
+    },
+    {
+      "name": "list_oncall_users",
+      "description_length": 251,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 172
+    },
+    {
+      "name": "list_prometheus_label_names",
+      "description_length": 156,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 1,
+      "max_depth": 5,
+      "tokens": 365
+    },
+    {
+      "name": "list_prometheus_label_values",
+      "description_length": 264,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 2,
+      "max_depth": 5,
+      "tokens": 392
+    },
+    {
+      "name": "list_prometheus_metric_metadata",
+      "description_length": 132,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 181
+    },
+    {
+      "name": "list_prometheus_metric_names",
+      "description_length": 350,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 316
+    },
+    {
+      "name": "list_provisioning_repositories",
+      "description_length": 339,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 149
+    },
+    {
+      "name": "list_pyroscope_label_names",
+      "description_length": 452,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 280
+    },
+    {
+      "name": "list_pyroscope_label_values",
+      "description_length": 407,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 306
+    },
+    {
+      "name": "list_pyroscope_profile_types",
+      "description_length": 442,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 266
+    },
+    {
+      "name": "list_sift_investigations",
+      "description_length": 120,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 93
+    },
+    {
+      "name": "list_snapshots",
+      "description_length": 78,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 98
+    },
+    {
+      "name": "query_loki_logs",
+      "description_length": 791,
+      "has_annotations": true,
+      "property_count": 8,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 567
+    },
+    {
+      "name": "query_loki_patterns",
+      "description_length": 514,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 333
+    },
+    {
+      "name": "query_loki_stats",
+      "description_length": 837,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 407
+    },
+    {
+      "name": "query_prometheus",
+      "description_length": 340,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 437
+    },
+    {
+      "name": "query_prometheus_histogram",
+      "description_length": 312,
+      "has_annotations": true,
+      "property_count": 9,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 390
+    },
+    {
+      "name": "query_pyroscope",
+      "description_length": 451,
+      "has_annotations": true,
+      "property_count": 9,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 403
+    },
+    {
+      "name": "search_dashboards",
+      "description_length": 139,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 133
+    },
+    {
+      "name": "search_folders",
+      "description_length": 109,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 80
+    },
+    {
+      "name": "search_plugin_information",
+      "description_length": 531,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 189
+    },
+    {
+      "name": "suggest_loki_alloy_label_config",
+      "description_length": 166,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 159
+    },
+    {
+      "name": "update_annotation",
+      "description_length": 140,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 159
+    },
+    {
+      "name": "update_dashboard",
+      "description_length": 2177,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 0,
+      "max_depth": 3,
+      "tokens": 1006
+    },
+    {
+      "name": "update_datasource",
+      "description_length": 121,
+      "has_annotations": true,
+      "property_count": 8,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 186
+    },
+    {
+      "name": "validate_provisioning_file",
+      "description_length": 441,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 231
+    }
+  ]
+}

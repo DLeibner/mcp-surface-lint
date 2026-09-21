@@ -1,0 +1,915 @@
+{
+  "slug": "notion",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:20b7ebb354965b0b53f0d5a501cea430d1b5aaac683695ff6d95c2c6404400f1",
+  "server_info": {
+    "name": "Notion API",
+    "version": "1.0.0"
+  },
+  "score": {
+    "composite": 86,
+    "categories": {
+      "surface": 70,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 68,
+      "annotations": 100,
+      "design": 75
+    }
+  },
+  "token_footprint": {
+    "tokens": 17476,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 24,
+  "findings": [
+    {
+      "rule_id": "design/enum-in-prose",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "API-post-search",
+      "message": "Parameter \"direction\" enumerates its values in prose but declares no enum.",
+      "evidence": "The direction to sort. Possible values include `ascending` and `descending`."
+    },
+    {
+      "rule_id": "design/enum-in-prose",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "API-post-search",
+      "message": "Parameter \"timestamp\" enumerates its values in prose but declares no enum.",
+      "evidence": "The name of the timestamp to sort against. Possible values include `last_edited_time`."
+    },
+    {
+      "rule_id": "design/enum-in-prose",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "API-post-search",
+      "message": "Parameter \"property\" enumerates its values in prose but declares no enum.",
+      "evidence": "The name of the property to filter by. Currently the only property you can filter by is the object type.  Possible values include `object`.   Limitation: Currently the only filter allowed is `object` which will filter by type of object (either `page` or `data_source`)"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "4 tools share the name prefix \"api_get\" — likely one tool with include-flags or a mode parameter.",
+      "evidence": "API-get-user, API-get-users, API-get-self, API-get-block-children"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "7 tools share the name prefix \"api_retrieve\" — likely one tool with include-flags or a mode parameter.",
+      "evidence": "API-retrieve-a-block, API-retrieve-a-page, API-retrieve-a-page-property, API-retrieve-a-comment, API-retrieve-a-data-source, API-retrieve-a-database, API-retrieve-page-markdown"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "3 tools share the name prefix \"api_update\" — likely one tool with include-flags or a mode parameter.",
+      "evidence": "API-update-a-block, API-update-a-data-source, API-update-page-markdown"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "21 tools have overlapping descriptions (trigram Jaccard up to 0.85) — consolidation candidates.",
+      "evidence": "API-get-user, API-get-self, API-post-search, API-get-block-children, API-patch-block-children, API-retrieve-a-block, API-update-a-block, API-delete-a-block, API-retrieve-a-page, API-patch-page, API-post-page, API-retrieve-a-page-property, API-retrieve-a-comment, API-create-a-comment, API-query-data-source, API-retrieve-a-data-source, API-update-a-data-source, API-create-a-data-source, API-list-data-source-templates, API-retrieve-a-database, API-move-page"
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "2 tools have overlapping descriptions (trigram Jaccard up to 0.80) — consolidation candidates.",
+      "evidence": "API-retrieve-page-markdown, API-update-page-markdown"
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "Input schema uses oneOf/anyOf 3 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-page",
+      "message": "Input schema uses oneOf/anyOf 3 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-comment",
+      "message": "Input schema nests 4 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "Input schema uses oneOf/anyOf 3 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-data-source",
+      "message": "Input schema uses oneOf/anyOf 3 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-data-source",
+      "message": "Input schema uses oneOf/anyOf 3 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "Input schema nests 4 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "Input schema uses oneOf/anyOf 4 times (budget 2)."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-get-self",
+      "message": "Bare \"type: object\" with no properties at /inputSchema — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-search",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/sort/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-search",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/filter/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-block-children",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/children/items/anyOf/2 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-block-children",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/children/items/anyOf/2 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-block",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/type/anyOf/0 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-block",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/type/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/properties/anyOf/0 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/properties/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-page",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/properties/anyOf/0 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-page",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/properties/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-page",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/children/items/anyOf/2 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-page",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/children/items/anyOf/2 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-comment",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/parent/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-comment",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/rich_text/items/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-comment",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/rich_text/items/anyOf/0/properties/text — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-comment",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/rich_text/items/anyOf/2 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-comment",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/rich_text/items/anyOf/2 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/filter_properties/items/anyOf/2 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/filter_properties/items/anyOf/2 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/filter/anyOf/0 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/filter/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/sorts/items/anyOf/2 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/sorts/items/anyOf/2 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-data-source",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/title/items/anyOf/2 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-data-source",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/title/items/anyOf/2 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-data-source",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/description/items/anyOf/2 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-data-source",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/description/items/anyOf/2 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-data-source",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/properties/anyOf/0 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-data-source",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/properties/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-data-source",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/properties/anyOf/0 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-data-source",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/properties/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-data-source",
+      "message": "Bare \"type: object\" with no properties at /inputSchema/properties/title/items/anyOf/2 — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-data-source",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/title/items/anyOf/2 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/replace_content/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/update_content/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/update_content/anyOf/0/properties/content_updates/items — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/insert_content/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/insert_content/anyOf/0/properties/position — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "\"additionalProperties: true\" at /inputSchema/properties/replace_content_range/anyOf/0 — accepts arbitrary keys silently."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-get-user",
+      "message": "Parameter \"user_id\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-search",
+      "message": "Parameter \"sort\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-search",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-block",
+      "message": "Parameter \"type\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "Parameter \"properties\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "Parameter \"archived\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "Parameter \"icon\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "Parameter \"cover\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "Parameter \"emoji\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "Parameter \"external\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "Parameter \"type\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-patch-page",
+      "message": "Parameter \"url\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-page",
+      "message": "Parameter \"parent\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-post-page",
+      "message": "Parameter \"properties\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-comment",
+      "message": "Parameter \"parent\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-comment",
+      "message": "Parameter \"rich_text\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-comment",
+      "message": "Parameter \"text\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "Parameter \"filter\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "Parameter \"sorts\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "Parameter \"start_cursor\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "Parameter \"page_size\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "Parameter \"archived\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-query-data-source",
+      "message": "Parameter \"in_trash\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-data-source",
+      "message": "Parameter \"title\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-data-source",
+      "message": "Parameter \"description\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-a-data-source",
+      "message": "Parameter \"properties\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-data-source",
+      "message": "Parameter \"parent\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-data-source",
+      "message": "Parameter \"properties\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-create-a-data-source",
+      "message": "Parameter \"title\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-list-data-source-templates",
+      "message": "Parameter \"start_cursor\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-list-data-source-templates",
+      "message": "Parameter \"page_size\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-move-page",
+      "message": "Parameter \"parent\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "Parameter \"replace_content\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "Parameter \"update_content\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "Parameter \"insert_content\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "Parameter \"replace_content_range\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "API-update-page-markdown",
+      "message": "Parameter \"type\" has no description."
+    },
+    {
+      "rule_id": "surface/token-budget",
+      "severity": "warn",
+      "category": "surface",
+      "message": "tools/list footprint is ~17476 tokens (o200k_base, approximate) — above the 10000-token budget. Every conversation pays this before the first user message."
+    },
+    {
+      "rule_id": "surface/tool-budget",
+      "severity": "warn",
+      "category": "surface",
+      "message": "Server exposes 24 tools (warn threshold 20 exceeded). Consider consolidating into fewer intent-shaped tools."
+    }
+  ],
+  "tools": [
+    {
+      "name": "API-get-user",
+      "description_length": 50,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 603
+    },
+    {
+      "name": "API-get-users",
+      "description_length": 49,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 662
+    },
+    {
+      "name": "API-get-self",
+      "description_length": 73,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 594
+    },
+    {
+      "name": "API-post-search",
+      "description_length": 58,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 1096
+    },
+    {
+      "name": "API-get-block-children",
+      "description_length": 66,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 692
+    },
+    {
+      "name": "API-patch-block-children",
+      "description_length": 64,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 712
+    },
+    {
+      "name": "API-retrieve-a-block",
+      "description_length": 59,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 611
+    },
+    {
+      "name": "API-update-a-block",
+      "description_length": 57,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 726
+    },
+    {
+      "name": "API-delete-a-block",
+      "description_length": 57,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 610
+    },
+    {
+      "name": "API-retrieve-a-page",
+      "description_length": 58,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 679
+    },
+    {
+      "name": "API-patch-page",
+      "description_length": 65,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 1,
+      "max_depth": 3,
+      "tokens": 888
+    },
+    {
+      "name": "API-post-page",
+      "description_length": 56,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 818
+    },
+    {
+      "name": "API-retrieve-a-page-property",
+      "description_length": 72,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 703
+    },
+    {
+      "name": "API-retrieve-a-comment",
+      "description_length": 60,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 686
+    },
+    {
+      "name": "API-create-a-comment",
+      "description_length": 57,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 4,
+      "tokens": 724
+    },
+    {
+      "name": "API-query-data-source",
+      "description_length": 62,
+      "has_annotations": true,
+      "property_count": 8,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 769
+    },
+    {
+      "name": "API-retrieve-a-data-source",
+      "description_length": 65,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 617
+    },
+    {
+      "name": "API-update-a-data-source",
+      "description_length": 63,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 720
+    },
+    {
+      "name": "API-create-a-data-source",
+      "description_length": 63,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 687
+    },
+    {
+      "name": "API-list-data-source-templates",
+      "description_length": 74,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 639
+    },
+    {
+      "name": "API-retrieve-a-database",
+      "description_length": 62,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 612
+    },
+    {
+      "name": "API-move-page",
+      "description_length": 54,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 640
+    },
+    {
+      "name": "API-retrieve-page-markdown",
+      "description_length": 231,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 705
+    },
+    {
+      "name": "API-update-page-markdown",
+      "description_length": 280,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 2,
+      "max_depth": 4,
+      "tokens": 1281
+    }
+  ]
+}

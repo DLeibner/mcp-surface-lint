@@ -1,10 +1,10 @@
 /**
  * Turn MCP SDK transport failures into playground-friendly copy.
- * These errors come from the user-supplied MCP URL, not from mcplint's /api/lint or /api/mcp.
+ * These errors come from the user-supplied MCP URL, not from our own /api/lint or /api/mcp.
  */
 
 const REMOTE_SOURCE_NOTE =
-  "(This response came from the MCP URL you entered, not from mcplint's audit API.)";
+  "(This response came from the MCP URL you entered, not from our audit API.)";
 
 const OAUTH_AUTH_ERROR_CODES = new Set([
   "invalid_token",
@@ -46,12 +46,12 @@ export function humanizeCaptureError(error: unknown): string {
 
 function authFailureMessage(): string {
   return (
-    "That MCP server requires authentication before mcplint can read tools/list. " +
-    "The playground connects from mcplint's server to your URL — it does not use your " +
+    "That MCP server requires authentication before we can read tools/list. " +
+    "The playground connects from our server to your URL — it does not use your " +
     "Cursor session or browser cookies. " +
     'Expand Optional request headers and add credentials, for example {"Authorization":"Bearer …"} ' +
     "or the vendor-specific API key header the server documents. " +
-    "If the server only supports interactive OAuth, switch to Paste tools/list or run mcplint via the CLI. " +
+    "If the server only supports interactive OAuth, switch to Paste tools/list or run the CLI locally. " +
     REMOTE_SOURCE_NOTE
   );
 }

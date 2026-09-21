@@ -1,0 +1,56 @@
+{
+  "slug": "postgres",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:ff37cacf3a428367d03c282e191540ed4861b3cd0e347257fd4900ee0a4d115e",
+  "server_info": {
+    "name": "example-servers/postgres",
+    "version": "0.1.0"
+  },
+  "score": {
+    "composite": 99,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 98,
+      "annotations": 100,
+      "design": 97
+    }
+  },
+  "token_footprint": {
+    "tokens": 32,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 1,
+  "findings": [
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "query",
+      "message": "\"query\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "query",
+      "message": "Parameter \"sql\" has no description."
+    }
+  ],
+  "tools": [
+    {
+      "name": "query",
+      "description_length": 25,
+      "has_annotations": false,
+      "property_count": 1,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 30
+    }
+  ]
+}

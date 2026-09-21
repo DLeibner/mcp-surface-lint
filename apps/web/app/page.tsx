@@ -1,17 +1,35 @@
+import type { Metadata } from "next";
+import { RuleRegistry } from "mcp-surface-lint";
 import { LintForm } from "@/components/LintForm";
 import { CliDocsAnalytics } from "@/components/CliDocsAnalytics";
 import Link from "next/link";
 import { EXAMPLE_REPORT_PATH } from "@/lib/example-report-path";
+import { loadCatalog, rankedOverall } from "@/lib/directory/catalog";
+import { jsonLdProps, website } from "@/lib/directory/schema-org";
+import { CATEGORY_LABELS } from "@/lib/directory/types";
+import { pageMetadata } from "@/lib/seo";
+
+const RULE_COUNT = RuleRegistry.all().length;
+
+export const metadata: Metadata = pageMetadata({
+  path: "/",
+  title: "MCP Surface Lint — audit your MCP server's tool surface",
+  description: `Measure what an MCP server costs your context window, then statically audit its tool surface against ${RULE_COUNT} design rules. Deterministic, no LLM calls, no tool invocation.`
+});
 
 export default function HomePage() {
+  const catalog = loadCatalog();
+  const top = rankedOverall(catalog).slice(0, 10);
+
   return (
     <main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdProps(website())} />
       <h1>Your tools cost tokens in every single conversation.</h1>
       <p className="lede">
         Every MCP server ships its whole <code>tools/list</code> payload into the model&apos;s context
-        before the user has typed a word. mcplint measures that footprint, then statically audits the
-        tool surface for the design smells that make agents pick the wrong tool — naming drift, CRUD
-        mirrors, overlapping descriptions, unbounded lists.
+        before the user has typed a word. MCP Surface Lint measures that footprint, then statically
+        audits the tool surface for the design smells that make agents pick the wrong tool — naming
+        drift, CRUD mirrors, overlapping descriptions, unbounded lists.
       </p>
 
       <LintForm />
@@ -22,13 +40,56 @@ export default function HomePage() {
         findings, no paste required.
       </p>
 
+      <h2>The directory</h2>
+      <p className="lede">
+        We run the same audit weekly against public MCP servers and publish the result. Every
+        scorecard shows what that server costs your context window, what its schemas leave
+        unconstrained, and where its surface is likely to send an agent to the wrong tool.
+      </p>
+      {top.length > 0 ? (
+        <div className="table-scroll">
+          <table className="server-table">
+            <caption className="visually-hidden">
+              The ten highest-scoring audited MCP servers.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Server</th>
+                <th scope="col">Category</th>
+                <th scope="col">Score</th>
+                <th scope="col">Tokens</th>
+              </tr>
+            </thead>
+            <tbody>
+              {top.map((entry, i) => (
+                <tr key={entry.seed.slug}>
+                  <td>{i + 1}</td>
+                  <th scope="row">
+                    <Link href={`/servers/${entry.seed.slug}`}>{entry.seed.name}</Link>
+                  </th>
+                  <td>{CATEGORY_LABELS[entry.seed.category]}</td>
+                  <td>
+                    <strong>{entry.scanned!.score.composite}</strong>
+                  </td>
+                  <td>{entry.scanned!.token_footprint.tokens.toLocaleString("en-US")}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+      <p className="lede">
+        <Link href="/servers">See every audited server →</Link>
+      </p>
+
       <h2>What it checks</h2>
       <p className="lede">
-        Nineteen rules across six categories. Tier 1 is hygiene — missing descriptions, loose schemas,
-        absent annotations. Tier 2 is the interesting half: design. Whether your surface mirrors your
-        REST API instead of your users&apos; intents, whether two tools are confusable, whether an enum
-        is buried in prose where the model can&apos;t see it.{" "}
-        <a href="/rules">Read the rule catalogue →</a>
+        {RULE_COUNT} rules across six categories. Tier 1 is hygiene — missing descriptions, loose
+        schemas, absent annotations. Tier 2 is the interesting half: design. Whether your surface
+        mirrors your REST API instead of your users&apos; intents, whether two tools are confusable,
+        whether an enum is buried in prose where the model can&apos;t see it.{" "}
+        <Link href="/rules">Read the rule catalogue →</Link>
       </p>
 
       <h2>It runs locally too</h2>

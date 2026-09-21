@@ -10,6 +10,7 @@
     "directory": "packages/core"
   },
   "bin": {
+    "mcp-surface-lint": "dist/cli.js",
     "mcplint": "dist/cli.js"
   },
   "main": "dist/index.js",

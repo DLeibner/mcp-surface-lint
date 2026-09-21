@@ -1,0 +1,327 @@
+{
+  "slug": "filesystem",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:3b894185a81f3611f9b3140e03c9bff6c7d6fab546a400736739b12ef5e365b0",
+  "server_info": {
+    "name": "secure-filesystem-server",
+    "version": "0.2.0"
+  },
+  "score": {
+    "composite": 96,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 89,
+      "annotations": 100,
+      "design": 84
+    }
+  },
+  "token_footprint": {
+    "tokens": 2797,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 14,
+  "findings": [
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_directory",
+      "message": "\"list_directory\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_directory_with_sizes",
+      "message": "\"list_directory_with_sizes\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "search_files",
+      "message": "\"search_files\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_allowed_directories",
+      "message": "\"list_allowed_directories\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "2 tools have overlapping descriptions (trigram Jaccard up to 0.86) — consolidation candidates.",
+      "evidence": "list_directory, list_directory_with_sizes"
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_allowed_directories",
+      "message": "Bare \"type: object\" with no properties at /inputSchema — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "read_file",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "read_text_file",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "read_media_file",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "write_file",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "write_file",
+      "message": "Parameter \"content\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "edit_file",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "edit_file",
+      "message": "Parameter \"edits\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_directory",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_directory",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "list_directory_with_sizes",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "directory_tree",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "directory_tree",
+      "message": "Parameter \"excludePatterns\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "move_file",
+      "message": "Parameter \"source\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "move_file",
+      "message": "Parameter \"destination\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "search_files",
+      "message": "Parameter \"path\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "search_files",
+      "message": "Parameter \"pattern\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "search_files",
+      "message": "Parameter \"excludePatterns\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "get_file_info",
+      "message": "Parameter \"path\" has no description."
+    }
+  ],
+  "tools": [
+    {
+      "name": "read_file",
+      "description_length": 85,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 177
+    },
+    {
+      "name": "read_text_file",
+      "description_length": 457,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 254
+    },
+    {
+      "name": "read_media_file",
+      "description_length": 234,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 288
+    },
+    {
+      "name": "read_multiple_files",
+      "description_length": 324,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 209
+    },
+    {
+      "name": "write_file",
+      "description_length": 228,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 172
+    },
+    {
+      "name": "edit_file",
+      "description_length": 185,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 3,
+      "tokens": 243
+    },
+    {
+      "name": "create_directory",
+      "description_length": 310,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 175
+    },
+    {
+      "name": "list_directory",
+      "description_length": 309,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 164
+    },
+    {
+      "name": "list_directory_with_sizes",
+      "description_length": 323,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 199
+    },
+    {
+      "name": "directory_tree",
+      "description_length": 360,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 200
+    },
+    {
+      "name": "move_file",
+      "description_length": 325,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 190
+    },
+    {
+      "name": "search_files",
+      "description_length": 424,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 217
+    },
+    {
+      "name": "get_file_info",
+      "description_length": 296,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 160
+    },
+    {
+      "name": "list_allowed_directories",
+      "description_length": 248,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 147
+    }
+  ]
+}

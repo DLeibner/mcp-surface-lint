@@ -10,14 +10,14 @@ export function cursorInstallUrl(endpoint: string): string {
   const config = { url: publicEndpoint(endpoint) };
   return (
     "cursor://anysphere.cursor-deeplink/mcp/install" +
-    `?name=${encodeURIComponent("mcplint")}` +
+    `?name=${encodeURIComponent("mcp-surface-lint")}` +
     `&config=${encodeURIComponent(btoa(JSON.stringify(config)))}`
   );
 }
 
 export function vscodeInstallUrl(endpoint: string): string {
   const config = {
-    name: "mcplint",
+    name: "mcp-surface-lint",
     type: "http",
     url: publicEndpoint(endpoint)
   };

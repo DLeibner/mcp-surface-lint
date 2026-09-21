@@ -1,0 +1,112 @@
+{
+  "slug": "slack",
+  "scanned_at": "2026-09-03T14:06:56.207Z",
+  "engine_version": "0.3.3",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-09-03T14:06:56.207Z",
+  "snapshot_hash": "sha256:537ac6148691eca9dea05929916a89adde25185835362dd97e4ca0d72bd62678",
+  "server_info": {
+    "name": "Slack MCP Server",
+    "version": "1.0.0"
+  },
+  "score": {
+    "composite": 99,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 100,
+      "annotations": 100,
+      "design": 96
+    }
+  },
+  "token_footprint": {
+    "tokens": 681,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 8,
+  "findings": [
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "4 tools share the name prefix \"slack_get\" — likely one tool with include-flags or a mode parameter.",
+      "evidence": "slack_get_channel_history, slack_get_thread_replies, slack_get_users, slack_get_user_profile"
+    }
+  ],
+  "tools": [
+    {
+      "name": "slack_list_channels",
+      "description_length": 68,
+      "has_annotations": false,
+      "property_count": 2,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 76
+    },
+    {
+      "name": "slack_post_message",
+      "description_length": 37,
+      "has_annotations": false,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 70
+    },
+    {
+      "name": "slack_reply_to_thread",
+      "description_length": 43,
+      "has_annotations": false,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 124
+    },
+    {
+      "name": "slack_add_reaction",
+      "description_length": 33,
+      "has_annotations": false,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 95
+    },
+    {
+      "name": "slack_get_channel_history",
+      "description_length": 34,
+      "has_annotations": false,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 73
+    },
+    {
+      "name": "slack_get_thread_replies",
+      "description_length": 35,
+      "has_annotations": false,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 110
+    },
+    {
+      "name": "slack_get_users",
+      "description_length": 77,
+      "has_annotations": false,
+      "property_count": 2,
+      "required_count": 0,
+      "max_depth": 1,
+      "tokens": 80
+    },
+    {
+      "name": "slack_get_user_profile",
+      "description_length": 52,
+      "has_annotations": false,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 51
+    }
+  ]
+}

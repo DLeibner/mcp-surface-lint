@@ -89,7 +89,7 @@ export function LintForm() {
         body = { mode: "paste", snapshot: JSON.parse(pasted) };
       } catch {
         setError(
-          "That isn't valid JSON. Paste a tools/list response or the output of `mcplint --dump`."
+          "That isn't valid JSON. Paste a tools/list response or the output of `mcp-surface-lint --dump`."
         );
         return;
       }

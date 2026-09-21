@@ -7,7 +7,7 @@ export class TtyReporter {
     const lines: string[] = [];
     const name = report.server.name ?? "MCP server";
     lines.push("");
-    lines.push(pc.bold(`mcplint — ${name}${report.server.version ? ` v${report.server.version}` : ""}`));
+    lines.push(pc.bold(`MCP Surface Lint — ${name}${report.server.version ? ` v${report.server.version}` : ""}`));
     lines.push(pc.dim(`source: ${report.source} · captured: ${report.capturedAt}`));
     lines.push("");
     lines.push(

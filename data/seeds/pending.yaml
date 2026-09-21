@@ -1,0 +1,238 @@
+# Servers that cannot currently be audited, parked out of the live directory.
+#
+# This file is NOT read by the app. Nothing here gets a page, a sitemap entry or
+# a slot in the hub — the directory only ever shows servers with a real surface,
+# and a scorecard with no score is worse than no scorecard.
+#
+# Entries keep their full seed so moving one back into servers.yaml is a cut and
+# paste once it becomes scannable. The `# blocked:` line on each records what the
+# scanner actually got, so nobody re-derives it.
+#
+# To check whether any of these has opened up:
+#
+#   npm run scan -- --pending
+#
+# That attempts each one and reports what would now succeed, writing nothing.
+# Most are behind OAuth and will only ever be publishable from a
+# `snapshot_override` their maintainers provide.
+
+# --- developer-tools -----------------------------------------------------------
+
+- slug: github
+  # blocked: 401 — missing required Authorization header
+  name: GitHub
+  vendor: GitHub
+  category: developer-tools
+  official_url: https://github.com/github/github-mcp-server
+  repo_url: https://github.com/github/github-mcp-server
+  docs_url: https://docs.github.com/en/copilot/customizing-copilot/using-model-context-protocol
+  transport: remote
+  endpoint: https://api.githubcopilot.com/mcp/
+  auth: oauth
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official GitHub MCP server for repositories, issues, pull requests and Actions."
+  tags: [official, git, code-review]
+
+- slug: gitlab
+  # blocked: publishes tools whose inputSchema.type is not "object"; the MCP SDK client refuses to parse the response
+  name: GitLab
+  vendor: GitLab
+  category: developer-tools
+  official_url: https://github.com/modelcontextprotocol/servers/tree/main/src/gitlab
+  repo_url: https://github.com/modelcontextprotocol/servers
+  docs_url: https://docs.gitlab.com/ee/user/gitlab_duo/
+  transport: stdio
+  endpoint: null
+  auth: apikey
+  stdio_command: "npx -y @modelcontextprotocol/server-gitlab"
+  stdio_env:
+    GITLAB_PERSONAL_ACCESS_TOKEN: "dummy"
+    GITLAB_API_URL: "https://gitlab.com/api/v4"
+  snapshot_override: null
+  description: "Reference GitLab MCP server covering projects, issues and merge requests."
+  tags: [git, code-review]
+
+- slug: sentry
+  # blocked: 401 — invalid_token: Missing or invalid access token
+  name: Sentry
+  vendor: Sentry
+  category: developer-tools
+  official_url: https://github.com/getsentry/sentry-mcp
+  repo_url: https://github.com/getsentry/sentry-mcp
+  docs_url: https://docs.sentry.io/product/sentry-mcp/
+  transport: remote
+  endpoint: https://mcp.sentry.dev/mcp
+  auth: oauth
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official Sentry server for issues, releases and error triage from an agent."
+  tags: [official, errors]
+
+# --- data-and-databases --------------------------------------------------------
+
+- slug: sqlite
+  # blocked: crashes on startup against the current Python MCP SDK: 'Server' object has no attribute 'list_resources'
+  name: SQLite
+  vendor: Model Context Protocol
+  category: data-and-databases
+  official_url: https://github.com/modelcontextprotocol/servers/tree/main/src/sqlite
+  repo_url: https://github.com/modelcontextprotocol/servers
+  docs_url: https://modelcontextprotocol.io/examples
+  transport: stdio
+  endpoint: null
+  auth: none
+  stdio_command: "uvx mcp-server-sqlite --db-path /tmp/mcp-surface-lint-scan.db"
+  stdio_env: {}
+  snapshot_override: null
+  description: "Reference SQLite server with query, schema and lightweight analysis tools."
+  tags: [reference, sql]
+
+# --- cloud-and-infrastructure --------------------------------------------------
+
+- slug: neon
+  # blocked: 401 — invalid_token: No authorization provided
+  name: Neon
+  vendor: Neon
+  category: cloud-and-infrastructure
+  official_url: https://github.com/neondatabase-labs/mcp-server-neon
+  repo_url: https://github.com/neondatabase-labs/mcp-server-neon
+  docs_url: https://neon.com/docs/ai/neon-mcp-server
+  transport: remote
+  endpoint: https://mcp.neon.tech/mcp
+  auth: oauth
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official Neon server for serverless Postgres projects, branches and migrations."
+  tags: [official, postgres]
+
+- slug: vercel
+  # blocked: 401 — invalid_token: No authorization provided
+  name: Vercel
+  vendor: Vercel
+  category: cloud-and-infrastructure
+  official_url: https://vercel.com/docs/mcp/vercel-mcp
+  repo_url: null
+  docs_url: https://vercel.com/docs/mcp/vercel-mcp
+  transport: remote
+  endpoint: https://mcp.vercel.com
+  auth: oauth
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official Vercel server for projects, deployments and build log inspection."
+  tags: [official, hosting]
+
+# --- project-management --------------------------------------------------------
+
+- slug: linear
+  # blocked: 401 — invalid_token: Missing or invalid access token
+  name: Linear
+  vendor: Linear
+  category: project-management
+  official_url: https://linear.app/docs/mcp
+  repo_url: null
+  docs_url: https://linear.app/docs/mcp
+  transport: remote
+  endpoint: https://mcp.linear.app/mcp
+  auth: oauth
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official Linear server for issues, projects, cycles and comments."
+  tags: [official, issues]
+
+- slug: atlassian
+  # blocked: 401 — invalid_token: Missing or invalid access token
+  name: Atlassian
+  vendor: Atlassian
+  category: project-management
+  official_url: https://support.atlassian.com/rovo/docs/setting-up-ides/
+  repo_url: null
+  docs_url: https://support.atlassian.com/rovo/docs/setting-up-ides/
+  transport: remote
+  endpoint: https://mcp.atlassian.com/v1/sse
+  auth: oauth
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official Atlassian server covering Jira issues and Confluence pages in one surface."
+  tags: [official, issues, docs]
+
+# --- communication -------------------------------------------------------------
+
+- slug: intercom
+  # blocked: 401 — invalid_token: Missing or invalid access token
+  name: Intercom
+  vendor: Intercom
+  category: communication
+  official_url: https://developers.intercom.com/docs/guides/mcp
+  repo_url: null
+  docs_url: https://developers.intercom.com/docs/guides/mcp
+  transport: remote
+  endpoint: https://mcp.intercom.com/mcp
+  auth: oauth
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official Intercom server for conversations, contacts and help-centre content."
+  tags: [official, support]
+
+# --- payments-and-commerce -----------------------------------------------------
+
+- slug: stripe
+  # blocked: 401 — Unauthorized (mcp.stripe.com rejects an unauthenticated read)
+  name: Stripe
+  vendor: Stripe
+  category: payments-and-commerce
+  official_url: https://github.com/stripe/agent-toolkit
+  repo_url: https://github.com/stripe/agent-toolkit
+  docs_url: https://docs.stripe.com/mcp
+  # `@stripe/mcp` only proxies stdio to this endpoint; it is not a local server.
+  transport: remote
+  endpoint: https://mcp.stripe.com
+  auth: apikey
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official Stripe server for customers, products, prices, invoices and payment links."
+  tags: [official, payments]
+
+- slug: paypal
+  # blocked: 401 — invalid_token: Missing or invalid access token
+  name: PayPal
+  vendor: PayPal
+  category: payments-and-commerce
+  official_url: https://www.paypal.ai/
+  repo_url: null
+  docs_url: https://developer.paypal.com/tools/mcp-server/
+  transport: remote
+  endpoint: https://mcp.paypal.com/mcp
+  auth: oauth
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official PayPal server for invoices, orders, subscriptions and disputes."
+  tags: [official, payments]
+
+# --- design --------------------------------------------------------------------
+
+- slug: figma
+  # blocked: 401 — Unauthorized
+  name: Figma
+  vendor: Figma
+  category: design
+  official_url: https://help.figma.com/hc/en-us/articles/32132100833559
+  repo_url: null
+  docs_url: https://help.figma.com/hc/en-us/articles/32132100833559
+  transport: remote
+  endpoint: https://mcp.figma.com/mcp
+  auth: oauth
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: null
+  description: "Official Figma server exposing design context, variables and code generation to agents."
+  tags: [official, design]

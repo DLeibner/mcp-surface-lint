@@ -58,7 +58,7 @@ export function ShareControls({
       </button>
       <span className="hint">
         {visibility === "public"
-          ? "Public — anyone with the link can see it, and search engines may index it."
+          ? "Public — anyone with the link can see it, and it stays available until you delete it. Reports remain excluded from search engines."
           : "Unlisted — anyone with the link can see it. Not indexed. Auto-deleted after 30 days."}
       </span>
     </div>
