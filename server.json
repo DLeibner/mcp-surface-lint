@@ -4,7 +4,7 @@
   "title": "MCP Surface Lint",
   "description": "Statically audits MCP tool surfaces for token cost, schema quality, and design issues.",
   "version": "0.1.0",
-  "websiteUrl": "https://mcplint-web.vercel.app/install",
+  "websiteUrl": "https://mcp-surface-lint.com/install",
   "repository": {
     "url": "https://github.com/DLeibner/mcp-surface-lint",
     "source": "github",
@@ -13,7 +13,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://mcplint-web.vercel.app/api/mcp"
+      "url": "https://mcp-surface-lint.com/api/mcp"
     }
   ]
 }
