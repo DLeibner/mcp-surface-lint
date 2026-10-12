@@ -1,0 +1,65 @@
+{
+  "slug": "context7",
+  "scanned_at": "2026-10-12T10:03:59.755Z",
+  "engine_version": "0.4.0",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-10-12T10:03:59.755Z",
+  "snapshot_hash": "sha256:0350e9233fcc891f5eb4c52fa69d88c08831de71ee52694fcf55446f3762fd12",
+  "server_info": {
+    "name": "Context7",
+    "version": "4.3.0"
+  },
+  "score": {
+    "composite": 99,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 97,
+      "schemas": 100,
+      "annotations": 100,
+      "design": 97
+    }
+  },
+  "token_footprint": {
+    "tokens": 1136,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 2,
+  "findings": [
+    {
+      "rule_id": "descriptions/too-long",
+      "severity": "warn",
+      "category": "descriptions",
+      "tool_name": "resolve-library-id",
+      "message": "Description is 2006 chars (maximum 1500) — move detail into parameter descriptions."
+    },
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "query-docs",
+      "message": "\"query-docs\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    }
+  ],
+  "tools": [
+    {
+      "name": "resolve-library-id",
+      "description_length": 2006,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 643
+    },
+    {
+      "name": "query-docs",
+      "description_length": 547,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 491
+    }
+  ]
+}

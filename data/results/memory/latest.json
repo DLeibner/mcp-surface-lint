@@ -1,14 +1,14 @@
 {
   "slug": "memory",
-  "scanned_at": "2026-09-28T09:13:17.638Z",
+  "scanned_at": "2026-10-12T10:03:59.755Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-09-28T09:13:17.638Z",
-  "snapshot_hash": "sha256:04bbec6b561b9075bd27312dd79e1e7c6fbf89caddaa88dc7ec3a9e8f54d2a16",
+  "last_attempt_at": "2026-10-12T10:03:59.755Z",
+  "snapshot_hash": "sha256:087eeac6c2ad4e187d4fdcf2b93d00bf0dd902ba861ec77e265b0491a3406ced",
   "server_info": {
     "name": "memory-server",
-    "version": "0.6.3"
+    "version": "1.0.0"
   },
   "score": {
     "composite": 96,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 2360,
+    "tokens": 2430,
     "tokenizer": "o200k_base"
   },
   "tool_count": 9,
@@ -101,12 +101,12 @@
   "tools": [
     {
       "name": "create_entities",
-      "description_length": 51,
+      "description_length": 296,
       "has_annotations": true,
       "property_count": 1,
       "required_count": 1,
       "max_depth": 4,
-      "tokens": 292
+      "tokens": 356
     },
     {
       "name": "create_relations",
@@ -169,7 +169,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 321
+      "tokens": 327
     },
     {
       "name": "open_nodes",

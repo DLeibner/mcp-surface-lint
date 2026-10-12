@@ -1,14 +1,14 @@
 {
   "slug": "context7",
-  "scanned_at": "2026-09-28T09:13:17.638Z",
+  "scanned_at": "2026-10-12T10:03:59.755Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-09-28T09:13:17.638Z",
-  "snapshot_hash": "sha256:db5897e70941bd11b108f75d16a5daaeca47cfd8fca1a5da00500b300de89ad0",
+  "last_attempt_at": "2026-10-12T10:03:59.755Z",
+  "snapshot_hash": "sha256:0350e9233fcc891f5eb4c52fa69d88c08831de71ee52694fcf55446f3762fd12",
   "server_info": {
     "name": "Context7",
-    "version": "4.1.1"
+    "version": "4.3.0"
   },
   "score": {
     "composite": 99,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 1053,
+    "tokens": 1136,
     "tokenizer": "o200k_base"
   },
   "tool_count": 2,
@@ -54,12 +54,12 @@
     },
     {
       "name": "query-docs",
-      "description_length": 429,
+      "description_length": 547,
       "has_annotations": true,
-      "property_count": 2,
+      "property_count": 3,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 408
+      "tokens": 491
     }
   ]
 }
