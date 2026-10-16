@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { HAIKU, OPUS, SONNET } from "./config";
-import { costUsd, estimateUsd, priceCard, type TokenUsage } from "./pricing";
+import { costUsd, estimateUsd, priceCard, pricedModel, type TokenUsage } from "./pricing";
 
 function usage(partial: Partial<TokenUsage>): TokenUsage {
   return {
@@ -60,5 +60,19 @@ describe("costUsd", () => {
 describe("estimateUsd", () => {
   it("assumes no cache hits and every output token spent", () => {
     expect(estimateUsd(SONNET, 5_000, 200, true)).toBe((5_000 * 1 + 200 * 5) / 1_000_000);
+  });
+
+  it("prices a cached prompt at the cache-write rate, which costs more than reading it plain", () => {
+    // Batch Sonnet: 1h write $2/MTok, 5m write $1.25/MTok, input $1/MTok, output $5/MTok.
+    expect(estimateUsd(SONNET, 20_000, 200, true, "1h")).toBe((20_000 * 2 + 200 * 5) / 1_000_000);
+    expect(estimateUsd(SONNET, 20_000, 200, false, "5m")).toBe((20_000 * 2.5 + 200 * 10) / 1_000_000);
+    expect(estimateUsd(OPUS, 20_000, 1_024, true, "1h")).toBeGreaterThan(estimateUsd(OPUS, 20_000, 1_024, true));
+  });
+});
+
+describe("pricedModel", () => {
+  it("bills a model no longer listed as the dearest one", () => {
+    expect(pricedModel(HAIKU)).toBe(HAIKU);
+    expect(pricedModel("claude-haiku-6")).toBe(OPUS);
   });
 });

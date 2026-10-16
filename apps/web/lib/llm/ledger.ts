@@ -42,12 +42,15 @@ export interface BatchRequestMeta {
   jobKey: string;
   /** Set on selection requests: one request per scenario. */
   scenarioId?: string;
+  /** Set when an oversized surface was sent as a sample, so collection grades against the same tools. */
+  sampled?: { tools: number; of: number };
 }
 
 export interface BatchRecord {
   id: string;
   submittedAt: Date;
-  status: "in_progress" | "collected";
+  /** "abandoned": never ended, or its results could not be read, within the time the API allows. */
+  status: "in_progress" | "collected" | "abandoned";
   requestCount: number;
   /** Worst-case cost, reserved against the budget until the batch is collected. */
   estimatedUsd: number;
@@ -91,6 +94,8 @@ export interface LlmLedger {
   usageByServer(since: Date, limit: number): Promise<ServerTotal[]>;
   openBatches(): Promise<BatchRecord[]>;
   saveBatch(batch: BatchRecord): Promise<void>;
+  /** Which of these batch ids the ledger has a row for, in any state. */
+  knownBatches(ids: readonly string[]): Promise<Set<string>>;
   jobs(keys: readonly string[]): Promise<Map<string, JobRecord>>;
   saveJob(job: JobRecord): Promise<void>;
   /** True when this call created the event; false when it had already happened. */
@@ -144,6 +149,10 @@ export class MemoryLedger implements LlmLedger {
 
   async saveBatch(batch: BatchRecord): Promise<void> {
     this.batches.set(batch.id, structuredClone(batch));
+  }
+
+  async knownBatches(ids: readonly string[]): Promise<Set<string>> {
+    return new Set(ids.filter((id) => this.batches.has(id)));
   }
 
   async jobs(keys: readonly string[]): Promise<Map<string, JobRecord>> {
@@ -318,6 +327,15 @@ export class PostgresLedger implements LlmLedger {
         target: llmBatches.id,
         set: { status: values.status, collectedAt: values.collectedAt }
       });
+  }
+
+  async knownBatches(ids: readonly string[]): Promise<Set<string>> {
+    if (ids.length === 0) return new Set();
+    const rows = await this.db
+      .select({ id: llmBatches.id })
+      .from(llmBatches)
+      .where(inArray(llmBatches.id, [...ids]));
+    return new Set(rows.map((row) => row.id));
   }
 
   async jobs(keys: readonly string[]): Promise<Map<string, JobRecord>> {

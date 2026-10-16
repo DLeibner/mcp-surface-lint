@@ -189,6 +189,7 @@ describe("the batch path", () => {
     expect(report.jobs.every((j) => j.outcome === "deferred")).toBe(true);
     expect(report.budget?.pendingUsd).toBe(0);
     expect(await ledger.openBatches()).toEqual([]);
-    expect(ledger.jobRecords.size).toBe(0);
+    // Recorded before the attempt, then released with their retry intact.
+    expect([...ledger.jobRecords.values()].every((j) => j.status === "failed" && j.attempts === 0)).toBe(true);
   });
 });

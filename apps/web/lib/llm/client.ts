@@ -11,6 +11,8 @@ export interface EvalClient {
   createBatch(requests: Anthropic.Messages.BatchCreateParams.Request[]): Promise<string>;
   batchStatus(id: string): Promise<Anthropic.Messages.MessageBatch["processing_status"]>;
   batchResults(id: string): AsyncIterable<Anthropic.Messages.MessageBatchIndividualResponse>;
+  /** Batches this workspace created since `since`, newest first. */
+  recentBatches(since: Date): Promise<{ id: string; createdAt: Date; ended: boolean }[]>;
 }
 
 /**
@@ -28,13 +30,24 @@ export function sdkClient(apiKey = process.env.ANTHROPIC_API_KEY): EvalClient {
       return client.messages.create(params);
     },
     async createBatch(requests) {
-      return (await client.messages.batches.create({ requests })).id;
+      // Never retried: a create that timed out after the API accepted it would
+      // otherwise buy the same batch twice. A failed submission waits for the next run.
+      return (await client.messages.batches.create({ requests }, { maxRetries: 0 })).id;
     },
     async batchStatus(id) {
       return (await client.messages.batches.retrieve(id)).processing_status;
     },
     async *batchResults(id) {
       for await (const result of await client.messages.batches.results(id)) yield result;
+    },
+    async recentBatches(since) {
+      const found: { id: string; createdAt: Date; ended: boolean }[] = [];
+      for await (const batch of client.messages.batches.list({ limit: 100 })) {
+        const createdAt = new Date(batch.created_at);
+        if (createdAt < since) break;
+        found.push({ id: batch.id, createdAt, ended: batch.processing_status === "ended" });
+      }
+      return found;
     }
   };
 }

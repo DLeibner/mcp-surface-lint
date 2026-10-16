@@ -147,6 +147,8 @@ describe.each(ledgers)("%s ledger", (_name, create) => {
     const open = await ledger.openBatches();
     expect(open.map((b) => b.id)).toEqual(["msgbatch_2"]);
     expect(open[0]?.requests.r1).toEqual({ jobKey: "k", scenarioId: "s02" });
+    expect(await ledger.knownBatches(["msgbatch_1", "msgbatch_9"])).toEqual(new Set(["msgbatch_1"]));
+    expect(await ledger.knownBatches([])).toEqual(new Set());
   });
 
   it("upserts jobs by key", async () => {

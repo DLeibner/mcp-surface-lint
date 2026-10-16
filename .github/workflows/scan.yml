@@ -157,7 +157,9 @@ jobs:
               echo "committed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            git pull --rebase "https://github.com/${GITHUB_REPOSITORY}.git" main
+            if ! git pull --rebase "https://github.com/${GITHUB_REPOSITORY}.git" main; then
+              git rebase --abort 2>/dev/null || true
+            fi
           done
           echo "Could not push after three attempts." >&2
           exit 1

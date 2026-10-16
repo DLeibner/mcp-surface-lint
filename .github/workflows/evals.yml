@@ -89,8 +89,9 @@ jobs:
             npm run evals -- run
           fi
 
+      # Also after a failed run: whatever it already bought and wrote must reach main.
       - name: Upload results
-        if: steps.run.outputs.changed != ''
+        if: ${{ !cancelled() && steps.run.outputs.changed != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: eval-results
@@ -100,7 +101,7 @@ jobs:
   commit:
     name: Commit results
     needs: evals
-    if: needs.evals.outputs.changed != ''
+    if: ${{ !cancelled() && needs.evals.outputs.changed != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -146,7 +147,9 @@ jobs:
               echo "committed=true" >> "$GITHUB_OUTPUT"
               exit 0
             fi
-            git pull --rebase "https://github.com/${GITHUB_REPOSITORY}.git" main
+            if ! git pull --rebase "https://github.com/${GITHUB_REPOSITORY}.git" main; then
+              git rebase --abort 2>/dev/null || true
+            fi
           done
           echo "Could not push after three attempts." >&2
           exit 1
@@ -156,7 +159,7 @@ jobs:
     needs:
       - evals
       - commit
-    if: needs.commit.outputs.committed == 'true'
+    if: ${{ !cancelled() && needs.commit.outputs.committed == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: Content

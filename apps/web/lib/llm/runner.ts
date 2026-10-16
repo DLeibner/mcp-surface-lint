@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { collectBatches, enqueue, submitDraft } from "./batch";
+import { collectBatches, enqueue, reconcileOrphans, submitDraft } from "./batch";
 import { budgetState, charge, cycleId, cycleWindow, exhaustedEventKey, gate, type GateDecision } from "./budget";
 import { errorMessage, isCreditExhausted } from "./client";
 import {
@@ -35,9 +35,11 @@ import {
   evalTargets,
   jobRecord,
   markExhausted,
+  publishScenarios,
   publishSelection,
   publishSingle,
   raiseHardStop,
+  RunFailed,
   selectionRun,
   written,
   type SingleKind,
@@ -52,13 +54,20 @@ import {
 import { toApiSurface } from "./surface";
 import { rankByViews } from "./views";
 
-export { evalTargets, MAX_ATTEMPTS };
+export { evalTargets, MAX_ATTEMPTS, RunFailed };
 export type { EvalTarget, JobOutcome, RunOptions, RunReport };
 
 /** Standard-API calls in flight at once, after the first has warmed the cache. */
 const CONCURRENCY = 4;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * A job still marked submitted this long after its last update, with no batch
+ * to wait for, was interrupted (a killed or timed-out run): it is released for
+ * its retry instead of waiting forever. Batches have their own clock in batch.ts.
+ */
+const STALE_SUBMISSION_MS = 2 * 60 * 60 * 1000;
 
 async function mapWithConcurrency<T, R>(items: readonly T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
   const out: R[] = new Array(items.length);
@@ -140,7 +149,13 @@ async function prior(run: Run, key: string): Promise<Prior> {
   const job = (await run.ledger.jobs([key])).get(key);
   if (!job) return { state: "none", attempts: 0 };
   if (job.status === "done") return { state: "done", result: job.result };
-  if (job.status === "submitted") return { state: "in-flight" };
+  if (job.status === "submitted") {
+    const waiting = job.mode === "batch" && job.batchId !== null;
+    if (waiting || run.now.getTime() - job.updatedAt.getTime() < STALE_SUBMISSION_MS) return { state: "in-flight" };
+    // Interrupted: that counts as the attempt it was.
+    if (job.attempts >= MAX_ATTEMPTS) return { state: "gave-up", detail: "interrupted twice" };
+    return { state: "none", attempts: job.attempts };
+  }
   if (job.attempts >= MAX_ATTEMPTS) return { state: "gave-up", detail: job.lastError ?? "failed twice" };
   return { state: "none", attempts: job.attempts };
 }
@@ -254,7 +269,7 @@ async function runSingle(
 
   const job = jobRecord(run, spec.key, spec.kind, slug, spec.model, before.attempts + 1, spec.mode);
   if (spec.mode === "batch") {
-    enqueue(run, job, [{ params: spec.params() }], estimate);
+    enqueue(run, job, [{ params: spec.params() }], estimate, surface.sampled);
     return undefined;
   }
 
@@ -376,7 +391,9 @@ async function runSelection(
 
   const settings = SELECTION_SETTINGS[model];
   const perCallInput = (surface.footprint.models[model] ?? surface.footprint.models[SONNET] ?? 0) + 300;
-  const estimate = set.scenarios.length * estimateUsd(model, perCallInput, settings.maxTokens, plan.mode === "batch");
+  // Each request marks tools + system for caching; at worst every one of them pays to write it.
+  const batch = plan.mode === "batch";
+  const estimate = set.scenarios.length * estimateUsd(model, perCallInput, settings.maxTokens, batch, batch ? "1h" : "5m");
   const decision = gate(run.state, tier, estimate);
   if (!decision.allowed) return report("deferred", await deferred(run, decision));
 
@@ -391,7 +408,8 @@ async function runSelection(
         params: selectionRequest(api, scenario, model, "batch"),
         scenarioId: scenario.id
       })),
-      estimate
+      estimate,
+      surface.sampled
     );
     return;
   }
@@ -410,12 +428,14 @@ async function runSelection(
     }
   };
 
+  let result: SelectionRun;
+  let previous: SelectionRun | undefined;
   try {
     // The first call writes the cache entry for tools + system; it is only
     // readable once that response has started, so the rest wait for it.
     const [first, ...rest] = set.scenarios;
     const outcomes = first ? [await ask(first), ...(await mapWithConcurrency(rest, CONCURRENCY, ask))] : [];
-    const result = selectionRun({
+    result = selectionRun({
       key,
       model,
       toolsHash: target.surface.toolsHash,
@@ -426,13 +446,14 @@ async function runSelection(
       outcomes,
       usd
     });
-    const previous = publishSelection(run, slug, result);
+    previous = publishSelection(run, slug, result);
     await run.ledger.saveJob({ ...job, status: "done", result, completedAt: run.now, updatedAt: run.now });
     report("done", `accuracy ${result.metrics.selection_accuracy ?? "n/a"}`, result.usd);
-    await checkRegression(run, slug, previous, result);
   } catch (caught) {
     await failStandard(run, job, before.attempts, caught, report);
+    return;
   }
+  await checkRegression(run, slug, previous, result);
 }
 
 async function runModelJobs(targets: EvalTarget[], run: Run): Promise<void> {
@@ -460,19 +481,19 @@ async function runModelJobs(targets: EvalTarget[], run: Run): Promise<void> {
  * batch over the most-viewed scorecards — once per cycle, and only where the
  * current surface has no Opus answer yet.
  */
-async function useItOrLoseIt(run: Run, targets: EvalTarget[]): Promise<void> {
+async function useItOrLoseIt(run: Run, targets: EvalTarget[]): Promise<{ event: string; keys: string[] } | undefined> {
+  // A run limited to some servers must not spend the cycle's one pass on them.
+  if (run.only) return undefined;
   const window = run.state.window;
-  if (window.day < USE_IT_OR_LOSE_IT.cycleDay || run.state.exhausted || !run.client) return;
-  if (run.state.spentUsd >= BUDGET.creditUsd * USE_IT_OR_LOSE_IT.belowRatio) return;
+  if (window.day < USE_IT_OR_LOSE_IT.cycleDay || run.state.exhausted || !run.client) return undefined;
+  if (run.state.spentUsd >= BUDGET.creditUsd * USE_IT_OR_LOSE_IT.belowRatio) return undefined;
   const event = `use-it:${cycleId(window)}`;
-  if (await run.ledger.hasEvent(event)) return;
+  if (await run.ledger.hasEvent(event)) return undefined;
 
   const ranked = await rankByViews(targets.map((target) => target.seed.slug), run.log);
   const chosen = ranked.slice(0, USE_IT_OR_LOSE_IT.servers);
-  await run.ledger.claimEvent(event, "use-it", { servers: chosen });
-  run.log(`Day ${window.day} at ${run.state.spentUsd.toFixed(2)} USD spent: queuing an Opus pass over ${chosen.length} scorecard(s).`);
-
   const plan: SelectionPlan = { model: USE_IT_OR_LOSE_IT.model, mode: USE_IT_OR_LOSE_IT.mode, everyDays: 0 };
+  const before = new Set(run.planned);
   for (const slug of chosen) {
     const target = targets.find((candidate) => candidate.seed.slug === slug);
     const set = readEvalFile(slug, "scenarios");
@@ -482,12 +503,18 @@ async function useItOrLoseIt(run: Run, targets: EvalTarget[]): Promise<void> {
     const surface = evalSurface(target);
     if (typeof surface !== "string") await runSelection(run, target, surface, set, plan);
   }
+  const keys = [...run.planned].filter((key) => !before.has(key));
+  if (keys.length > 0) {
+    run.log(`Day ${window.day}, ${run.state.spentUsd.toFixed(2)} USD spent: an Opus pass over ${keys.length} scorecard(s).`);
+  }
+  return { event, keys };
 }
 
 /**
- * One wake-up of the eval layer: collect the batches that ended, recount any
- * surface that changed, run what is due on the standard API, and submit the
- * rest as batches. Every paid step passes the budget gate first.
+ * One wake-up of the eval layer: record any batch a dead run left behind,
+ * collect the batches that ended, recount any surface that changed, run what
+ * is due on the standard API, and submit the rest as batches. Every paid step
+ * passes the budget gate first.
  */
 export async function runEvals(options: RunOptions): Promise<RunReport> {
   const window = cycleWindow(options.now);
@@ -509,18 +536,32 @@ export async function runEvals(options: RunOptions): Promise<RunReport> {
     planned: new Set()
   };
 
-  await collectBatches(run);
-  const targets = evalTargets(options.only);
-  options.log(`${targets.length} server(s) with a captured surface.`);
-  await refreshFootprints(targets, run);
   try {
-    await runModelJobs(targets, run);
-    await useItOrLoseIt(run, targets);
+    await reconcileOrphans(run);
+    await collectBatches(run);
+    const targets = evalTargets(options.only);
+    options.log(`${targets.length} server(s) with a captured surface.`);
+    await refreshFootprints(targets, run);
+    let pass: Awaited<ReturnType<typeof useItOrLoseIt>>;
+    try {
+      await runModelJobs(targets, run);
+      pass = await useItOrLoseIt(run, targets);
+    } catch (caught) {
+      if (!(caught instanceof CreditExhausted)) throw caught;
+      options.log("The API reported the credit exhausted; the rest waits for the next cycle.");
+    }
+    if (run.client) await submitDraft(run);
+    // The cycle's pass is spent only once something it queued actually went out.
+    if (pass && pass.keys.length > 0) {
+      const jobs = await run.ledger.jobs(pass.keys);
+      if ([...jobs.values()].some((job) => job.batchId !== null)) {
+        await run.ledger.claimEvent(pass.event, "use-it", { keys: pass.keys.length });
+      }
+    }
   } catch (caught) {
-    if (!(caught instanceof CreditExhausted)) throw caught;
-    options.log("The API reported the credit exhausted; the rest waits for the next cycle.");
+    run.report.budget = run.state;
+    throw new RunFailed(run.report, caught);
   }
-  if (run.client) await submitDraft(run);
   run.report.budget = run.state;
   return run.report;
 }

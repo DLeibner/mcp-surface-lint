@@ -200,25 +200,40 @@ export class FakeClient implements EvalClient {
     return 10 + (params.tools?.length ?? 0) * perTool;
   }
 
+  /** Like the API, an answer names the model that was asked. */
+  private answer(params: Anthropic.MessageCreateParamsNonStreaming): Anthropic.Message {
+    if (!this.respond) throw new Error("FakeClient.respond is not scripted for this test.");
+    return { ...this.respond(params), model: params.model };
+  }
+
   async createMessage(params: Anthropic.MessageCreateParamsNonStreaming): Promise<Anthropic.Message> {
     this.messages.push(params);
-    if (!this.respond) throw new Error("FakeClient.createMessage is not scripted for this test.");
-    return this.respond(params);
+    return this.answer(params);
   }
 
   readonly batches = new Map<
     string,
-    { requests: Anthropic.Messages.BatchCreateParams.Request[]; status: "in_progress" | "ended" }
+    { requests: Anthropic.Messages.BatchCreateParams.Request[]; status: "in_progress" | "ended"; createdAt: Date }
   >();
   batchError?: Error;
   /** Custom ids whose results come back errored instead of answered. */
   readonly erroredRequests = new Set<string>();
+  /** Custom ids whose results come back as billing errors. */
+  readonly billingErrors = new Set<string>();
+  clock: () => Date = () => new Date();
 
   async createBatch(requests: Anthropic.Messages.BatchCreateParams.Request[]): Promise<string> {
     if (this.batchError) throw this.batchError;
     const id = `msgbatch_${String(this.batches.size + 1).padStart(3, "0")}`;
-    this.batches.set(id, { requests, status: "in_progress" });
+    this.batches.set(id, { requests, status: "in_progress", createdAt: this.clock() });
     return id;
+  }
+
+  async recentBatches(since: Date): Promise<{ id: string; createdAt: Date; ended: boolean }[]> {
+    return [...this.batches]
+      .filter(([, batch]) => batch.createdAt >= since)
+      .map(([id, batch]) => ({ id, createdAt: batch.createdAt, ended: batch.status === "ended" }))
+      .reverse();
   }
 
   /** What the API does in the background: every submitted batch finishes. */
@@ -236,6 +251,23 @@ export class FakeClient implements EvalClient {
     const batch = this.batches.get(id);
     if (!batch) throw new Error(`Unknown batch ${id}.`);
     for (const request of batch.requests) {
+      if (this.billingErrors.has(request.custom_id)) {
+        yield {
+          custom_id: request.custom_id,
+          result: {
+            type: "errored",
+            error: {
+              type: "error",
+              request_id: null,
+              error: {
+                type: "invalid_request_error",
+                message: "Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."
+              }
+            }
+          }
+        };
+        continue;
+      }
       if (this.erroredRequests.has(request.custom_id)) {
         yield {
           custom_id: request.custom_id,
@@ -246,8 +278,7 @@ export class FakeClient implements EvalClient {
         };
         continue;
       }
-      if (!this.respond) throw new Error("FakeClient.respond is not scripted for this test.");
-      yield { custom_id: request.custom_id, result: { type: "succeeded", message: this.respond(request.params) } };
+      yield { custom_id: request.custom_id, result: { type: "succeeded", message: this.answer(request.params) } };
     }
   }
 }

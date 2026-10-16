@@ -21,7 +21,7 @@ import { sdkClient } from "../lib/llm/client";
 import { BUDGET, SONNET, MODEL_LABELS } from "../lib/llm/config";
 import { getLedger, type LlmLedger } from "../lib/llm/ledger";
 import { costUsd, type TokenUsage } from "../lib/llm/pricing";
-import { runEvals, type RunReport } from "../lib/llm/runner";
+import { RunFailed, runEvals, type RunReport } from "../lib/llm/runner";
 
 function usd(value: number): string {
   return `$${value.toFixed(4)}`;
@@ -130,17 +130,31 @@ async function main(): Promise<void> {
   switch (command) {
     case "run":
     case "plan": {
-      const report = await runEvals({
-        client: command === "run" ? sdkClient() : undefined,
-        ledger,
-        now,
-        only,
-        log: (line) => console.log(line),
-        notify: resendNotifier()
-      });
+      let report: RunReport;
+      let failure: unknown;
+      try {
+        report = await runEvals({
+          client: command === "run" ? sdkClient() : undefined,
+          ledger,
+          now,
+          only,
+          log: (line) => console.log(line),
+          notify: resendNotifier()
+        });
+      } catch (caught) {
+        if (!(caught instanceof RunFailed)) throw caught;
+        // What the run already bought and wrote must still be committed.
+        report = caught.report;
+        failure = caught.cause;
+      }
       console.log(reportLines(report).join("\n"));
       writeWorkflowOutputs(report);
-      await printBudget(ledger, now);
+      if (failure) throw failure;
+      try {
+        await printBudget(ledger, now);
+      } catch (caught) {
+        console.error(`Could not print the budget: ${caught instanceof Error ? caught.message : caught}`);
+      }
       return;
     }
     case "budget":

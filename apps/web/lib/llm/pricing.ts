@@ -1,5 +1,5 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import { BATCH_DISCOUNT, PRICES, type ModelId, type PriceCard } from "./config";
+import { BATCH_DISCOUNT, OPUS, PRICES, isModelId, type ModelId, type PriceCard } from "./config";
 
 /** Token counts for one call, in the shape the ledger stores. */
 export interface TokenUsage {
@@ -50,25 +50,39 @@ export function costUsd(model: ModelId, usage: TokenUsage, batch: boolean): numb
 }
 
 /**
- * An upper bound before the call is made: the whole prompt uncached and every
- * allowed output token spent. The budget gate reserves this much, so a job can
- * never be admitted on an optimistic guess and then cross a stop.
+ * An upper bound before the call is made: every allowed output token spent,
+ * and the whole prompt at the dearest rate it can be billed at. A request that
+ * marks a cache breakpoint can miss the cache and pay to write it — 1.25x the
+ * input price for five minutes, 2x for an hour — so it is priced that way. The
+ * budget gate reserves this much, so a job is never admitted on an optimistic
+ * guess and then carried past a stop.
  */
 export function estimateUsd(
   model: ModelId,
   inputTokens: number,
   maxOutputTokens: number,
-  batch: boolean
+  batch: boolean,
+  cacheWrite: "none" | "5m" | "1h" = "none"
 ): number {
+  const cached = cacheWrite === "none" ? 0 : inputTokens;
   return costUsd(
     model,
     {
-      inputTokens,
-      cacheWriteTokens: 0,
-      cacheWrite1hTokens: 0,
+      inputTokens: inputTokens - cached,
+      cacheWriteTokens: cached,
+      cacheWrite1hTokens: cacheWrite === "1h" ? cached : 0,
       cacheReadTokens: 0,
       outputTokens: maxOutputTokens
     },
     batch
   );
+}
+
+/**
+ * The price card for a model a response names. A model dropped from MODELS
+ * while one of its batches was still running is billed as the dearest model
+ * here, so the ledger can only over-count it.
+ */
+export function pricedModel(model: string): ModelId {
+  return isModelId(model) ? model : OPUS;
 }

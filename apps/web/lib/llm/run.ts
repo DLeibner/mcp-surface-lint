@@ -96,7 +96,7 @@ export interface JobReport {
 
 export interface BatchReport {
   id: string;
-  outcome: "submitted" | "in-progress" | "collected" | "failed";
+  outcome: "submitted" | "in-progress" | "collected" | "failed" | "abandoned" | "reconciled";
   requests: number;
   detail?: string;
   usd?: number;
@@ -137,6 +137,17 @@ export interface Run extends RunOptions {
   draft: BatchDraft;
   /** Result keys this run already ran or queued, so no pass queues one twice. */
   planned: Set<string>;
+}
+
+/** A run that failed part-way still has a report: what it wrote must still be committed. */
+export class RunFailed extends Error {
+  constructor(
+    readonly report: RunReport,
+    readonly cause: unknown
+  ) {
+    super(cause instanceof Error ? cause.message : String(cause));
+    this.name = "RunFailed";
+  }
 }
 
 /** Thrown when the credit runs out mid-run: everything still queued waits for the next cycle. */
@@ -197,6 +208,21 @@ export async function raiseHardStop(run: Run): Promise<void> {
  * differ in surface and scenario set too; the email says so.
  */
 export async function checkRegression(
+  run: Run,
+  slug: string,
+  previous: SelectionRun | undefined,
+  current: SelectionRun | undefined
+): Promise<void> {
+  if (!current) return;
+  try {
+    await regression(run, slug, previous, current);
+  } catch (caught) {
+    // The run is published and paid for; a failed alert must not undo that.
+    run.log(`Could not check ${slug} for a regression: ${caught instanceof Error ? caught.message : String(caught)}`);
+  }
+}
+
+async function regression(
   run: Run,
   slug: string,
   previous: SelectionRun | undefined,
@@ -293,7 +319,7 @@ export function buildSingle(
   key: string,
   parsed: ParsedKey & { job: SingleKind },
   target: EvalTarget,
-  surface: EvalSurface,
+  surface: Pick<EvalSurface, "tools" | "sampled">,
   message: Anthropic.Message,
   now: Date,
   usd: number
