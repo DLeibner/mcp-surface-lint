@@ -33,9 +33,10 @@ describe("footprints", () => {
     const client = new FakeClient();
     const report = await runEvals({ client, ledger: new MemoryLedger(), now, log: () => {} });
 
+    // Showcase servers go first: when the budget is tight, they matter most.
     expect(report.footprints.map((f) => [f.slug, f.outcome])).toEqual([
-      ["alpha", "counted"],
-      ["beta", "counted"]
+      ["beta", "counted"],
+      ["alpha", "counted"]
     ]);
     const alpha = JSON.parse(readFileSync(footprintFile("alpha"), "utf8"));
     expect(alpha).toMatchObject({
@@ -47,7 +48,7 @@ describe("footprints", () => {
     });
     // One baseline per model, shared by both servers.
     expect(client.counts.filter((c) => !c.tools)).toHaveLength(3);
-    expect(report.written).toEqual(["data/evals/alpha/footprint.json", "data/evals/beta/footprint.json"]);
+    expect(report.written.sort()).toEqual(["data/evals/alpha/footprint.json", "data/evals/beta/footprint.json"]);
   });
 
   it("leaves a current count alone and recounts a changed surface", async () => {
@@ -63,8 +64,8 @@ describe("footprints", () => {
     ({ runEvals } = await load());
     const report = await runEvals({ client: new FakeClient(), ledger: new MemoryLedger(), now, log: () => {} });
     expect(report.footprints.map((f) => [f.slug, f.outcome])).toEqual([
-      ["alpha", "counted"],
-      ["beta", "current"]
+      ["beta", "current"],
+      ["alpha", "counted"]
     ]);
     expect(JSON.parse(readFileSync(footprintFile("alpha"), "utf8")).models[SONNET]).toBe(300);
   });

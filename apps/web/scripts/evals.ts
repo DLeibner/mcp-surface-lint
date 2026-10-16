@@ -83,6 +83,13 @@ function reportLines(report: RunReport): string[] {
     .map((f) => `footprint  ${f.outcome.padEnd(9)} ${f.slug}${f.detail ? `  ${f.detail}` : ""}`);
   const current = report.footprints.filter((f) => f.outcome === "current").length;
   if (current > 0) lines.push(`footprint  ${current} already current`);
+  for (const job of report.jobs) {
+    const cost = job.usd ? ` ${usd(job.usd)}` : "";
+    lines.push(
+      `${job.job.padEnd(10)} ${job.outcome.padEnd(9)} ${job.slug} · ${MODEL_LABELS[job.model]}${cost}` +
+        (job.detail ? `  ${job.detail}` : "")
+    );
+  }
   if (report.exhausted) lines.push("The API reported the credit exhausted; paid jobs wait for the next cycle.");
   lines.push(`${report.written.length} file(s) written under data/evals.`);
   return lines;

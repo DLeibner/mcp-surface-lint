@@ -1,4 +1,5 @@
-import { readEvalFile, type Footprint } from "../llm/results";
+import { TIER_POLICY, isModelId } from "../llm/config";
+import { readEvalFile, type Footprint, type SelectionRun } from "../llm/results";
 import { loadRedirects, loadResult, loadSeeds } from "./data";
 import {
   CATEGORIES,
@@ -21,6 +22,12 @@ export interface DirectoryEntry {
    * never shown against a newer score.
    */
   footprint?: Footprint;
+  /**
+   * Tool-selection runs this server's tier publishes, newest first: Sonnet
+   * only for unclaimed directory servers, every model for showcase, claimed
+   * and paid ones.
+   */
+  selection: SelectionRun[];
 }
 
 export interface CategoryStats {
@@ -58,6 +65,7 @@ export function loadCatalog(): Catalog {
     const result = loadResult(seed.slug);
     const scanned = result && hasSurface(result) ? result : undefined;
     const footprint = readEvalFile(seed.slug, "footprint");
+    const publicModels: readonly string[] = TIER_POLICY[seed.tier].publicModels;
     return {
       seed,
       result,
@@ -65,7 +73,12 @@ export function loadCatalog(): Catalog {
       footprint:
         scanned && footprint && !footprint.error && footprint.tools_hash === scanned.snapshot_hash
           ? footprint
-          : undefined
+          : undefined,
+      selection: scanned
+        ? (readEvalFile(seed.slug, "selection")?.runs ?? []).filter(
+            (run) => isModelId(run.model) && publicModels.includes(run.model)
+          )
+        : []
     };
   });
 

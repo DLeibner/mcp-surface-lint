@@ -110,13 +110,62 @@ export function tool(name: string, description: string, properties: Record<strin
   };
 }
 
+export interface FakeUsage {
+  input?: number;
+  output?: number;
+  cacheWrite?: number;
+  cacheRead?: number;
+}
+
+export function fakeMessage(
+  content: Anthropic.ContentBlock[],
+  stopReason: Anthropic.StopReason,
+  usage: FakeUsage = {},
+  model = "claude-haiku-5-5"
+): Anthropic.Message {
+  return {
+    id: "msg_fake",
+    type: "message",
+    role: "assistant",
+    model,
+    container: null,
+    diagnostics: null,
+    content,
+    stop_reason: stopReason,
+    stop_details: null,
+    stop_sequence: null,
+    usage: {
+      input_tokens: usage.input ?? 1_000,
+      output_tokens: usage.output ?? 50,
+      cache_creation_input_tokens: usage.cacheWrite ?? 0,
+      cache_read_input_tokens: usage.cacheRead ?? 0,
+      cache_creation: null,
+      inference_geo: null,
+      output_tokens_details: null,
+      server_tool_use: null,
+      service_tier: "standard"
+    }
+  };
+}
+
+export function textBlock(text: string): Anthropic.TextBlock {
+  return { type: "text", text, citations: null };
+}
+
+export function toolUseBlock(name: string, input: unknown): Anthropic.ToolUseBlock {
+  return { type: "tool_use", id: `toolu_${name}`, name, input, caller: { type: "direct" } };
+}
+
 /**
  * A scripted stand-in for the API. Token counts are a deterministic function
- * of the request, so tests can assert exact footprints.
+ * of the request, so tests can assert exact footprints; messages come from
+ * `respond`, which sees each request.
  */
 export class FakeClient implements EvalClient {
   readonly counts: Anthropic.MessageCountTokensParams[] = [];
+  readonly messages: Anthropic.MessageCreateParamsNonStreaming[] = [];
   countError?: Error;
+  respond?: (params: Anthropic.MessageCreateParamsNonStreaming) => Anthropic.Message;
 
   async countTokens(params: Anthropic.MessageCountTokensParams): Promise<number> {
     if (this.countError) throw this.countError;
@@ -125,8 +174,10 @@ export class FakeClient implements EvalClient {
     return 10 + (params.tools?.length ?? 0) * perTool;
   }
 
-  async createMessage(): Promise<Anthropic.Message> {
-    throw new Error("FakeClient.createMessage is not scripted for this test.");
+  async createMessage(params: Anthropic.MessageCreateParamsNonStreaming): Promise<Anthropic.Message> {
+    this.messages.push(params);
+    if (!this.respond) throw new Error("FakeClient.createMessage is not scripted for this test.");
+    return this.respond(params);
   }
 
   async createBatch(): Promise<string> {

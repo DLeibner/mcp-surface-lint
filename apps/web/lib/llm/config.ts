@@ -116,3 +116,85 @@ export type Tier = (typeof TIERS)[number];
 
 /** Tiers whose LLM jobs keep running between the soft and the hard stop. */
 export const PROTECTED_TIERS: readonly Tier[] = ["paid", "showcase"];
+
+export type Mode = "batch" | "standard";
+
+/**
+ * Bump a version whenever its prompt, output schema or request settings
+ * change. The version is part of every result key, so a bump re-runs the job;
+ * results from an older version stay on the page with their version label
+ * instead of being compared with the new ones.
+ */
+export const PROMPT_VERSIONS = { scenarios: 1, selection: 1 } as const;
+
+export interface RequestSettings {
+  maxTokens: number;
+  /** `between_tools` is Sonnet 5.5's lowest setting; Opus 5.5 cannot turn thinking off. */
+  thinking: "adaptive" | "disabled" | "between_tools";
+  effort: "low" | "medium" | "high";
+}
+
+/** J2: pick a tool, or none. Covered by PROMPT_VERSIONS.selection. */
+export const SELECTION_SETTINGS: Record<ModelId, RequestSettings> = {
+  [HAIKU]: { maxTokens: 200, thinking: "disabled", effort: "low" },
+  [SONNET]: { maxTokens: 200, thinking: "between_tools", effort: "low" },
+  // Thinking counts toward max_tokens and cannot be turned off on Opus 5.5:
+  // at 200 most calls would end before reaching the tool_use block.
+  [OPUS]: { maxTokens: 1_024, thinking: "adaptive", effort: "low" }
+};
+
+/** J1: structured JSON out. Covered by PROMPT_VERSIONS.scenarios. */
+export const GENERATION_SETTINGS: Record<ModelId, RequestSettings> = {
+  [HAIKU]: { maxTokens: 2_000, thinking: "disabled", effort: "medium" },
+  [SONNET]: { maxTokens: 2_000, thinking: "between_tools", effort: "medium" },
+  [OPUS]: { maxTokens: 4_000, thinking: "adaptive", effort: "low" }
+};
+
+/** The model that writes scenarios: the cheapest one, since it is plumbing, not measurement. */
+export const SCENARIO_MODEL: ModelId = HAIKU;
+
+/** Every scenario set has room for breadth and a fixed number of distractors. */
+export const SCENARIO_RULES = { min: 12, max: 15, distractors: 3 } as const;
+
+export const SURFACE_LIMITS = {
+  /** A tool list larger than this (counted by Sonnet 5.5) is never sent whole. */
+  maxTokens: 20_000,
+  /** How many tools an oversized surface is evaluated on instead. */
+  sampleSize: 25
+} as const;
+
+export interface SelectionPlan {
+  model: ModelId;
+  mode: Mode;
+  /**
+   * Minimum days between two runs for one server and model. Runs happen only
+   * when a result key is new (surface, scenarios or prompt changed), so this
+   * caps how often a churning surface is re-measured.
+   */
+  everyDays: number;
+}
+
+export interface TierPolicy {
+  /** How often scan.yml re-reads tools/list. */
+  probes: "weekly" | "daily" | "hourly";
+  /** How scenarios are generated for this tier's selection runs. */
+  scenarios: Mode;
+  selection: readonly SelectionPlan[];
+  /** Models whose selection results appear on the server's public page. */
+  publicModels: readonly ModelId[];
+}
+
+export const TIER_POLICY: Record<Tier, TierPolicy> = {
+  directory: { probes: "weekly", scenarios: "batch", selection: [], publicModels: [SONNET] },
+  claimed: { probes: "daily", scenarios: "batch", selection: [], publicModels: MODELS },
+  paid: { probes: "hourly", scenarios: "standard", selection: [], publicModels: MODELS },
+  showcase: {
+    probes: "hourly",
+    scenarios: "standard",
+    selection: [{ model: HAIKU, mode: "standard", everyDays: 1 }],
+    publicModels: MODELS
+  }
+};
+
+/** Order in which tiers are served when the budget is tight. */
+export const TIER_PRIORITY: readonly Tier[] = ["showcase", "paid", "claimed", "directory"];

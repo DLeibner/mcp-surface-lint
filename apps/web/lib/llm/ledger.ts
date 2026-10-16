@@ -3,10 +3,8 @@ import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { getDb } from "../db/client";
 import * as schema from "../db/schema";
 import { llmBatches, llmEvents, llmJobs, llmUsage } from "../db/schema";
-import type { ModelId } from "./config";
+import type { Mode, ModelId } from "./config";
 import type { TokenUsage } from "./pricing";
-
-export type Mode = "batch" | "standard";
 
 export interface UsageRecord {
   job: string;

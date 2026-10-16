@@ -27,8 +27,8 @@ export default function MethodologyPage() {
       <h1>Methodology</h1>
       <p className="lede">
         Every score in this directory comes from the same {rules.length} deterministic rules run over
-        a server&apos;s published <code>tools/list</code> payload. No LLM is involved at any point,
-        so the same surface always produces the same score, and any two people can reproduce it.
+        a server&apos;s published <code>tools/list</code> payload. No LLM is involved in a score, so
+        the same surface always produces the same score, and any two people can reproduce it.
       </p>
 
       <h2>What we read, and what we never do</h2>
@@ -74,6 +74,37 @@ export default function MethodologyPage() {
         the payload, and different model families tokenise differently. It is still the right order
         of magnitude for the cost you pay on every turn, because that payload is injected into
         context before the user says anything.
+      </p>
+      <p>
+        Where it can, a server page also gives the count as Claude itself makes it, for Claude Haiku
+        5.5, Sonnet 5.5 and Opus 5.5: Anthropic&apos;s token-counting endpoint is asked for a request
+        with the tools and one without, and the difference is reported. It includes the short
+        tool-use system prompt the API adds whenever any tool is present. One number would mislead:
+        newer Claude tokenizers count noticeably more than older ones for the same text.
+      </p>
+
+      <h2>How Claude uses a surface</h2>
+      <p>
+        A static rule can say two tools look alike; it cannot say whether a model actually confuses
+        them. So, separately from the score, some pages report a measurement. A small model writes
+        12 to 15 realistic requests for the surface — three of them deliberately outside anything its
+        tools can do — and records which tool each one should reach. Every label is checked in code
+        against the surface. Each Claude model under test then receives the tools exactly as an MCP
+        client would send them, one request at a time, and we record which tool it calls.
+      </p>
+      <p>
+        Nothing is executed. The model&apos;s tool call is graded and discarded, so the server is
+        never contacted, and the measurement never feeds back into the score. We report how often
+        the model chose the right tool, how often it called a tool for a request no tool fits, how
+        often it called nothing when a tool did fit, whether its arguments validate against the
+        tool&apos;s own schema, and which pairs of tools it confused. A surface larger than 20,000
+        tokens is evaluated on a fixed sample of 25 of its tools.
+      </p>
+      <p>
+        Unclaimed servers are measured with Claude Sonnet 5.5, the model most people use. Servers
+        whose maintainers work with us also get Haiku and Opus for comparison. A new run happens
+        only when the surface, the request set or our prompts change; results from an earlier prompt
+        version stay visible, labelled, rather than being compared with new ones.
       </p>
 
       <h2>What this does not measure</h2>
