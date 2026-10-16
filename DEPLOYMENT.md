@@ -85,6 +85,7 @@ UPSTASH_REDIS_REST_URL=...   # must be a real https://... Upstash REST URL (not 
 UPSTASH_REDIS_REST_TOKEN=...
 IP_HASH_SALT=...
 CRON_SECRET=...
+ADMIN_PASSWORD=...                # /admin/budget; unset → 404
 GATE_FINDINGS=false
 NEXT_PUBLIC_POSTHOG_KEY=...       # optional
 NEXT_PUBLIC_POSTHOG_HOST=...      # optional
@@ -143,6 +144,49 @@ changed. Unset, both the route 404s and the ping step no-ops — nothing breaks.
 re-scans a single server. Locally, `npm run scan -- --skip-stdio` audits only the public HTTP
 endpoints and spawns nothing, which is the right mode on a workstation — a full scan executes
 third-party packages and belongs in CI's throwaway runner.
+
+## One-time LLM eval setup
+
+The eval layer spends the Max plan's monthly API credit ($100, no rollover) on model-based evals of
+the directory's tool surfaces. Its whole spending policy — models, prices, stops, per-call caps —
+lives in `apps/web/lib/llm/config.ts`. Structural scans never depend on it: an exhausted budget
+pauses the evals and nothing else.
+
+**Console.** In the Claude Console organization linked to the Max plan:
+
+1. Create a workspace named `mcplint`. Every key in the organization draws from the same credit,
+   so the eval layer gets its own workspace and nothing else spends from it.
+2. Set the workspace spend limit to **$95**. The runner defers every job at 95% on its own; the
+   Console limit is the backstop behind it.
+3. Create an API key in that workspace. Only the evals workflow holds it.
+
+The credit refreshes on the plan's billing day, while Console spend limits reset on the 1st of
+the calendar month. Set `BUDGET.cycleStartDay` in `config.ts` to the billing day so the runner's
+month-to-date figures match the credit.
+
+**Database.** Apply the ledger migration (`0001_llm_ledger`) to the Neon database the app uses:
+
+```bash
+export DATABASE_URL='the Neon connection string'
+npm run db:migrate -w mcp-surface-lint-web
+```
+
+**Admin page.** `/admin/budget` shows month-to-date spend by job and model, the projection, and
+open batch submissions. It sits behind HTTP Basic auth (any username); without `ADMIN_PASSWORD`
+it returns 404 in production. Add it to the Vercel Production environment:
+
+```bash
+openssl rand -base64 24 # ADMIN_PASSWORD
+```
+
+**Smoke test.** With `DATABASE_URL` exported, record one synthetic call and check that
+`/admin/budget` prices it at exactly $0.0300 (10,000 input and 1,000 output tokens on Sonnet 5.5):
+
+```bash
+npm run evals -- fake-usage
+```
+
+Remove it afterwards with `delete from llm_usage where job = 'fake';` if the three cents matter.
 
 ## One-time npm setup
 

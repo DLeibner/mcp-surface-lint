@@ -8,6 +8,13 @@
       "when": 1784032459176,
       "tag": "0000_nice_silver_centurion",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792135658983,
+      "tag": "0001_llm_ledger",
+      "breakpoints": true
     }
   ]
 }
