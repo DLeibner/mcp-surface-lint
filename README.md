@@ -59,6 +59,17 @@ The workflow wakes every six hours: it collects the batches that ended, then run
 on the standard API for tiers that want answers now, as half-price batches for the rest. A result
 is keyed by (server, tools_hash, model, scenario set, prompt version) and never bought twice.
 
+| Tier | Probes (`scan.yml`) | Selection evals | Shown publicly |
+| --- | --- | --- | --- |
+| `directory` (unclaimed) | weekly | Sonnet 5.5, batch, at most monthly | Sonnet |
+| `claimed` | daily | Sonnet 5.5, batch, at most weekly | every model run |
+| `paid` | hourly | Sonnet 5.5 on change (standard API); Opus 5.5 weekly, batch | every model run |
+| `showcase` (ours) | hourly | Haiku, Sonnet and Opus 5.5, daily, standard API | every model run |
+
+A drop of ten points or more in a model's accuracy against its previous run is emailed, as are the
+budget's hard stop and an exhausted credit. Late in a quiet cycle the unspent credit buys an Opus
+5.5 batch over the most-viewed scorecards.
+
 ```bash
 npm run evals -- plan     # what is due, without calling the API
 npm run evals -- budget   # this cycle's spend against the credit

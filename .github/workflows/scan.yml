@@ -16,8 +16,12 @@ name: Directory scan
 
 on:
   schedule:
-    # Monday 03:00 UTC.
+    # Monday 03:00 UTC: every server.
     - cron: "0 3 * * 1"
+    # Probe cadence per tier (TIER_POLICY in apps/web/lib/llm/config.ts); the
+    # Scan step maps each of these schedules to the tiers it covers.
+    - cron: "10 4 * * *"
+    - cron: "25 * * * *"
   workflow_dispatch:
     inputs:
       slug:
@@ -80,13 +84,18 @@ jobs:
         # attacker-controllable text, and `${{ }}` in a `run:` is shell source.
         env:
           SCAN_SLUG: ${{ inputs.slug }}
+          SCAN_SCHEDULE: ${{ github.event.schedule }}
         run: |
           set -euo pipefail
-          if [ -n "${SCAN_SLUG:-}" ]; then
-            node scripts/scan.mjs --concurrency 4 --slug "$SCAN_SLUG"
-          else
-            node scripts/scan.mjs --concurrency 4
-          fi
+          case "${SCAN_SCHEDULE:-}" in
+            "25 * * * *") tiers="paid,showcase" ;;
+            "10 4 * * *") tiers="claimed,paid,showcase" ;;
+            *) tiers="" ;;
+          esac
+          args=(--concurrency 4)
+          if [ -n "${SCAN_SLUG:-}" ]; then args+=(--slug "$SCAN_SLUG"); fi
+          if [ -n "$tiers" ]; then args+=(--tiers "$tiers"); fi
+          node scripts/scan.mjs "${args[@]}"
 
       - name: Upload results
         uses: actions/upload-artifact@v4

@@ -10,6 +10,7 @@ import { costUsd, roundUsd, usageFromApi } from "./pricing";
 import { readEvalFile, type ScenarioSet } from "./results";
 import {
   CreditExhausted,
+  checkRegression,
   erroredOutcome,
   evalSurface,
   evalTargets,
@@ -182,9 +183,10 @@ async function finalize(
       outcomes,
       usd
     });
-    publishSelection(run, parsed.slug, result);
+    const previous = publishSelection(run, parsed.slug, result);
     await run.ledger.saveJob({ ...job, status: "done", result, completedAt: run.now, updatedAt: run.now });
     reportJob(run, job, "done", `accuracy ${result.metrics.selection_accuracy ?? "n/a"}`, result.usd);
+    await checkRegression(run, parsed.slug, previous, result);
   } catch (caught) {
     await fail(errorMessage(caught));
   }

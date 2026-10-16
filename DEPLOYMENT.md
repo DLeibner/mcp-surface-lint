@@ -198,6 +198,19 @@ grant usage on sequence llm_usage_id_seq to mcplint_evals;
 The workflow commits results under `data/evals/` and deploys through the `Content` environment,
 like the scan. Its commit job needs the same branch-protection bypass as the scan's.
 
+Optional, on the same `Evals` environment:
+
+| Name | Kind | Value |
+| --- | --- | --- |
+| `RESEND_API_KEY` | secret | A Resend API key. With `ALERT_EMAIL_TO`, budget stops, credit exhaustion and accuracy regressions are emailed once each |
+| `ALERT_EMAIL_TO` | variable | Where alerts go. Resend's default sender may only write to the Resend account's own address, which is all this needs |
+| `ALERT_EMAIL_FROM` | variable | A sender on a verified domain, once there is one |
+| `POSTHOG_PERSONAL_API_KEY` | secret | A PostHog personal key with query access, to rank scorecards by pageviews for the end-of-cycle Opus pass |
+| `POSTHOG_PROJECT_ID` | variable | The PostHog project those pageviews land in |
+
+Without them, alerts appear only in the workflow summary, and the Opus pass takes servers in
+directory order — which covers all of them until the directory passes 50.
+
 **Surfaces.** The evals read each server's full `tools/list` from
 `data/results/{slug}/snapshot.json`, which the scanner now writes next to every result. Existing
 results gain one on the next scan, so run the `Directory scan` workflow once by hand after this

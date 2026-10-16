@@ -10,10 +10,12 @@
  *
  * Reads ANTHROPIC_API_KEY for the API and DATABASE_URL for the ledger. Without
  * a database the ledger is in memory and nothing survives the process — fine
- * for `plan`, useless for real spend.
+ * for `plan`, useless for real spend. Alerts are emailed when RESEND_API_KEY
+ * and ALERT_EMAIL_TO are set, and always printed.
  */
 import { appendFileSync } from "node:fs";
 import { parseArgs } from "node:util";
+import { resendNotifier } from "../lib/llm/alerts";
 import { budgetState, exhaustedEventKey, cycleWindow } from "../lib/llm/budget";
 import { sdkClient } from "../lib/llm/client";
 import { BUDGET, SONNET, MODEL_LABELS } from "../lib/llm/config";
@@ -96,6 +98,7 @@ function reportLines(report: RunReport): string[] {
         (job.detail ? `  ${job.detail}` : "")
     );
   }
+  for (const alert of report.alerts) lines.push(`ALERT      ${alert.subject}`);
   if (report.exhausted) lines.push("The API reported the credit exhausted; paid jobs wait for the next cycle.");
   lines.push(`${report.written.length} file(s) written under data/evals.`);
   return lines;
@@ -132,7 +135,8 @@ async function main(): Promise<void> {
         ledger,
         now,
         only,
-        log: (line) => console.log(line)
+        log: (line) => console.log(line),
+        notify: resendNotifier()
       });
       console.log(reportLines(report).join("\n"));
       writeWorkflowOutputs(report);

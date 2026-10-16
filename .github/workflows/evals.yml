@@ -38,7 +38,8 @@ jobs:
     name: Run due evals
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Holds ANTHROPIC_API_KEY (the mcplint workspace key) and DATABASE_URL.
+    # Holds ANTHROPIC_API_KEY (the mcplint workspace key), DATABASE_URL, and the
+    # optional alert and PostHog settings.
     environment: Evals
     permissions:
       contents: read
@@ -72,6 +73,13 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Optional: alert emails (budget stops, regressions) through Resend.
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_EMAIL_TO: ${{ vars.ALERT_EMAIL_TO }}
+          ALERT_EMAIL_FROM: ${{ vars.ALERT_EMAIL_FROM }}
+          # Optional: rank scorecards by pageviews for the end-of-cycle Opus pass.
+          POSTHOG_PERSONAL_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
+          POSTHOG_PROJECT_ID: ${{ vars.POSTHOG_PROJECT_ID }}
           EVAL_SLUG: ${{ inputs.slug }}
         run: |
           set -euo pipefail

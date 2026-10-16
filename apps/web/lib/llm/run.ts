@@ -2,9 +2,13 @@ import type Anthropic from "@anthropic-ai/sdk";
 import type { ToolDef } from "mcp-surface-lint";
 import { loadResult, loadSeeds } from "../directory/data";
 import type { ScanResult, Seed } from "../directory/types";
-import { cycleWindow, exhaustedEventKey, type BudgetState } from "./budget";
+import { raise, type Alert, type Notifier } from "./alerts";
+import { cycleId, cycleWindow, exhaustedEventKey, type BudgetState } from "./budget";
 import type { EvalClient } from "./client";
 import {
+  ALERTS,
+  BUDGET,
+  MODEL_LABELS,
   PROMPT_VERSIONS,
   SELECTION_SETTINGS,
   SONNET,
@@ -37,6 +41,8 @@ export interface RunOptions {
   /** Limit the run to these slugs. */
   only?: ReadonlySet<string>;
   log: (line: string) => void;
+  /** Where alerts go besides the report; see alerts.ts. */
+  notify?: Notifier;
 }
 
 /** A directory server the layer can work on: it has a captured surface. */
@@ -99,6 +105,8 @@ export interface RunReport {
   written: string[];
   /** The API said the credit is gone; the run stopped spending. */
   exhausted: boolean;
+  /** Alerts raised for the first time by this run. */
+  alerts: Alert[];
   budget?: BudgetState;
 }
 
@@ -122,16 +130,91 @@ export interface Run extends RunOptions {
   report: RunReport;
   state: BudgetState;
   draft: BatchDraft;
+  /** Result keys this run already ran or queued, so no pass queues one twice. */
+  planned: Set<string>;
 }
 
 /** Thrown when the credit runs out mid-run: everything still queued waits for the next cycle. */
 export class CreditExhausted extends Error {}
 
+function raiseFor(run: Run, alert: Alert): Promise<void> {
+  return raise(
+    {
+      claimEvent: (key, kind, detail) => run.ledger.claimEvent(key, kind, detail),
+      notify: run.notify,
+      log: run.log,
+      raised: run.report.alerts
+    },
+    alert
+  );
+}
+
+function usd(value: number): string {
+  return `$${value.toFixed(2)}`;
+}
+
+/**
+ * The API said the credit is gone: an expected state, not a failure. Nothing
+ * else spends until the cycle refreshes, and the admin hears about it once.
+ */
 export async function markExhausted(run: Run): Promise<void> {
   run.report.exhausted = true;
   run.state = { ...run.state, exhausted: true };
-  await run.ledger.claimEvent(exhaustedEventKey(cycleWindow(run.now)), "credit-exhausted", {
-    at: run.now.toISOString()
+  const window = cycleWindow(run.now);
+  await raiseFor(run, {
+    key: exhaustedEventKey(window),
+    kind: "credit-exhausted",
+    subject: "LLM evals paused: the API credit is exhausted",
+    body:
+      `The Anthropic API reported the credit balance exhausted on ${run.now.toISOString().slice(0, 10)}, ` +
+      `with ${usd(run.state.spentUsd)} recorded this cycle. Every LLM job is deferred until the credit ` +
+      `refreshes on ${window.end.toISOString().slice(0, 10)}. Structural scans are unaffected.`
+  });
+}
+
+/** The gate refused a job at the hard stop: one email per cycle. */
+export async function raiseHardStop(run: Run): Promise<void> {
+  const window = cycleWindow(run.now);
+  await raiseFor(run, {
+    key: `hard-stop:${cycleId(window)}`,
+    kind: "hard-stop",
+    subject: "LLM evals paused: budget hard stop reached",
+    body:
+      `Spent ${usd(run.state.spentUsd)} and reserved ${usd(run.state.pendingUsd)} of the ${usd(BUDGET.creditUsd)} ` +
+      `credit this cycle, past the hard stop at ${BUDGET.hardStopRatio * 100}%. Every LLM job is deferred until ` +
+      `${window.end.toISOString().slice(0, 10)}. Structural scans are unaffected. Details: /admin/budget.`
+  });
+}
+
+/**
+ * Selection accuracy fell by at least ALERTS.regressionPoints against the
+ * previous run on the same model and prompt version. The two runs usually
+ * differ in surface and scenario set too; the email says so.
+ */
+export async function checkRegression(
+  run: Run,
+  slug: string,
+  previous: SelectionRun | undefined,
+  current: SelectionRun
+): Promise<void> {
+  const before = previous?.metrics.selection_accuracy;
+  const after = current.metrics.selection_accuracy;
+  if (!previous || before === null || before === undefined || after === null) return;
+  const drop = Math.round((before - after) * 100);
+  if (drop < ALERTS.regressionPoints) return;
+  const model = MODEL_LABELS[current.model as ModelId] ?? current.model;
+  await raiseFor(run, {
+    key: `regression:${current.key}`,
+    kind: "regression",
+    subject: `${slug}: ${model} picked the right tool ${drop} points less often`,
+    body:
+      `Selection accuracy for ${slug} on ${model} fell from ${Math.round(before * 100)}% ` +
+      `(${previous.completed_at.slice(0, 10)}, scenario set v${previous.scenario_set}) to ` +
+      `${Math.round(after * 100)}% (${current.completed_at.slice(0, 10)}, scenario set v${current.scenario_set}). ` +
+      (previous.tools_hash === current.tools_hash
+        ? "The surface did not change between the runs."
+        : "The surface changed between the runs.") +
+      ` Confused pairs now: ${current.confused_pairs.map((p) => `${p.expected} → ${p.actual}`).join(", ") || "none"}.`
   });
 }
 
@@ -192,9 +275,17 @@ export function publishScenarios(run: Run, set: ScenarioSet): void {
   written(run, set.slug, "scenarios.json", writeEvalFile(set.slug, "scenarios", set));
 }
 
-export function publishSelection(run: Run, slug: string, result: SelectionRun): void {
-  const selection = withRun(readEvalFile(slug, "selection"), slug, result);
-  written(run, slug, "selection.json", writeEvalFile(slug, "selection", selection));
+/** Publishes a run and returns the one it should be compared with, if any. */
+export function publishSelection(run: Run, slug: string, result: SelectionRun): SelectionRun | undefined {
+  const existing = readEvalFile(slug, "selection");
+  const previous = existing?.runs
+    .filter(
+      (other) =>
+        other.model === result.model && other.prompt_version === result.prompt_version && other.key !== result.key
+    )
+    .sort((a, b) => b.completed_at.localeCompare(a.completed_at))[0];
+  written(run, slug, "selection.json", writeEvalFile(slug, "selection", withRun(existing, slug, result)));
+  return previous;
 }
 
 export function erroredOutcome(id: string): ScenarioOutcome {

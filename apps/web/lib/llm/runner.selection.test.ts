@@ -2,7 +2,7 @@ import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import Anthropic from "@anthropic-ai/sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { HAIKU } from "./config";
+import { HAIKU, OPUS, SONNET } from "./config";
 import { MemoryLedger } from "./ledger";
 import { FakeClient, fakeMessage, textBlock, tool, toolUseBlock, writeFixtureData } from "./testing";
 
@@ -79,14 +79,21 @@ describe("scenarios and selection on the standard API", () => {
 
     expect(report.jobs.map((j) => [j.slug, j.job, j.model, j.outcome])).toEqual([
       ["alpha", "scenarios", HAIKU, "done"],
+      // Showcase servers get the whole model matrix, now.
       ["alpha", "selection", HAIKU, "done"],
+      ["alpha", "selection", SONNET, "done"],
+      ["alpha", "selection", OPUS, "done"],
       // The directory server's scenarios can wait for a batch.
       ["beta", "scenarios", HAIKU, "submitted"]
     ]);
+    const settings = (model: string) => client.messages.find((m) => m.model === model && !m.output_config?.format);
+    expect(settings(HAIKU)).toMatchObject({ max_tokens: 200, thinking: { type: "disabled" } });
+    expect(settings(SONNET)).toMatchObject({ max_tokens: 200, thinking: { type: "between_tools" } });
+    expect(settings(OPUS)).toMatchObject({ max_tokens: 1_024, thinking: { type: "adaptive" } });
     expect(evalFile("scenarios.json")).toMatchObject({ version: 1, tools_hash: "sha256:alpha-v1", sampled: null });
 
     const selection = evalFile("selection.json") as { runs: { metrics: Record<string, unknown>; confused_pairs: unknown }[] };
-    expect(selection.runs).toHaveLength(1);
+    expect(selection.runs).toHaveLength(3);
     expect(selection.runs[0]?.metrics).toMatchObject({
       scenarios: 13,
       graded: 13,
@@ -98,10 +105,13 @@ describe("scenarios and selection on the standard API", () => {
     });
     expect(selection.runs[0]?.confused_pairs).toEqual([{ expected: "get_hotel", actual: "search_hotels", count: 1 }]);
 
-    // One J1 call and thirteen J2 calls on the standard API, each in the ledger at Haiku's price.
-    expect(ledger.usage.map((row) => row.job)).toEqual(["scenarios", ...Array(13).fill("selection")]);
+    // One J1 call and thirteen J2 calls per model, each in the ledger at its model's price.
+    expect(ledger.usage.map((row) => row.job)).toEqual(["scenarios", ...Array(39).fill("selection")]);
     expect(ledger.usage[0]?.usd).toBe((2_000 * 0.1 + 900 * 0.5) / 1_000_000);
-    expect(ledger.usage[1]?.usd).toBe((1_000 * 0.1 + 50 * 0.5) / 1_000_000);
+    const price = (model: string) => ledger.usage.find((row) => row.job === "selection" && row.model === model)?.usd;
+    expect(price(HAIKU)).toBe((1_000 * 0.1 + 50 * 0.5) / 1_000_000);
+    expect(price(SONNET)).toBe((1_000 * 2 + 50 * 10) / 1_000_000);
+    expect(price(OPUS)).toBe((1_000 * 4 + 50 * 20) / 1_000_000);
     // The directory tier gets no Haiku runs.
     expect(existsSync(path.join(root, "evals/beta/selection.json"))).toBe(false);
   });
@@ -115,7 +125,7 @@ describe("scenarios and selection on the standard API", () => {
     ({ runEvals } = await load());
     const second = await runEvals({ client: again, ledger, now, log: () => {} });
     expect(again.messages).toHaveLength(0);
-    expect(second.jobs.filter((j) => j.slug === "alpha").map((j) => j.outcome)).toEqual(["current"]);
+    expect(second.jobs.filter((j) => j.slug === "alpha").map((j) => j.outcome)).toEqual(["current", "current", "current"]);
 
     rmSync(path.join(root, "evals/alpha/selection.json"));
     ({ runEvals } = await load());
@@ -125,7 +135,7 @@ describe("scenarios and selection on the standard API", () => {
       outcome: "current",
       detail: "restored from the ledger"
     });
-    expect(evalFile("selection.json")).toMatchObject({ runs: [{ metrics: { selection_accuracy: 0.9 } }] });
+    expect((evalFile("selection.json") as { runs: unknown[] }).runs).toHaveLength(3);
   });
 
   it("defers paid jobs when the budget gate says no", async () => {
@@ -186,13 +196,19 @@ describe("scenarios and selection on the standard API", () => {
       report.jobs.filter((j) => j.slug === "alpha").map((j) => [j.job, j.outcome]);
     expect(alphaJobs(soon)).toEqual([
       ["scenarios", "done"],
+      ["selection", "throttled"],
+      ["selection", "throttled"],
       ["selection", "throttled"]
     ]);
     expect(evalFile("scenarios.json")).toMatchObject({ version: 2, tools_hash: "sha256:alpha-v2" });
 
     ({ runEvals } = await load());
     const later = await runEvals({ client: scripted(new FakeClient()), ledger, now: new Date(now.getTime() + 2 * day), log: () => {} });
-    expect(alphaJobs(later)).toEqual([["selection", "done"]]);
-    expect((evalFile("selection.json") as { runs: unknown[] }).runs).toHaveLength(2);
+    expect(alphaJobs(later)).toEqual([
+      ["selection", "done"],
+      ["selection", "done"],
+      ["selection", "done"]
+    ]);
+    expect((evalFile("selection.json") as { runs: unknown[] }).runs).toHaveLength(6);
   });
 });

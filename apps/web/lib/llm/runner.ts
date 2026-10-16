@@ -1,14 +1,16 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { collectBatches, enqueue, submitDraft } from "./batch";
-import { budgetState, charge, cycleWindow, exhaustedEventKey, gate } from "./budget";
+import { budgetState, charge, cycleId, cycleWindow, exhaustedEventKey, gate, type GateDecision } from "./budget";
 import { errorMessage, isCreditExhausted } from "./client";
 import {
+  BUDGET,
   GENERATION_SETTINGS,
   PROMPT_VERSIONS,
   SCENARIO_MODEL,
   SELECTION_SETTINGS,
   SONNET,
   TIER_POLICY,
+  USE_IT_OR_LOSE_IT,
   type Mode,
   type ModelId,
   type SelectionPlan
@@ -22,6 +24,7 @@ import { readEvalFile, writeEvalFile, type ScenarioSet, type SelectionRun } from
 import {
   CreditExhausted,
   MAX_ATTEMPTS,
+  checkRegression,
   erroredOutcome,
   evalSurface,
   evalTargets,
@@ -29,6 +32,7 @@ import {
   markExhausted,
   publishScenarios,
   publishSelection,
+  raiseHardStop,
   selectionRun,
   written,
   type EvalSurface,
@@ -39,6 +43,7 @@ import {
   type RunReport
 } from "./run";
 import { toApiSurface } from "./surface";
+import { rankByViews } from "./views";
 
 export { evalTargets, MAX_ATTEMPTS };
 export type { EvalTarget, JobOutcome, RunOptions, RunReport };
@@ -164,6 +169,12 @@ async function call(
   return { message, usd };
 }
 
+/** A refused job is deferred; a refusal at the hard stop also tells the admin, once per cycle. */
+async function deferred(run: Run, decision: GateDecision): Promise<string | undefined> {
+  if (decision.level === "hard-stop" && !run.state.exhausted) await raiseHardStop(run);
+  return decision.reason;
+}
+
 /** Settles a standard job that threw. Running out of credit is not the job's fault: it keeps its retry. */
 async function failStandard(
   run: Run,
@@ -226,7 +237,7 @@ async function ensureScenarios(run: Run, target: EvalTarget, surface: EvalSurfac
   const estimate = estimateUsd(SCENARIO_MODEL, inputEstimate, settings.maxTokens, mode === "batch");
   const decision = gate(run.state, tier, estimate);
   if (!decision.allowed) {
-    report("deferred", decision.reason);
+    report("deferred", await deferred(run, decision));
     return undefined;
   }
 
@@ -282,6 +293,7 @@ async function runSelection(
     run.report.jobs.push({ slug, job: "selection", model, outcome, detail, usd });
   };
 
+  if (run.planned.has(key)) return;
   if (readEvalFile(slug, "selection")?.runs.some((existing) => existing.key === key)) return report("current");
   const before = await prior(run, key);
   if (before.state === "done") {
@@ -301,8 +313,9 @@ async function runSelection(
   const perCallInput = (surface.footprint.models[model] ?? surface.footprint.models[SONNET] ?? 0) + 300;
   const estimate = set.scenarios.length * estimateUsd(model, perCallInput, settings.maxTokens, plan.mode === "batch");
   const decision = gate(run.state, tier, estimate);
-  if (!decision.allowed) return report("deferred", decision.reason);
+  if (!decision.allowed) return report("deferred", await deferred(run, decision));
 
+  run.planned.add(key);
   const job = jobRecord(run, key, "selection", slug, model, before.attempts + 1, plan.mode);
   const api = toApiSurface(surface.tools);
   if (plan.mode === "batch") {
@@ -348,9 +361,10 @@ async function runSelection(
       outcomes,
       usd
     });
-    publishSelection(run, slug, result);
+    const previous = publishSelection(run, slug, result);
     await run.ledger.saveJob({ ...job, status: "done", result, completedAt: run.now, updatedAt: run.now });
     report("done", `accuracy ${result.metrics.selection_accuracy ?? "n/a"}`, result.usd);
+    await checkRegression(run, slug, previous, result);
   } catch (caught) {
     await failStandard(run, job, before.attempts, caught, report);
   }
@@ -374,6 +388,36 @@ async function runModelJobs(targets: EvalTarget[], run: Run): Promise<void> {
 }
 
 /**
+ * Unused credit expires at the end of the cycle. From USE_IT_OR_LOSE_IT.cycleDay,
+ * if less than USE_IT_OR_LOSE_IT.belowRatio of it is spent, queue one Opus 5.5
+ * batch over the most-viewed scorecards — once per cycle, and only where the
+ * current surface has no Opus answer yet.
+ */
+async function useItOrLoseIt(run: Run, targets: EvalTarget[]): Promise<void> {
+  const window = run.state.window;
+  if (window.day < USE_IT_OR_LOSE_IT.cycleDay || run.state.exhausted || !run.client) return;
+  if (run.state.spentUsd >= BUDGET.creditUsd * USE_IT_OR_LOSE_IT.belowRatio) return;
+  const event = `use-it:${cycleId(window)}`;
+  if (await run.ledger.hasEvent(event)) return;
+
+  const ranked = await rankByViews(targets.map((target) => target.seed.slug), run.log);
+  const chosen = ranked.slice(0, USE_IT_OR_LOSE_IT.servers);
+  await run.ledger.claimEvent(event, "use-it", { servers: chosen });
+  run.log(`Day ${window.day} at ${run.state.spentUsd.toFixed(2)} USD spent: queuing an Opus pass over ${chosen.length} scorecard(s).`);
+
+  const plan: SelectionPlan = { model: USE_IT_OR_LOSE_IT.model, mode: USE_IT_OR_LOSE_IT.mode, everyDays: 0 };
+  for (const slug of chosen) {
+    const target = targets.find((candidate) => candidate.seed.slug === slug);
+    const set = readEvalFile(slug, "scenarios");
+    if (!target || !set || set.tools_hash !== target.surface.toolsHash || set.prompt_version !== PROMPT_VERSIONS.scenarios) {
+      continue;
+    }
+    const surface = evalSurface(target);
+    if (typeof surface !== "string") await runSelection(run, target, surface, set, plan);
+  }
+}
+
+/**
  * One wake-up of the eval layer: collect the batches that ended, recount any
  * surface that changed, run what is due on the standard API, and submit the
  * rest as batches. Every paid step passes the budget gate first.
@@ -387,14 +431,15 @@ export async function runEvals(options: RunOptions): Promise<RunReport> {
   ]);
   const run: Run = {
     ...options,
-    report: { footprints: [], jobs: [], batches: [], written: [], exhausted },
+    report: { footprints: [], jobs: [], batches: [], written: [], exhausted, alerts: [] },
     state: budgetState({
       now: options.now,
       spentUsd,
       pendingUsd: batches.reduce((sum, batch) => sum + batch.estimatedUsd, 0),
       exhausted
     }),
-    draft: { chunks: [] }
+    draft: { chunks: [] },
+    planned: new Set()
   };
 
   await collectBatches(run);
@@ -403,6 +448,7 @@ export async function runEvals(options: RunOptions): Promise<RunReport> {
   await refreshFootprints(targets, run);
   try {
     await runModelJobs(targets, run);
+    await useItOrLoseIt(run, targets);
   } catch (caught) {
     if (!(caught instanceof CreditExhausted)) throw caught;
     options.log("The API reported the credit exhausted; the rest waits for the next cycle.");

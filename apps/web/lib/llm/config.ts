@@ -199,14 +199,48 @@ export const TIER_POLICY: Record<Tier, TierPolicy> = {
     selection: [{ model: SONNET, mode: "batch", everyDays: 7 }],
     publicModels: MODELS
   },
-  paid: { probes: "hourly", scenarios: "standard", selection: [], publicModels: MODELS },
+  // Runs happen only when a key is new, so the plan's "Sonnet daily, plus an
+  // on-change rerun within the hour" is one standard-API run per change.
+  paid: {
+    probes: "hourly",
+    scenarios: "standard",
+    selection: [
+      { model: SONNET, mode: "standard", everyDays: 0 },
+      { model: OPUS, mode: "batch", everyDays: 7 }
+    ],
+    publicModels: MODELS
+  },
   showcase: {
     probes: "hourly",
     scenarios: "standard",
-    selection: [{ model: HAIKU, mode: "standard", everyDays: 1 }],
+    selection: [
+      { model: HAIKU, mode: "standard", everyDays: 1 },
+      { model: SONNET, mode: "standard", everyDays: 1 },
+      { model: OPUS, mode: "standard", everyDays: 1 }
+    ],
     publicModels: MODELS
   }
 };
 
 /** Order in which tiers are served when the budget is tight. */
 export const TIER_PRIORITY: readonly Tier[] = ["showcase", "paid", "claimed", "directory"];
+
+/**
+ * Unused credit expires, so late in a quiet cycle the slack buys an Opus 5.5
+ * measurement of the scorecards people actually read.
+ */
+export const USE_IT_OR_LOSE_IT = {
+  /** Day of the credit cycle from which the pass may run (once per cycle). */
+  cycleDay: 25,
+  /** Only when less than this share of the credit has been spent. */
+  belowRatio: 0.6,
+  /** The most-viewed scorecards it covers. */
+  servers: 50,
+  model: OPUS,
+  mode: "batch"
+} as const satisfies { model: ModelId; mode: Mode } & Record<string, unknown>;
+
+export const ALERTS = {
+  /** Selection-accuracy drop, in points, against the previous run on the same model. */
+  regressionPoints: 10
+} as const;
