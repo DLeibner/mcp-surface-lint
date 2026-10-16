@@ -185,8 +185,20 @@ export interface TierPolicy {
 }
 
 export const TIER_POLICY: Record<Tier, TierPolicy> = {
-  directory: { probes: "weekly", scenarios: "batch", selection: [], publicModels: [SONNET] },
-  claimed: { probes: "daily", scenarios: "batch", selection: [], publicModels: MODELS },
+  // Unclaimed servers are measured with the model most people run, and only
+  // that model's results are published about someone else's product.
+  directory: {
+    probes: "weekly",
+    scenarios: "batch",
+    selection: [{ model: SONNET, mode: "batch", everyDays: 30 }],
+    publicModels: [SONNET]
+  },
+  claimed: {
+    probes: "daily",
+    scenarios: "batch",
+    selection: [{ model: SONNET, mode: "batch", everyDays: 7 }],
+    publicModels: MODELS
+  },
   paid: { probes: "hourly", scenarios: "standard", selection: [], publicModels: MODELS },
   showcase: {
     probes: "hourly",

@@ -1,5 +1,5 @@
 {
-  "id": "c24ceb83-8d87-4236-8894-3a81ed3e404d",
+  "id": "3c3a04b6-ef1d-48d4-a63a-3d6953bdf037",
   "prevId": "c35bed29-3db4-4e6e-9d4c-c86a14c6e972",
   "version": "7",
   "dialect": "postgresql",
@@ -329,6 +329,12 @@
           "primaryKey": false,
           "notNull": false
         },
+        "request_id": {
+          "name": "request_id",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "job_key": {
           "name": "job_key",
           "type": "text",
@@ -363,6 +369,27 @@
             }
           ],
           "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "llm_usage_batch_request_idx": {
+          "name": "llm_usage_batch_request_idx",
+          "columns": [
+            {
+              "expression": "batch_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "request_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
           "concurrently": false,
           "method": "btree",
           "with": {}

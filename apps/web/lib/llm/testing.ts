@@ -180,16 +180,48 @@ export class FakeClient implements EvalClient {
     return this.respond(params);
   }
 
-  async createBatch(): Promise<string> {
-    throw new Error("FakeClient.createBatch is not scripted for this test.");
+  readonly batches = new Map<
+    string,
+    { requests: Anthropic.Messages.BatchCreateParams.Request[]; status: "in_progress" | "ended" }
+  >();
+  batchError?: Error;
+  /** Custom ids whose results come back errored instead of answered. */
+  readonly erroredRequests = new Set<string>();
+
+  async createBatch(requests: Anthropic.Messages.BatchCreateParams.Request[]): Promise<string> {
+    if (this.batchError) throw this.batchError;
+    const id = `msgbatch_${String(this.batches.size + 1).padStart(3, "0")}`;
+    this.batches.set(id, { requests, status: "in_progress" });
+    return id;
   }
 
-  async batchStatus(): Promise<"in_progress"> {
-    throw new Error("FakeClient.batchStatus is not scripted for this test.");
+  /** What the API does in the background: every submitted batch finishes. */
+  endBatches(): void {
+    for (const batch of this.batches.values()) batch.status = "ended";
   }
 
-  // eslint-disable-next-line require-yield -- a fake that only ever throws
-  async *batchResults(): AsyncIterable<Anthropic.Messages.MessageBatchIndividualResponse> {
-    throw new Error("FakeClient.batchResults is not scripted for this test.");
+  async batchStatus(id: string): Promise<"in_progress" | "ended"> {
+    const batch = this.batches.get(id);
+    if (!batch) throw new Error(`Unknown batch ${id}.`);
+    return batch.status;
+  }
+
+  async *batchResults(id: string): AsyncIterable<Anthropic.Messages.MessageBatchIndividualResponse> {
+    const batch = this.batches.get(id);
+    if (!batch) throw new Error(`Unknown batch ${id}.`);
+    for (const request of batch.requests) {
+      if (this.erroredRequests.has(request.custom_id)) {
+        yield {
+          custom_id: request.custom_id,
+          result: {
+            type: "errored",
+            error: { type: "error", request_id: null, error: { type: "api_error", message: "Internal error" } }
+          }
+        };
+        continue;
+      }
+      if (!this.respond) throw new Error("FakeClient.respond is not scripted for this test.");
+      yield { custom_id: request.custom_id, result: { type: "succeeded", message: this.respond(request.params) } };
+    }
   }
 }

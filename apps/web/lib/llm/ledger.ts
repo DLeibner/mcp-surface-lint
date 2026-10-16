@@ -14,6 +14,8 @@ export interface UsageRecord {
   usd: number;
   batch: boolean;
   batchId?: string;
+  /** The request's custom_id, for calls made through a batch. */
+  requestId?: string;
   jobKey?: string;
   at?: Date;
 }
@@ -30,6 +32,7 @@ export interface UsageRow {
   usd: number;
   batch: boolean;
   batchId: string | null;
+  requestId: string | null;
   jobKey: string | null;
 }
 
@@ -77,6 +80,8 @@ export interface JobRecord {
 export interface LlmLedger {
   readonly durable: boolean;
   recordUsage(record: UsageRecord): Promise<void>;
+  /** Many at once. A batch request already recorded (same batch, same custom_id) is skipped. */
+  recordUsages(records: readonly UsageRecord[]): Promise<void>;
   spentSince(since: Date): Promise<number>;
   /** Newest first. */
   usageSince(since: Date): Promise<UsageRow[]>;
@@ -98,6 +103,16 @@ export class MemoryLedger implements LlmLedger {
 
   async recordUsage(record: UsageRecord): Promise<void> {
     this.usage.push(toRow(record));
+  }
+
+  async recordUsages(records: readonly UsageRecord[]): Promise<void> {
+    for (const record of records) {
+      const duplicate =
+        record.batchId !== undefined &&
+        record.requestId !== undefined &&
+        this.usage.some((row) => row.batchId === record.batchId && row.requestId === record.requestId);
+      if (!duplicate) this.usage.push(toRow(record));
+    }
   }
 
   async spentSince(since: Date): Promise<number> {
@@ -155,9 +170,13 @@ function toRow(record: UsageRecord): UsageRow {
     usd: record.usd,
     batch: record.batch,
     batchId: record.batchId ?? null,
+    requestId: record.requestId ?? null,
     jobKey: record.jobKey ?? null
   };
 }
+
+/** Rows per INSERT when recording a collected batch. */
+const INSERT_CHUNK = 500;
 
 /** Any Drizzle Postgres database: Neon over HTTP in production, PGlite in tests. */
 export type LedgerDb = PgDatabase<PgQueryResultHKT, typeof schema>;
@@ -172,10 +191,17 @@ export class PostgresLedger implements LlmLedger {
   }
 
   async recordUsage(record: UsageRecord): Promise<void> {
-    const row = toRow(record);
-    await this.db
-      .insert(llmUsage)
-      .values({ ...row, createdAt: row.at, usd: row.usd.toFixed(6) });
+    await this.recordUsages([record]);
+  }
+
+  async recordUsages(records: readonly UsageRecord[]): Promise<void> {
+    for (let i = 0; i < records.length; i += INSERT_CHUNK) {
+      const values = records.slice(i, i + INSERT_CHUNK).map((record) => {
+        const { at, ...row } = toRow(record);
+        return { ...row, createdAt: at, usd: row.usd.toFixed(6) };
+      });
+      await this.db.insert(llmUsage).values(values).onConflictDoNothing();
+    }
   }
 
   async spentSince(since: Date): Promise<number> {
@@ -204,6 +230,7 @@ export class PostgresLedger implements LlmLedger {
       usd: Number(row.usd),
       batch: row.batch,
       batchId: row.batchId,
+      requestId: row.requestId,
       jobKey: row.jobKey
     }));
   }

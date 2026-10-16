@@ -11,7 +11,8 @@ import {
   type BatchRecord,
   type JobRecord,
   type LedgerDb,
-  type LlmLedger
+  type LlmLedger,
+  type UsageRecord
 } from "./ledger";
 
 const MIGRATIONS = path.resolve(process.cwd(), "drizzle");
@@ -93,6 +94,28 @@ describe.each(ledgers)("%s ledger", (_name, create) => {
     const rows = await ledger.usageSince(since);
     expect(rows.map((row) => row.usd)).toEqual([0.02, 0.000123]);
     expect(rows[0]).toMatchObject({ model: HAIKU, cacheReadTokens: 500, batch: false, batchId: null });
+  });
+
+  it("records a collected batch once, however often it is collected", async () => {
+    const row = (requestId: string): UsageRecord => ({
+      job: "selection",
+      serverId: "context7",
+      model: SONNET,
+      usage: tokens,
+      usd: 0.001,
+      batch: true,
+      batchId: "msgbatch_1",
+      requestId
+    });
+    await ledger.recordUsages([row("r00000"), row("r00001")]);
+    await ledger.recordUsages([row("r00000"), row("r00001"), row("r00002")]);
+    // Standard calls carry no request id and never collide.
+    await ledger.recordUsage({ ...row("x"), batch: false, batchId: undefined, requestId: undefined });
+    await ledger.recordUsage({ ...row("x"), batch: false, batchId: undefined, requestId: undefined });
+
+    const rows = await ledger.usageSince(new Date(0));
+    expect(rows).toHaveLength(5);
+    expect(rows.filter((r) => r.batch).map((r) => r.requestId).sort()).toEqual(["r00000", "r00001", "r00002"]);
   });
 
   it("keeps open batches until they are collected", async () => {

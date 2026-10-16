@@ -44,9 +44,11 @@ CREATE TABLE "llm_usage" (
 	"usd" numeric(12, 6) NOT NULL,
 	"batch" boolean NOT NULL,
 	"batch_id" varchar(64),
+	"request_id" varchar(16),
 	"job_key" text
 );
 --> statement-breakpoint
 CREATE INDEX "llm_jobs_server_id_idx" ON "llm_jobs" USING btree ("server_id");--> statement-breakpoint
 CREATE INDEX "llm_usage_created_at_idx" ON "llm_usage" USING btree ("created_at");--> statement-breakpoint
-CREATE INDEX "llm_usage_server_id_idx" ON "llm_usage" USING btree ("server_id");
+CREATE INDEX "llm_usage_server_id_idx" ON "llm_usage" USING btree ("server_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "llm_usage_batch_request_idx" ON "llm_usage" USING btree ("batch_id","request_id");

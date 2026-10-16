@@ -78,9 +78,15 @@ async function recordFakeUsage(ledger: LlmLedger): Promise<void> {
 }
 
 function reportLines(report: RunReport): string[] {
-  const lines = report.footprints
+  const lines = report.batches.map(
+    (batch) =>
+      `batch      ${batch.outcome.padEnd(9)} ${batch.id} (${batch.requests} requests)` +
+      (batch.usd !== undefined ? ` ${usd(batch.usd)}` : "") +
+      (batch.detail ? `  ${batch.detail}` : "")
+  );
+  lines.push(...report.footprints
     .filter((f) => f.outcome !== "current")
-    .map((f) => `footprint  ${f.outcome.padEnd(9)} ${f.slug}${f.detail ? `  ${f.detail}` : ""}`);
+    .map((f) => `footprint  ${f.outcome.padEnd(9)} ${f.slug}${f.detail ? `  ${f.detail}` : ""}`));
   const current = report.footprints.filter((f) => f.outcome === "current").length;
   if (current > 0) lines.push(`footprint  ${current} already current`);
   for (const job of report.jobs) {

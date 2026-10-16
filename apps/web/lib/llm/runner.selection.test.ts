@@ -79,7 +79,9 @@ describe("scenarios and selection on the standard API", () => {
 
     expect(report.jobs.map((j) => [j.slug, j.job, j.model, j.outcome])).toEqual([
       ["alpha", "scenarios", HAIKU, "done"],
-      ["alpha", "selection", HAIKU, "done"]
+      ["alpha", "selection", HAIKU, "done"],
+      // The directory server's scenarios can wait for a batch.
+      ["beta", "scenarios", HAIKU, "submitted"]
     ]);
     expect(evalFile("scenarios.json")).toMatchObject({ version: 1, tools_hash: "sha256:alpha-v1", sampled: null });
 
@@ -96,7 +98,7 @@ describe("scenarios and selection on the standard API", () => {
     });
     expect(selection.runs[0]?.confused_pairs).toEqual([{ expected: "get_hotel", actual: "search_hotels", count: 1 }]);
 
-    // One J1 call and thirteen J2 calls, each in the ledger at Haiku's price.
+    // One J1 call and thirteen J2 calls on the standard API, each in the ledger at Haiku's price.
     expect(ledger.usage.map((row) => row.job)).toEqual(["scenarios", ...Array(13).fill("selection")]);
     expect(ledger.usage[0]?.usd).toBe((2_000 * 0.1 + 900 * 0.5) / 1_000_000);
     expect(ledger.usage[1]?.usd).toBe((1_000 * 0.1 + 50 * 0.5) / 1_000_000);
@@ -113,13 +115,16 @@ describe("scenarios and selection on the standard API", () => {
     ({ runEvals } = await load());
     const second = await runEvals({ client: again, ledger, now, log: () => {} });
     expect(again.messages).toHaveLength(0);
-    expect(second.jobs.map((j) => j.outcome)).toEqual(["current"]);
+    expect(second.jobs.filter((j) => j.slug === "alpha").map((j) => j.outcome)).toEqual(["current"]);
 
     rmSync(path.join(root, "evals/alpha/selection.json"));
     ({ runEvals } = await load());
     const third = await runEvals({ client: again, ledger, now, log: () => {} });
     expect(again.messages).toHaveLength(0);
-    expect(third.jobs[0]).toMatchObject({ outcome: "current", detail: "restored from the ledger" });
+    expect(third.jobs.find((j) => j.slug === "alpha")).toMatchObject({
+      outcome: "current",
+      detail: "restored from the ledger"
+    });
     expect(evalFile("selection.json")).toMatchObject({ runs: [{ metrics: { selection_accuracy: 0.9 } }] });
   });
 
@@ -177,7 +182,9 @@ describe("scenarios and selection on the standard API", () => {
 
     ({ runEvals } = await load());
     const soon = await runEvals({ client: scripted(new FakeClient()), ledger, now: new Date(now.getTime() + day / 2), log: () => {} });
-    expect(soon.jobs.map((j) => [j.job, j.outcome])).toEqual([
+    const alphaJobs = (report: { jobs: { slug: string; job: string; outcome: string }[] }) =>
+      report.jobs.filter((j) => j.slug === "alpha").map((j) => [j.job, j.outcome]);
+    expect(alphaJobs(soon)).toEqual([
       ["scenarios", "done"],
       ["selection", "throttled"]
     ]);
@@ -185,7 +192,7 @@ describe("scenarios and selection on the standard API", () => {
 
     ({ runEvals } = await load());
     const later = await runEvals({ client: scripted(new FakeClient()), ledger, now: new Date(now.getTime() + 2 * day), log: () => {} });
-    expect(later.jobs.map((j) => [j.job, j.outcome])).toEqual([["selection", "done"]]);
+    expect(alphaJobs(later)).toEqual([["selection", "done"]]);
     expect((evalFile("selection.json") as { runs: unknown[] }).runs).toHaveLength(2);
   });
 });

@@ -10,6 +10,7 @@ import {
   smallint,
   text,
   timestamp,
+  uniqueIndex,
   varchar
 } from "drizzle-orm/pg-core";
 
@@ -125,12 +126,16 @@ export const llmUsage = pgTable(
     batch: boolean("batch").notNull(),
     /** Anthropic message batch id, when the call went through the Batch API. */
     batchId: varchar("batch_id", { length: 64 }),
+    /** The request's custom_id within that batch. */
+    requestId: varchar("request_id", { length: 16 }),
     /** The result key the call was made for. */
     jobKey: text("job_key")
   },
   (table) => [
     index("llm_usage_created_at_idx").on(table.createdAt),
-    index("llm_usage_server_id_idx").on(table.serverId)
+    index("llm_usage_server_id_idx").on(table.serverId),
+    // Collecting a batch twice must not bill it twice.
+    uniqueIndex("llm_usage_batch_request_idx").on(table.batchId, table.requestId)
   ]
 );
 
