@@ -8,7 +8,6 @@ import {
 } from "@/lib/llm/budget";
 import { BUDGET, MODEL_LABELS, isModelId } from "@/lib/llm/config";
 import { getLedger } from "@/lib/llm/ledger";
-import { byJobAndModel, byServer } from "@/lib/llm/usage-report";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -63,19 +62,20 @@ export default async function BudgetPage() {
 
   const now = new Date();
   const window = cycleWindow(now);
-  const [rows, batches, exhausted] = await Promise.all([
-    ledger.usageSince(window.start),
+  const [spentUsd, buckets, servers, rows, batches, exhausted] = await Promise.all([
+    ledger.spentSince(window.start),
+    ledger.usageByJobAndModel(window.start),
+    ledger.usageByServer(window.start, 20),
+    ledger.usageSince(window.start, 50),
     ledger.openBatches(),
     ledger.hasEvent(exhaustedEventKey(window))
   ]);
   const state = budgetState({
     now,
-    spentUsd: rows.reduce((sum, row) => sum + row.usd, 0),
+    spentUsd,
     pendingUsd: batches.reduce((sum, batch) => sum + batch.estimatedUsd, 0),
     exhausted
   });
-  const buckets = byJobAndModel(rows);
-  const servers = byServer(rows).slice(0, 20);
 
   return (
     <main>
@@ -222,7 +222,7 @@ export default async function BudgetPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.slice(0, 50).map((row, i) => (
+              {rows.map((row, i) => (
                 <tr key={`${row.at.toISOString()}-${i}`}>
                   <th scope="row">{row.at.toISOString().replace("T", " ").slice(0, 19)}</th>
                   <td>

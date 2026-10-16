@@ -4,7 +4,8 @@ import { getDb } from "../db/client";
 import * as schema from "../db/schema";
 import { llmBatches, llmEvents, llmJobs, llmUsage } from "../db/schema";
 import type { Mode, ModelId } from "./config";
-import type { TokenUsage } from "./pricing";
+import { roundUsd, type TokenUsage } from "./pricing";
+import { byJobAndModel, byServer, type ServerTotal, type UsageBucket } from "./usage-report";
 
 export interface UsageRecord {
   job: string;
@@ -83,8 +84,11 @@ export interface LlmLedger {
   /** Many at once. A batch request already recorded (same batch, same custom_id) is skipped. */
   recordUsages(records: readonly UsageRecord[]): Promise<void>;
   spentSince(since: Date): Promise<number>;
-  /** Newest first. */
-  usageSince(since: Date): Promise<UsageRow[]>;
+  /** Newest first, at most `limit` rows. */
+  usageSince(since: Date, limit?: number): Promise<UsageRow[]>;
+  /** Totals grouped where the rows live: a cycle can hold tens of thousands of calls. */
+  usageByJobAndModel(since: Date): Promise<UsageBucket[]>;
+  usageByServer(since: Date, limit: number): Promise<ServerTotal[]>;
   openBatches(): Promise<BatchRecord[]>;
   saveBatch(batch: BatchRecord): Promise<void>;
   jobs(keys: readonly string[]): Promise<Map<string, JobRecord>>;
@@ -119,10 +123,19 @@ export class MemoryLedger implements LlmLedger {
     return this.usage.filter((row) => row.at >= since).reduce((sum, row) => sum + row.usd, 0);
   }
 
-  async usageSince(since: Date): Promise<UsageRow[]> {
+  async usageSince(since: Date, limit = Number.POSITIVE_INFINITY): Promise<UsageRow[]> {
     return this.usage
       .filter((row) => row.at >= since)
-      .sort((a, b) => b.at.getTime() - a.at.getTime());
+      .sort((a, b) => b.at.getTime() - a.at.getTime())
+      .slice(0, limit);
+  }
+
+  async usageByJobAndModel(since: Date): Promise<UsageBucket[]> {
+    return byJobAndModel(await this.usageSince(since));
+  }
+
+  async usageByServer(since: Date, limit: number): Promise<ServerTotal[]> {
+    return byServer(await this.usageSince(since)).slice(0, limit);
   }
 
   async openBatches(): Promise<BatchRecord[]> {
@@ -212,12 +225,56 @@ export class PostgresLedger implements LlmLedger {
     return Number(row?.total ?? 0);
   }
 
-  async usageSince(since: Date): Promise<UsageRow[]> {
+  async usageByJobAndModel(since: Date): Promise<UsageBucket[]> {
     const rows = await this.db
+      .select({
+        job: llmUsage.job,
+        model: llmUsage.model,
+        calls: sql<number>`count(*)::int`,
+        batchCalls: sql<number>`count(*) filter (where ${llmUsage.batch})::int`,
+        inputTokens: sql<number>`coalesce(sum(${llmUsage.inputTokens}), 0)::bigint`,
+        cacheWriteTokens: sql<number>`coalesce(sum(${llmUsage.cacheWriteTokens}), 0)::bigint`,
+        cacheReadTokens: sql<number>`coalesce(sum(${llmUsage.cacheReadTokens}), 0)::bigint`,
+        outputTokens: sql<number>`coalesce(sum(${llmUsage.outputTokens}), 0)::bigint`,
+        usd: sql<string>`coalesce(sum(${llmUsage.usd}), 0)`
+      })
+      .from(llmUsage)
+      .where(gte(llmUsage.createdAt, since))
+      .groupBy(llmUsage.job, llmUsage.model);
+    return rows
+      .map((row) => ({
+        job: row.job,
+        model: row.model,
+        calls: Number(row.calls),
+        batchCalls: Number(row.batchCalls),
+        inputTokens: Number(row.inputTokens),
+        cacheWriteTokens: Number(row.cacheWriteTokens),
+        cacheReadTokens: Number(row.cacheReadTokens),
+        outputTokens: Number(row.outputTokens),
+        usd: roundUsd(Number(row.usd))
+      }))
+      .sort((a, b) => b.usd - a.usd || a.job.localeCompare(b.job) || a.model.localeCompare(b.model));
+  }
+
+  async usageByServer(since: Date, limit: number): Promise<ServerTotal[]> {
+    const usd = sql<string>`coalesce(sum(${llmUsage.usd}), 0)`;
+    const rows = await this.db
+      .select({ serverId: llmUsage.serverId, calls: sql<number>`count(*)::int`, usd })
+      .from(llmUsage)
+      .where(gte(llmUsage.createdAt, since))
+      .groupBy(llmUsage.serverId)
+      .orderBy(desc(usd), llmUsage.serverId)
+      .limit(limit);
+    return rows.map((row) => ({ serverId: row.serverId, calls: Number(row.calls), usd: roundUsd(Number(row.usd)) }));
+  }
+
+  async usageSince(since: Date, limit?: number): Promise<UsageRow[]> {
+    const query = this.db
       .select()
       .from(llmUsage)
       .where(gte(llmUsage.createdAt, since))
       .orderBy(desc(llmUsage.createdAt));
+    const rows = await (limit === undefined ? query : query.limit(limit));
     return rows.map((row) => ({
       at: row.createdAt,
       job: row.job,

@@ -46,9 +46,15 @@ export function byJobAndModel(rows: readonly UsageRow[]): UsageBucket[] {
   );
 }
 
+export interface ServerTotal {
+  serverId: string;
+  calls: number;
+  usd: number;
+}
+
 /** Cycle spend per server, most expensive first. */
-export function byServer(rows: readonly UsageRow[]): { serverId: string; calls: number; usd: number }[] {
-  const totals = new Map<string, { serverId: string; calls: number; usd: number }>();
+export function byServer(rows: readonly UsageRow[]): ServerTotal[] {
+  const totals = new Map<string, ServerTotal>();
   for (const row of rows) {
     const total = totals.get(row.serverId) ?? { serverId: row.serverId, calls: 0, usd: 0 };
     total.calls += 1;

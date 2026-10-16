@@ -118,6 +118,22 @@ describe.each(ledgers)("%s ledger", (_name, create) => {
     expect(rows.filter((r) => r.batch).map((r) => r.requestId).sort()).toEqual(["r00000", "r00001", "r00002"]);
   });
 
+  it("groups the cycle's spend by job and model, and by server, where the rows live", async () => {
+    const base = { serverId: "context7", usage: tokens };
+    await ledger.recordUsage({ ...base, job: "selection", model: SONNET, usd: 0.02, batch: true, batchId: "b", requestId: "r1" });
+    await ledger.recordUsage({ ...base, job: "selection", model: SONNET, usd: 0.01, batch: false });
+    await ledger.recordUsage({ ...base, job: "scenarios", model: HAIKU, usd: 0.002, batch: false, serverId: "exa" });
+    await ledger.recordUsage({ ...base, job: "scenarios", model: HAIKU, usd: 9, batch: false, at: new Date("2020-01-01T00:00:00Z") });
+
+    const since = new Date("2026-01-01T00:00:00Z");
+    expect(await ledger.usageByJobAndModel(since)).toEqual([
+      { job: "selection", model: SONNET, calls: 2, batchCalls: 1, inputTokens: 2_000, cacheWriteTokens: 0, cacheReadTokens: 1_000, outputTokens: 200, usd: 0.03 },
+      { job: "scenarios", model: HAIKU, calls: 1, batchCalls: 0, inputTokens: 1_000, cacheWriteTokens: 0, cacheReadTokens: 500, outputTokens: 100, usd: 0.002 }
+    ]);
+    expect(await ledger.usageByServer(since, 1)).toEqual([{ serverId: "context7", calls: 2, usd: 0.03 }]);
+    expect(await ledger.usageSince(since, 2)).toHaveLength(2);
+  });
+
   it("keeps open batches until they are collected", async () => {
     await ledger.saveBatch(batch("msgbatch_1", 0.5));
     await ledger.saveBatch(batch("msgbatch_2", 0.25));
