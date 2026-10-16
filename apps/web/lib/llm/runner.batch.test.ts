@@ -4,7 +4,16 @@ import Anthropic from "@anthropic-ai/sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HAIKU, SONNET } from "./config";
 import { MemoryLedger } from "./ledger";
-import { FakeClient, fakeMessage, textBlock, tool, toolUseBlock, writeFixtureData } from "./testing";
+import {
+  FakeClient,
+  answerReviewOrSummary,
+  fakeMessage,
+  structuredKind,
+  textBlock,
+  tool,
+  toolUseBlock,
+  writeFixtureData
+} from "./testing";
 
 let root: string;
 const hour = 60 * 60 * 1000;
@@ -33,7 +42,9 @@ const SCENARIOS = [
 
 function scripted(client: FakeClient): FakeClient {
   client.respond = (params) => {
-    if (params.output_config?.format) {
+    const other = answerReviewOrSummary(params);
+    if (other) return other;
+    if (structuredKind(params) === "scenarios") {
       return fakeMessage([textBlock(JSON.stringify({ scenarios: SCENARIOS }))], "end_turn", { input: 2_000, output: 900 });
     }
     const prompt = String(params.messages[0]?.content);
@@ -60,27 +71,30 @@ describe("the batch path", () => {
     const ledger = new MemoryLedger();
     const run = async (hours: number) => (await load()).runEvals({ client, ledger, now: at(hours), log: () => {} });
 
-    // Run 1: scenarios for all ten servers go out as one batch, reserved against the budget.
+    // Run 1: scenarios, review and summary for all ten servers go out as one
+    // batch, reserved against the budget.
     const first = await run(0);
-    expect(first.batches).toEqual([{ id: "msgbatch_001", outcome: "submitted", requests: 10, usd: expect.any(Number) }]);
-    expect(first.jobs.filter((j) => j.outcome === "submitted")).toHaveLength(10);
+    expect(first.batches).toEqual([{ id: "msgbatch_001", outcome: "submitted", requests: 30, usd: expect.any(Number) }]);
+    expect(first.jobs.filter((j) => j.outcome === "submitted")).toHaveLength(30);
     expect(first.budget?.pendingUsd).toBeGreaterThan(0);
     expect(ledger.usage).toHaveLength(0);
 
     // Run 2: the batch is still processing; nothing is resubmitted.
     const second = await run(1);
-    expect(second.batches).toEqual([{ id: "msgbatch_001", outcome: "in-progress", requests: 10 }]);
-    expect(second.jobs.map((j) => j.outcome)).toEqual(Array(10).fill("in-flight"));
+    expect(second.batches).toEqual([{ id: "msgbatch_001", outcome: "in-progress", requests: 30 }]);
+    expect(second.jobs.map((j) => j.outcome)).toEqual(Array(30).fill("in-flight"));
     expect(client.batches.size).toBe(1);
 
     // Run 3: scenarios are collected at batch prices, and selection goes out as the next batch.
     client.endBatches();
     const third = await run(6);
     expect(third.batches.map((b) => [b.id, b.outcome, b.requests])).toEqual([
-      ["msgbatch_001", "collected", 10],
+      ["msgbatch_001", "collected", 30],
       ["msgbatch_002", "submitted", 130]
     ]);
     expect(ledger.usage.filter((row) => row.job === "scenarios")).toHaveLength(10);
+    expect(evalFile("server-3", "review.json")).toMatchObject({ model: HAIKU, findings: [] });
+    expect(evalFile("server-3", "summary.json").text).toContain("well-described");
     expect(ledger.usage[0]).toMatchObject({ batch: true, batchId: "msgbatch_001", model: HAIKU });
     expect(ledger.usage[0]?.usd).toBe((2_000 * 0.05 + 900 * 0.25) / 1_000_000);
     expect(evalFile("server-3", "scenarios.json")).toMatchObject({ version: 1, model: HAIKU });
@@ -161,8 +175,8 @@ describe("the batch path", () => {
     expect(report.jobs).toContainEqual(
       expect.objectContaining({ job: "scenarios", outcome: "failed", detail: "the surface changed before the batch was collected" })
     );
-    // The money was still spent.
-    expect(ledger.usage).toHaveLength(1);
+    // The money was still spent: scenarios, review and summary.
+    expect(ledger.usage).toHaveLength(3);
   });
 
   it("releases the reservation when the credit is gone at submission", async () => {

@@ -148,6 +148,32 @@ export function fakeMessage(
   };
 }
 
+/** Which structured job a request is, read from its output schema. */
+export function structuredKind(
+  params: Anthropic.MessageCreateParamsNonStreaming
+): "scenarios" | "review" | "summary" | undefined {
+  const properties = (params.output_config?.format?.schema as { properties?: Record<string, unknown> } | undefined)
+    ?.properties;
+  if (!properties) return undefined;
+  if ("scenarios" in properties) return "scenarios";
+  if ("findings" in properties) return "review";
+  if ("summary" in properties) return "summary";
+  return undefined;
+}
+
+/** Plausible answers for the review and summary jobs, for tests that are about something else. */
+export function answerReviewOrSummary(params: Anthropic.MessageCreateParamsNonStreaming): Anthropic.Message | undefined {
+  const kind = structuredKind(params);
+  if (kind === "review") return fakeMessage([textBlock(JSON.stringify({ findings: [] }))], "end_turn");
+  if (kind === "summary") {
+    return fakeMessage(
+      [textBlock(JSON.stringify({ summary: "A compact, well-described surface that scores well. Its tool list costs little context." }))],
+      "end_turn"
+    );
+  }
+  return undefined;
+}
+
 export function textBlock(text: string): Anthropic.TextBlock {
   return { type: "text", text, citations: null };
 }

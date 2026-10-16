@@ -104,13 +104,51 @@ export const selectionSchema = z.object({
 });
 export type SelectionResults = z.infer<typeof selectionSchema>;
 
+export const reviewSchema = z.object({
+  slug: z.string(),
+  key: z.string(),
+  tools_hash: z.string(),
+  model: z.string(),
+  prompt_version: z.number().int(),
+  reviewed_at: iso,
+  sampled: sampledSchema,
+  findings: z.array(
+    z.object({
+      kind: z.enum(["overlapping-tools", "vague-description", "undocumented-parameter", "name-description-mismatch"]),
+      /** The lint rule the finding is closest to, for its rationale; null when none is. */
+      rule_id: z.string().nullable(),
+      tools: z.array(z.string()),
+      parameter: z.string().nullable(),
+      explanation: z.string()
+    })
+  ),
+  usd: z.number().min(0)
+});
+export type Review = z.infer<typeof reviewSchema>;
+
+export const summarySchema = z.object({
+  slug: z.string(),
+  key: z.string(),
+  tools_hash: z.string(),
+  /** The composite the text describes; a page with a different score does not show it. */
+  composite: z.number().int(),
+  model: z.string(),
+  prompt_version: z.number().int(),
+  generated_at: iso,
+  text: z.string(),
+  usd: z.number().min(0)
+});
+export type Summary = z.infer<typeof summarySchema>;
+
 /** Enough history to compare against, not an archive: git keeps the rest. */
 export const RUNS_KEPT_PER_MODEL = 10;
 
 const FILES = {
   footprint: { name: "footprint.json", schema: footprintSchema },
   scenarios: { name: "scenarios.json", schema: scenariosSchema },
-  selection: { name: "selection.json", schema: selectionSchema }
+  selection: { name: "selection.json", schema: selectionSchema },
+  review: { name: "review.json", schema: reviewSchema },
+  summary: { name: "summary.json", schema: summarySchema }
 } as const;
 
 type EvalFile = keyof typeof FILES;

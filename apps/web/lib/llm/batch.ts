@@ -2,21 +2,22 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { charge } from "./budget";
 import { errorMessage, isCreditExhausted, isCreditExhaustedResponse } from "./client";
 import type { ModelId } from "./config";
-import { parseScenarios } from "./jobs/scenarios";
 import { ArgumentChecker, gradeSelection } from "./jobs/selection";
 import { parseKey, type JobKind } from "./keys";
 import type { JobRecord, UsageRecord } from "./ledger";
 import { costUsd, roundUsd, usageFromApi } from "./pricing";
-import { readEvalFile, type ScenarioSet } from "./results";
+import { readEvalFile } from "./results";
 import {
   CreditExhausted,
+  buildSingle,
   checkRegression,
+  describeSingle,
   erroredOutcome,
   evalSurface,
   evalTargets,
   markExhausted,
-  publishScenarios,
   publishSelection,
+  publishSingle,
   selectionRun,
   type JobOutcome,
   type Run
@@ -140,23 +141,14 @@ async function finalize(
   if (typeof surface === "string") return fail(surface);
 
   try {
-    if (parsed.job === "scenarios") {
-      const result = results.get("");
-      if (result?.type !== "succeeded") return fail(describe(result));
-      const current = readEvalFile(parsed.slug, "scenarios");
-      const set: ScenarioSet = {
-        slug: parsed.slug,
-        version: (current?.version ?? 0) + 1,
-        tools_hash: parsed.toolsHash,
-        generated_at: run.now.toISOString(),
-        model: parsed.model,
-        prompt_version: parsed.promptVersion,
-        sampled: surface.sampled,
-        scenarios: parseScenarios(result.message, surface.tools)
-      };
-      publishScenarios(run, set);
-      await run.ledger.saveJob({ ...job, status: "done", result: set, completedAt: run.now, updatedAt: run.now });
-      reportJob(run, job, "done", `${set.scenarios.length} scenarios, set v${set.version}`, roundUsd(usd));
+    if (parsed.job !== "selection") {
+      const answer = results.get("");
+      if (answer?.type !== "succeeded") return fail(describe(answer));
+      const single = { ...parsed, job: parsed.job };
+      const result = buildSingle(jobKey, single, target, surface, answer.message, run.now, usd);
+      publishSingle(run, single.job, result);
+      await run.ledger.saveJob({ ...job, status: "done", result, completedAt: run.now, updatedAt: run.now });
+      reportJob(run, job, "done", describeSingle(single.job, result), roundUsd(usd));
       return;
     }
 

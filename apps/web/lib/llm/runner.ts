@@ -9,6 +9,7 @@ import {
   SCENARIO_MODEL,
   SELECTION_SETTINGS,
   SONNET,
+  SUMMARY_SETTINGS,
   TIER_POLICY,
   USE_IT_OR_LOSE_IT,
   type Mode,
@@ -16,25 +17,31 @@ import {
   type SelectionPlan
 } from "./config";
 import { countFootprint } from "./footprint";
-import { parseScenarios, scenarioRequest } from "./jobs/scenarios";
+import { reviewRequest } from "./jobs/review";
+import { scenarioRequest } from "./jobs/scenarios";
 import { ArgumentChecker, gradeSelection, selectionRequest, type ScenarioOutcome } from "./jobs/selection";
-import { scenariosKey, selectionKey, type JobKind } from "./keys";
+import { summaryFacts, summaryRequest } from "./jobs/summary";
+import { parseKey, reviewKey, scenariosKey, selectionKey, summaryKey, type JobKind } from "./keys";
 import { costUsd, estimateUsd, usageFromApi } from "./pricing";
 import { readEvalFile, writeEvalFile, type ScenarioSet, type SelectionRun } from "./results";
 import {
   CreditExhausted,
   MAX_ATTEMPTS,
+  buildSingle,
   checkRegression,
+  describeSingle,
   erroredOutcome,
   evalSurface,
   evalTargets,
   jobRecord,
   markExhausted,
-  publishScenarios,
   publishSelection,
+  publishSingle,
   raiseHardStop,
   selectionRun,
   written,
+  type SingleKind,
+  type SingleResult,
   type EvalSurface,
   type EvalTarget,
   type JobOutcome,
@@ -195,28 +202,35 @@ async function failStandard(
   report("failed", errorMessage(caught));
 }
 
-/**
- * J1. Returns the scenario set for the current surface — generating it on the
- * standard API when the tier wants it now, or queuing it for the batch when
- * it can wait. Without a current set the selection jobs cannot run.
- */
-async function ensureScenarios(run: Run, target: EvalTarget, surface: EvalSurface): Promise<ScenarioSet | undefined> {
-  const slug = target.seed.slug;
-  const tier = target.seed.tier;
-  const current = readEvalFile(slug, "scenarios");
-  if (current?.tools_hash === target.surface.toolsHash && current.prompt_version === PROMPT_VERSIONS.scenarios) {
-    return current;
-  }
+interface SingleSpec {
+  kind: SingleKind;
+  key: string;
+  model: ModelId;
+  mode: Mode;
+  maxTokens: number;
+  inputEstimate: number;
+  params: () => Anthropic.MessageCreateParamsNonStreaming;
+}
 
-  const key = scenariosKey(slug, target.surface.toolsHash, SCENARIO_MODEL, PROMPT_VERSIONS.scenarios);
+/**
+ * A job answered by one request (J1, J3, J4): run now on the standard API, or
+ * queue it for the batch. Returns the published answer when there is one.
+ */
+async function runSingle(
+  run: Run,
+  target: EvalTarget,
+  surface: EvalSurface,
+  spec: SingleSpec
+): Promise<SingleResult | undefined> {
+  const slug = target.seed.slug;
   const report = (outcome: JobOutcome, detail?: string, usd?: number): void => {
-    run.report.jobs.push({ slug, job: "scenarios", model: SCENARIO_MODEL, outcome, detail, usd });
+    run.report.jobs.push({ slug, job: spec.kind, model: spec.model, outcome, detail, usd });
   };
 
-  const before = await prior(run, key);
+  const before = await prior(run, spec.key);
   if (before.state === "done") {
-    publishScenarios(run, before.result as ScenarioSet);
-    return before.result as ScenarioSet;
+    publishSingle(run, spec.kind, before.result as SingleResult);
+    return before.result as SingleResult;
   }
   if (before.state === "in-flight") {
     report("in-flight");
@@ -231,43 +245,94 @@ async function ensureScenarios(run: Run, target: EvalTarget, surface: EvalSurfac
     return undefined;
   }
 
-  const mode: Mode = TIER_POLICY[tier].scenarios;
-  const settings = GENERATION_SETTINGS[SCENARIO_MODEL];
-  const inputEstimate = Math.round((surface.footprint.models[SCENARIO_MODEL] ?? 0) * 1.2) + 800;
-  const estimate = estimateUsd(SCENARIO_MODEL, inputEstimate, settings.maxTokens, mode === "batch");
-  const decision = gate(run.state, tier, estimate);
+  const estimate = estimateUsd(spec.model, spec.inputEstimate, spec.maxTokens, spec.mode === "batch");
+  const decision = gate(run.state, target.seed.tier, estimate);
   if (!decision.allowed) {
     report("deferred", await deferred(run, decision));
     return undefined;
   }
 
-  const job = jobRecord(run, key, "scenarios", slug, SCENARIO_MODEL, before.attempts + 1, mode);
-  if (mode === "batch") {
-    enqueue(run, job, [{ params: scenarioRequest(surface.tools) }], estimate);
+  const job = jobRecord(run, spec.key, spec.kind, slug, spec.model, before.attempts + 1, spec.mode);
+  if (spec.mode === "batch") {
+    enqueue(run, job, [{ params: spec.params() }], estimate);
     return undefined;
   }
 
   await run.ledger.saveJob(job);
   try {
-    const { message, usd } = await call(run, "scenarios", slug, SCENARIO_MODEL, key, scenarioRequest(surface.tools));
-    const set: ScenarioSet = {
-      slug,
-      version: (current?.version ?? 0) + 1,
-      tools_hash: target.surface.toolsHash,
-      generated_at: run.now.toISOString(),
-      model: SCENARIO_MODEL,
-      prompt_version: PROMPT_VERSIONS.scenarios,
-      sampled: surface.sampled,
-      scenarios: parseScenarios(message, surface.tools)
-    };
-    publishScenarios(run, set);
-    await run.ledger.saveJob({ ...job, status: "done", result: set, completedAt: run.now, updatedAt: run.now });
-    report("done", `${set.scenarios.length} scenarios, set v${set.version}`, usd);
-    return set;
+    const { message, usd } = await call(run, spec.kind, slug, spec.model, spec.key, spec.params());
+    const parsed = parseKey(spec.key) as Parameters<typeof buildSingle>[1];
+    const result = buildSingle(spec.key, parsed, target, surface, message, run.now, usd);
+    publishSingle(run, spec.kind, result);
+    await run.ledger.saveJob({ ...job, status: "done", result, completedAt: run.now, updatedAt: run.now });
+    report("done", describeSingle(spec.kind, result), usd);
+    return result;
   } catch (caught) {
     await failStandard(run, job, before.attempts, caught, report);
     return undefined;
   }
+}
+
+/** Rough input size of a job that shows the model the surface as text. */
+function surfaceInput(surface: EvalSurface, model: ModelId): number {
+  return Math.round((surface.footprint.models[model] ?? surface.footprint.models[SONNET] ?? 0) * 1.2) + 800;
+}
+
+/**
+ * J1. Returns the scenario set for the current surface — generating it on the
+ * standard API when the tier wants it now, or queuing it for the batch when
+ * it can wait. Without a current set the selection jobs cannot run.
+ */
+async function ensureScenarios(run: Run, target: EvalTarget, surface: EvalSurface): Promise<ScenarioSet | undefined> {
+  const current = readEvalFile(target.seed.slug, "scenarios");
+  if (current?.tools_hash === target.surface.toolsHash && current.prompt_version === PROMPT_VERSIONS.scenarios) {
+    return current;
+  }
+  const result = await runSingle(run, target, surface, {
+    kind: "scenarios",
+    key: scenariosKey(target.seed.slug, target.surface.toolsHash, SCENARIO_MODEL, PROMPT_VERSIONS.scenarios),
+    model: SCENARIO_MODEL,
+    mode: TIER_POLICY[target.seed.tier].scenarios,
+    maxTokens: GENERATION_SETTINGS[SCENARIO_MODEL].maxTokens,
+    inputEstimate: surfaceInput(surface, SCENARIO_MODEL),
+    params: () => scenarioRequest(surface.tools)
+  });
+  return result as ScenarioSet | undefined;
+}
+
+/** J3, once per surface (and prompt version). */
+async function runReview(run: Run, target: EvalTarget, surface: EvalSurface): Promise<void> {
+  const { model, mode } = TIER_POLICY[target.seed.tier].review;
+  const key = reviewKey(target.seed.slug, target.surface.toolsHash, model, PROMPT_VERSIONS.review);
+  if (readEvalFile(target.seed.slug, "review")?.key === key) return;
+  await runSingle(run, target, surface, {
+    kind: "review",
+    key,
+    model,
+    mode,
+    maxTokens: GENERATION_SETTINGS[model].maxTokens,
+    inputEstimate: surfaceInput(surface, model),
+    params: () => reviewRequest(surface.tools, model)
+  });
+}
+
+/** J4, once per surface and score (and prompt version). */
+async function runSummary(run: Run, target: EvalTarget, surface: EvalSurface): Promise<void> {
+  const composite = target.scan?.score?.composite;
+  const facts = target.scan ? summaryFacts(target.seed.name, target.scan, surface.footprint) : undefined;
+  if (composite === undefined || !facts) return;
+  const { model, mode } = TIER_POLICY[target.seed.tier].summary;
+  const key = summaryKey(target.seed.slug, target.surface.toolsHash, model, composite, PROMPT_VERSIONS.summary);
+  if (readEvalFile(target.seed.slug, "summary")?.key === key) return;
+  await runSingle(run, target, surface, {
+    kind: "summary",
+    key,
+    model,
+    mode,
+    maxTokens: SUMMARY_SETTINGS[model].maxTokens,
+    inputEstimate: 1_200,
+    params: () => summaryRequest(facts, model)
+  });
 }
 
 /** When this server last got a run from this model, on any surface. */
@@ -373,7 +438,6 @@ async function runSelection(
 async function runModelJobs(targets: EvalTarget[], run: Run): Promise<void> {
   for (const target of targets) {
     const plans = TIER_POLICY[target.seed.tier].selection;
-    if (plans.length === 0) continue;
     const surface = evalSurface(target);
     if (typeof surface === "string") {
       for (const plan of plans) {
@@ -381,9 +445,12 @@ async function runModelJobs(targets: EvalTarget[], run: Run): Promise<void> {
       }
       continue;
     }
-    const set = await ensureScenarios(run, target, surface);
-    if (!set) continue;
-    for (const plan of plans) await runSelection(run, target, surface, set, plan);
+    if (plans.length > 0) {
+      const set = await ensureScenarios(run, target, surface);
+      if (set) for (const plan of plans) await runSelection(run, target, surface, set, plan);
+    }
+    await runReview(run, target, surface);
+    await runSummary(run, target, surface);
   }
 }
 

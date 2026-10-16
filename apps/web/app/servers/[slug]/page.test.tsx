@@ -105,7 +105,7 @@ describe("tool selection on the scorecard", () => {
     expect(html).toMatch(/Claude Haiku 5\.5<\/th><td>90%<\/td><td>33%<\/td>/);
     expect(html).toMatch(/Claude Sonnet 5\.5<\/th><td>100%<\/td>/);
     expect(html).toContain("Asked for <code>get_hotel</code>, called <code>search_hotels</code>");
-    expect(html).toContain("never affects the score");
+    expect(html).toContain("never affect the score");
   });
 
   it("shows only Sonnet on an unclaimed directory server", async () => {
@@ -128,5 +128,70 @@ describe("tool selection on the scorecard", () => {
     const html = await render("alpha");
     expect(html).toContain("This surface changed since its last selection run");
     expect(html).toContain("an earlier one");
+  });
+});
+
+describe("model-written sections", () => {
+  beforeEach(() => {
+    root = writeFixtureData([{ slug: "alpha", tier: "directory", tools: [tool("search_hotels", "Search."), tool("find_hotels", "Find.")] }]);
+  });
+
+  const summary = (overrides: Record<string, unknown> = {}) => ({
+    slug: "alpha",
+    key: "summary|alpha|sha256:alpha-v1|claude-haiku-5-5|c80|p1",
+    tools_hash: "sha256:alpha-v1",
+    composite: 80,
+    model: HAIKU,
+    prompt_version: 1,
+    generated_at: "2026-10-16T12:00:00.000Z",
+    text: "Alpha scores 80 with two tools that overlap. Its definitions are cheap to carry.",
+    usd: 0.0001,
+    ...overrides
+  });
+
+  it("shows the summary under the verdict, labelled, only for the score it describes", async () => {
+    writeEval("alpha", "summary.json", summary());
+    const html = await render("alpha");
+    expect(html).toContain("Alpha scores 80 with two tools that overlap.");
+    expect(html).toContain("Written by Claude Haiku 5.5 from this page&#x27;s audit data");
+    expect(html.indexOf("Alpha scores 80 with two tools")).toBeLessThan(html.indexOf("Token footprint</h2>"));
+
+    writeEval("alpha", "summary.json", summary({ composite: 75 }));
+    expect(await render("alpha")).not.toContain("Alpha scores 80 with two tools");
+  });
+
+  it("lists the review's findings with the rule each is closest to", async () => {
+    writeEval("alpha", "review.json", {
+      slug: "alpha",
+      key: "review|alpha|sha256:alpha-v1|claude-haiku-5-5|p1",
+      tools_hash: "sha256:alpha-v1",
+      model: HAIKU,
+      prompt_version: 1,
+      reviewed_at: "2026-10-16T12:00:00.000Z",
+      sampled: null,
+      findings: [
+        {
+          kind: "overlapping-tools",
+          rule_id: "design/overlap-cluster",
+          tools: ["search_hotels", "find_hotels"],
+          parameter: null,
+          explanation: "Both look up hotels with nothing to tell them apart."
+        },
+        {
+          kind: "name-description-mismatch",
+          rule_id: null,
+          tools: ["find_hotels"],
+          parameter: null,
+          explanation: "The name says find but the description says search."
+        }
+      ],
+      usd: 0.0002
+    });
+    const html = await render("alpha");
+    expect(html).toContain("What Claude noticed in the definitions");
+    expect(html).toContain('href="/rules/design-overlap-cluster">Overlapping tools</a>');
+    expect(html).toContain('<span class="rule-id">Name contradicts description</span>');
+    expect(html).toContain("Both look up hotels with nothing to tell them apart.");
+    expect(html).toContain("they do not affect the score");
   });
 });

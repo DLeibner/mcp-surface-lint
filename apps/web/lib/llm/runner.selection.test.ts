@@ -4,7 +4,16 @@ import Anthropic from "@anthropic-ai/sdk";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { HAIKU, OPUS, SONNET } from "./config";
 import { MemoryLedger } from "./ledger";
-import { FakeClient, fakeMessage, textBlock, tool, toolUseBlock, writeFixtureData } from "./testing";
+import {
+  FakeClient,
+  answerReviewOrSummary,
+  fakeMessage,
+  structuredKind,
+  textBlock,
+  tool,
+  toolUseBlock,
+  writeFixtureData
+} from "./testing";
 
 let root: string;
 const day = 24 * 60 * 60 * 1000;
@@ -42,7 +51,9 @@ const SCENARIOS = [
  */
 function scripted(client: FakeClient): FakeClient {
   client.respond = (params) => {
-    if (params.output_config?.format) {
+    const other = answerReviewOrSummary(params);
+    if (other) return other;
+    if (structuredKind(params) === "scenarios") {
       return fakeMessage([textBlock(JSON.stringify({ scenarios: SCENARIOS }))], "end_turn", { input: 2_000, output: 900 });
     }
     const prompt = String(params.messages[0]?.content);
@@ -77,7 +88,8 @@ describe("scenarios and selection on the standard API", () => {
     const ledger = new MemoryLedger();
     const report = await runEvals({ client, ledger, now, log: () => {} });
 
-    expect(report.jobs.map((j) => [j.slug, j.job, j.model, j.outcome])).toEqual([
+    const measured = report.jobs.filter((j) => j.job === "scenarios" || j.job === "selection");
+    expect(measured.map((j) => [j.slug, j.job, j.model, j.outcome])).toEqual([
       ["alpha", "scenarios", HAIKU, "done"],
       // Showcase servers get the whole model matrix, now.
       ["alpha", "selection", HAIKU, "done"],
@@ -125,13 +137,17 @@ describe("scenarios and selection on the standard API", () => {
     ({ runEvals } = await load());
     const second = await runEvals({ client: again, ledger, now, log: () => {} });
     expect(again.messages).toHaveLength(0);
-    expect(second.jobs.filter((j) => j.slug === "alpha").map((j) => j.outcome)).toEqual(["current", "current", "current"]);
+    expect(second.jobs.filter((j) => j.slug === "alpha" && j.job === "selection").map((j) => j.outcome)).toEqual([
+      "current",
+      "current",
+      "current"
+    ]);
 
     rmSync(path.join(root, "evals/alpha/selection.json"));
     ({ runEvals } = await load());
     const third = await runEvals({ client: again, ledger, now, log: () => {} });
     expect(again.messages).toHaveLength(0);
-    expect(third.jobs.find((j) => j.slug === "alpha")).toMatchObject({
+    expect(third.jobs.find((j) => j.slug === "alpha" && j.job === "selection")).toMatchObject({
       outcome: "current",
       detail: "restored from the ledger"
     });
@@ -193,7 +209,9 @@ describe("scenarios and selection on the standard API", () => {
     ({ runEvals } = await load());
     const soon = await runEvals({ client: scripted(new FakeClient()), ledger, now: new Date(now.getTime() + day / 2), log: () => {} });
     const alphaJobs = (report: { jobs: { slug: string; job: string; outcome: string }[] }) =>
-      report.jobs.filter((j) => j.slug === "alpha").map((j) => [j.job, j.outcome]);
+      report.jobs
+        .filter((j) => j.slug === "alpha" && (j.job === "scenarios" || j.job === "selection"))
+        .map((j) => [j.job, j.outcome]);
     expect(alphaJobs(soon)).toEqual([
       ["scenarios", "done"],
       ["selection", "throttled"],

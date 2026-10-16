@@ -125,7 +125,7 @@ export type Mode = "batch" | "standard";
  * results from an older version stay on the page with their version label
  * instead of being compared with the new ones.
  */
-export const PROMPT_VERSIONS = { scenarios: 1, selection: 1 } as const;
+export const PROMPT_VERSIONS = { scenarios: 1, selection: 1, review: 1, summary: 1 } as const;
 
 export interface RequestSettings {
   maxTokens: number;
@@ -143,11 +143,18 @@ export const SELECTION_SETTINGS: Record<ModelId, RequestSettings> = {
   [OPUS]: { maxTokens: 1_024, thinking: "adaptive", effort: "low" }
 };
 
-/** J1: structured JSON out. Covered by PROMPT_VERSIONS.scenarios. */
+/** J1 and J3: structured JSON out. Covered by their prompt versions. */
 export const GENERATION_SETTINGS: Record<ModelId, RequestSettings> = {
   [HAIKU]: { maxTokens: 2_000, thinking: "disabled", effort: "medium" },
   [SONNET]: { maxTokens: 2_000, thinking: "between_tools", effort: "medium" },
   [OPUS]: { maxTokens: 4_000, thinking: "adaptive", effort: "low" }
+};
+
+/** J4: a few sentences. Covered by PROMPT_VERSIONS.summary. */
+export const SUMMARY_SETTINGS: Record<ModelId, RequestSettings> = {
+  [HAIKU]: { maxTokens: 400, thinking: "disabled", effort: "low" },
+  [SONNET]: { maxTokens: 400, thinking: "between_tools", effort: "low" },
+  [OPUS]: { maxTokens: 1_024, thinking: "adaptive", effort: "low" }
 };
 
 /** The model that writes scenarios: the cheapest one, since it is plumbing, not measurement. */
@@ -182,7 +189,14 @@ export interface TierPolicy {
   selection: readonly SelectionPlan[];
   /** Models whose selection results appear on the server's public page. */
   publicModels: readonly ModelId[];
+  /** J3, rerun whenever the surface changes. */
+  review: { model: ModelId; mode: Mode };
+  /** J4, rerun whenever the surface or the score changes. */
+  summary: { model: ModelId; mode: Mode };
 }
+
+/** Plumbing jobs nobody waits for: the cheapest model, at batch prices. */
+const CHEAP = { model: HAIKU, mode: "batch" } as const;
 
 export const TIER_POLICY: Record<Tier, TierPolicy> = {
   // Unclaimed servers are measured with the model most people run, and only
@@ -191,13 +205,17 @@ export const TIER_POLICY: Record<Tier, TierPolicy> = {
     probes: "weekly",
     scenarios: "batch",
     selection: [{ model: SONNET, mode: "batch", everyDays: 30 }],
-    publicModels: [SONNET]
+    publicModels: [SONNET],
+    review: CHEAP,
+    summary: CHEAP
   },
   claimed: {
     probes: "daily",
     scenarios: "batch",
     selection: [{ model: SONNET, mode: "batch", everyDays: 7 }],
-    publicModels: MODELS
+    publicModels: MODELS,
+    review: CHEAP,
+    summary: CHEAP
   },
   // Runs happen only when a key is new, so the plan's "Sonnet daily, plus an
   // on-change rerun within the hour" is one standard-API run per change.
@@ -208,7 +226,9 @@ export const TIER_POLICY: Record<Tier, TierPolicy> = {
       { model: SONNET, mode: "standard", everyDays: 0 },
       { model: OPUS, mode: "batch", everyDays: 7 }
     ],
-    publicModels: MODELS
+    publicModels: MODELS,
+    review: { model: SONNET, mode: "batch" },
+    summary: CHEAP
   },
   showcase: {
     probes: "hourly",
@@ -218,7 +238,9 @@ export const TIER_POLICY: Record<Tier, TierPolicy> = {
       { model: SONNET, mode: "standard", everyDays: 1 },
       { model: OPUS, mode: "standard", everyDays: 1 }
     ],
-    publicModels: MODELS
+    publicModels: MODELS,
+    review: CHEAP,
+    summary: CHEAP
   }
 };
 

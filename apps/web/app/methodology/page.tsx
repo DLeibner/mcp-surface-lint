@@ -106,6 +106,14 @@ export default function MethodologyPage() {
         only when the surface, the request set or our prompts change; results from an earlier prompt
         version stay visible, labelled, rather than being compared with new ones.
       </p>
+      <p>
+        Two more model-written parts appear on some pages. A review: a model reads the definitions
+        and reports overlapping tools, vague descriptions, undocumented parameters and names that
+        contradict their descriptions — only where it can name the tools involved, each linked to
+        the rule it is closest to. And a short summary under the score, written from the audit&apos;s
+        own numbers rather than from anything the server wrote. Both are labelled as model-written,
+        links are stripped from them, and neither affects the score.
+      </p>
 
       <h2>What this does not measure</h2>
       <p>

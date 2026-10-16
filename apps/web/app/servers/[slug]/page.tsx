@@ -7,6 +7,8 @@ import { Verdict } from "@/components/directory/Verdict";
 import { Findings } from "@/components/directory/Findings";
 import { ToolInventory } from "@/components/directory/ToolInventory";
 import { MaintainerBox } from "@/components/directory/MaintainerBox";
+import { ModelReview } from "@/components/directory/ModelReview";
+import { ScorecardSummary } from "@/components/directory/ScorecardSummary";
 import { SelectionEvals } from "@/components/directory/SelectionEvals";
 import { findEntry, loadCatalog, rankInCategory, relatedServers } from "@/lib/directory/catalog";
 import { logIndexDecisions, serverIndexability } from "@/lib/directory/indexing";
@@ -85,6 +87,7 @@ export default async function ServerPage({ params }: Props) {
       {scanned ? (
         <>
           <Verdict entry={entry} scanned={scanned} />
+          {entry.summary ? <ScorecardSummary summary={entry.summary} /> : null}
 
           {result && result.status !== "ok" ? (
             <div className="panel" role="status">
@@ -148,6 +151,7 @@ export default async function ServerPage({ params }: Props) {
           )}
 
           <SelectionEvals entry={entry} />
+          <ModelReview entry={entry} />
 
           <h2 id="tools">Tool inventory</h2>
           {prose!.inventory.map((paragraph, i) => (
@@ -221,8 +225,8 @@ export default async function ServerPage({ params }: Props) {
       <p className="disclaimer">
         This page is a static analysis of {seed.name}&apos;s published <code>tools/list</code>{" "}
         surface on the date shown
-        {entry.selection.length > 0
-          ? ", plus a measurement of how Claude models choose among its tools, which never affects the score"
+        {entry.selection.length > 0 || entry.review || entry.summary
+          ? ", plus model-written sections that are labelled as such and never affect the score"
           : ""}
         . It is not a security review, a performance benchmark, or a judgement of the product behind
         the surface. Read <Link href="/methodology">how the score is computed</Link>, or browse{" "}

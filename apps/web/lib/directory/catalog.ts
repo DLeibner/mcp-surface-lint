@@ -1,5 +1,5 @@
 import { TIER_POLICY, isModelId } from "../llm/config";
-import { readEvalFile, type Footprint, type SelectionRun } from "../llm/results";
+import { readEvalFile, type Footprint, type Review, type SelectionRun, type Summary } from "../llm/results";
 import { loadRedirects, loadResult, loadSeeds } from "./data";
 import {
   CATEGORIES,
@@ -28,6 +28,10 @@ export interface DirectoryEntry {
    * and paid ones.
    */
   selection: SelectionRun[];
+  /** A model's review of this exact surface's definitions. */
+  review?: Review;
+  /** A model-written summary of this exact surface and score. */
+  summary?: Summary;
 }
 
 export interface CategoryStats {
@@ -56,6 +60,15 @@ function median(values: number[]): number | undefined {
     : Math.round((sorted[mid - 1]! + sorted[mid]!) / 2);
 }
 
+/** Model output is shown only against the surface (and score) it was written about. */
+function current<T extends { tools_hash: string }>(
+  value: T | undefined,
+  scanned: ScannedResult,
+  also: (value: T) => boolean = () => true
+): T | undefined {
+  return value && value.tools_hash === scanned.snapshot_hash && also(value) ? value : undefined;
+}
+
 let cache: Catalog | undefined;
 
 export function loadCatalog(): Catalog {
@@ -78,7 +91,11 @@ export function loadCatalog(): Catalog {
         ? (readEvalFile(seed.slug, "selection")?.runs ?? []).filter(
             (run) => isModelId(run.model) && publicModels.includes(run.model)
           )
-        : []
+        : [],
+      review: scanned ? current(readEvalFile(seed.slug, "review"), scanned) : undefined,
+      summary: scanned
+        ? current(readEvalFile(seed.slug, "summary"), scanned, (summary) => summary.composite === scanned.score.composite)
+        : undefined
     };
   });
 

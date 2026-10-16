@@ -53,7 +53,8 @@ The score never involves a model. Alongside it, `.github/workflows/evals.yml` sp
 monthly API credit on what code cannot compute: how Claude actually handles each surface. It counts
 every surface's tokens per Claude model, has a small model write realistic requests for the surface,
 and measures which tool each model under test reaches for — grading the tool call, never executing
-it. Results land in `data/evals/{slug}/`, which the server pages render.
+it. A model also reviews each surface's definitions and writes a short summary of its scorecard.
+Results land in `data/evals/{slug}/`, which the server pages render, labelled as model-written.
 
 The workflow wakes every six hours: it collects the batches that ended, then runs what is due —
 on the standard API for tiers that want answers now, as half-price batches for the rest. A result

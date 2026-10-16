@@ -17,8 +17,11 @@ import {
   type Mode,
   type ModelId
 } from "./config";
+import { parseReview } from "./jobs/review";
+import { parseScenarios } from "./jobs/scenarios";
 import { summariseSelection, type ScenarioOutcome } from "./jobs/selection";
-import type { JobKind } from "./keys";
+import { parseSummary } from "./jobs/summary";
+import type { JobKind, ParsedKey } from "./keys";
 import type { BatchRequestMeta, JobRecord, LlmLedger } from "./ledger";
 import { roundUsd } from "./pricing";
 import {
@@ -26,8 +29,10 @@ import {
   withRun,
   writeEvalFile,
   type Footprint,
+  type Review,
   type ScenarioSet,
-  type SelectionRun
+  type SelectionRun,
+  type Summary
 } from "./results";
 import { loadSurface, sampleTools, type Surface } from "./surface";
 
@@ -273,6 +278,86 @@ export function jobRecord(
 
 export function publishScenarios(run: Run, set: ScenarioSet): void {
   written(run, set.slug, "scenarios.json", writeEvalFile(set.slug, "scenarios", set));
+}
+
+/** Jobs answered by a single request: scenarios (J1), review (J3) and summary (J4). */
+export type SingleKind = "scenarios" | "review" | "summary";
+export type SingleResult = ScenarioSet | Review | Summary;
+
+/**
+ * Turns the answer to a single-request job into what gets published, the same
+ * way whether it came from the standard API or a batch. Throws when the answer
+ * is unusable or the world moved on since the request was made.
+ */
+export function buildSingle(
+  key: string,
+  parsed: ParsedKey & { job: SingleKind },
+  target: EvalTarget,
+  surface: EvalSurface,
+  message: Anthropic.Message,
+  now: Date,
+  usd: number
+): SingleResult {
+  const slug = parsed.slug;
+  const at = now.toISOString();
+  if (parsed.job === "scenarios") {
+    return {
+      slug,
+      version: (readEvalFile(slug, "scenarios")?.version ?? 0) + 1,
+      tools_hash: parsed.toolsHash,
+      generated_at: at,
+      model: parsed.model,
+      prompt_version: parsed.promptVersion,
+      sampled: surface.sampled,
+      scenarios: parseScenarios(message, surface.tools)
+    };
+  }
+  if (parsed.job === "review") {
+    return {
+      slug,
+      key,
+      tools_hash: parsed.toolsHash,
+      model: parsed.model,
+      prompt_version: parsed.promptVersion,
+      reviewed_at: at,
+      sampled: surface.sampled,
+      findings: parseReview(message, surface.tools),
+      usd: roundUsd(usd)
+    };
+  }
+  if (target.scan?.score?.composite !== parsed.composite) {
+    throw new Error("the score changed before the summary was collected");
+  }
+  return {
+    slug,
+    key,
+    tools_hash: parsed.toolsHash,
+    composite: parsed.composite!,
+    model: parsed.model,
+    prompt_version: parsed.promptVersion,
+    generated_at: at,
+    text: parseSummary(message),
+    usd: roundUsd(usd)
+  };
+}
+
+export function publishSingle(run: Run, kind: SingleKind, result: SingleResult): void {
+  if (kind === "scenarios") return publishScenarios(run, result as ScenarioSet);
+  const file = kind === "review" ? "review.json" : "summary.json";
+  const changed =
+    kind === "review"
+      ? writeEvalFile(result.slug, "review", result as Review)
+      : writeEvalFile(result.slug, "summary", result as Summary);
+  written(run, result.slug, file, changed);
+}
+
+export function describeSingle(kind: SingleKind, result: SingleResult): string {
+  if (kind === "scenarios") {
+    const set = result as ScenarioSet;
+    return `${set.scenarios.length} scenarios, set v${set.version}`;
+  }
+  if (kind === "review") return `${(result as Review).findings.length} finding(s)`;
+  return `${(result as Summary).text.length} characters`;
 }
 
 /** Publishes a run and returns the one it should be compared with, if any. */

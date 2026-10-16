@@ -688,6 +688,18 @@ footer {
   font-weight: 600;
 }
 
+.scorecard-summary {
+  margin: -1rem 0 2rem;
+}
+
+.scorecard-summary p {
+  margin: 0;
+}
+
+.scorecard-summary .hint {
+  margin-top: 0.5rem;
+}
+
 .verdict-claude {
   margin: 1.1rem 0 0;
   padding-top: 0.9rem;

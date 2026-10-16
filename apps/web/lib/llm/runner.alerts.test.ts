@@ -5,7 +5,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { Alert } from "./alerts";
 import { HAIKU, OPUS, SONNET } from "./config";
 import { MemoryLedger } from "./ledger";
-import { FakeClient, fakeMessage, textBlock, tool, toolUseBlock, writeFixtureData } from "./testing";
+import {
+  FakeClient,
+  answerReviewOrSummary,
+  fakeMessage,
+  structuredKind,
+  textBlock,
+  tool,
+  toolUseBlock,
+  writeFixtureData
+} from "./testing";
 
 let root: string;
 const day = 24 * 60 * 60 * 1000;
@@ -32,7 +41,9 @@ const SCENARIOS = [
 /** A model that searches whenever the prompt is in `mistakes`, and is otherwise right. */
 function scripted(client: FakeClient, mistakes: Set<string>): FakeClient {
   client.respond = (params) => {
-    if (params.output_config?.format) {
+    const other = answerReviewOrSummary(params);
+    if (other) return other;
+    if (structuredKind(params) === "scenarios") {
       return fakeMessage([textBlock(JSON.stringify({ scenarios: SCENARIOS }))], "end_turn");
     }
     const prompt = String(params.messages[0]?.content);
