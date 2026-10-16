@@ -49,7 +49,8 @@ export default function ServersHubPage() {
         Every server below is audited with the same {""}
         <Link href="/rules">{RULE_COUNT} static rules</Link>: what its <code>tools/list</code> costs
         in tokens, how tightly its schemas are typed, and whether its surface is shaped around user
-        intents or around REST endpoints. Nothing here calls a tool or runs an LLM.{" "}
+        intents or around REST endpoints. No LLM is involved in a score, and nothing here ever calls a
+        tool.{" "}
         {ranked.length === catalog.entries.length
           ? `All ${ranked.length} carry a published scan as of ${year}.`
           : `${ranked.length} of ${catalog.entries.length} carry a published scan as of ${year}.`}

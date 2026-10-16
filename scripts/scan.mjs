@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * Directory scanner. Reads data/seeds/servers.yaml, obtains each server's
- * tools/list, lints it, and writes data/results/{slug}/.
+ * tools/list, lints it, and writes data/results/{slug}/: the scorecard data
+ * (latest.json and dated copies) and the surface itself (snapshot.json), which
+ * the LLM evals read and anyone can re-lint with the CLI.
  *
  * Two hard rules, both inherited from the product:
  *   1. Only `initialize` and `tools/list` are ever sent. No tool is invoked.
@@ -14,6 +16,7 @@
  *   node scripts/scan.mjs --concurrency 4
  *   node scripts/scan.mjs --skip-stdio    # HTTP only, spawns nothing
  *   node scripts/scan.mjs --pending       # retry the parked servers, write nothing
+ *   node scripts/scan.mjs --tiers paid,showcase   # only these tiers (the hourly probe)
  *
  * `--skip-stdio` exists because a stdio scan executes third-party packages.
  * That belongs in CI's throwaway container, not on a workstation.
@@ -52,12 +55,13 @@ const ENGINE_VERSION = JSON.parse(
 ).version;
 
 function parseArgs(argv) {
-  const args = { slug: undefined, concurrency: 4, skipStdio: false, pending: false };
+  const args = { slug: undefined, concurrency: 4, skipStdio: false, pending: false, tiers: undefined };
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--slug") args.slug = argv[++i];
     else if (argv[i] === "--concurrency") args.concurrency = Number(argv[++i]);
     else if (argv[i] === "--skip-stdio") args.skipStdio = true;
     else if (argv[i] === "--pending") args.pending = true;
+    else if (argv[i] === "--tiers") args.tiers = new Set(argv[++i].split(",").map((t) => t.trim()));
   }
   if (!Number.isInteger(args.concurrency) || args.concurrency < 1) {
     throw new Error("--concurrency must be a positive integer.");
@@ -291,19 +295,25 @@ async function scanOne(seed, now, options = {}) {
   if (unchanged) {
     // Idempotence: same surface, same engine. Do not touch `scanned_at` — the
     // sitemap's lastmod is derived from it and must reflect real change.
-    return settle("unchanged", { ...previous, last_attempt_at: attemptedAt, last_error: null });
+    return {
+      ...settle("unchanged", { ...previous, last_attempt_at: attemptedAt, last_error: null }),
+      surface: { hash, snapshot }
+    };
   }
 
-  return settle("ok", {
-    slug: seed.slug,
-    scanned_at: attemptedAt,
-    engine_version: ENGINE_VERSION,
-    status: "ok",
-    last_error: null,
-    last_attempt_at: attemptedAt,
-    snapshot_hash: hash,
-    ...lint(snapshot)
-  });
+  return {
+    ...settle("ok", {
+      slug: seed.slug,
+      scanned_at: attemptedAt,
+      engine_version: ENGINE_VERSION,
+      status: "ok",
+      last_error: null,
+      last_attempt_at: attemptedAt,
+      snapshot_hash: hash,
+      ...lint(snapshot)
+    }),
+    surface: { hash, snapshot }
+  };
 }
 
 function emptyResult(seed, at) {
@@ -334,6 +344,36 @@ async function write(result, writeDated) {
     const date = validated.scanned_at.slice(0, 10);
     await writeFile(path.join(dir, `${date}.json`), json, "utf8");
   }
+}
+
+/**
+ * The full tools/list the score was computed from. The LLM evals read it (a
+ * stdio surface cannot be re-read outside this scanner's sandbox), and anyone
+ * can reproduce the score from it with `mcp-surface-lint snapshot.json`.
+ *
+ * Rewritten only when the surface itself changes, like the result: an
+ * unchanged scan must leave the working tree clean. A missing file is written
+ * even for an unchanged surface, which is how existing results gain one.
+ */
+async function writeSnapshot(slug, { hash, snapshot }) {
+  const file = path.join(RESULTS, slug, "snapshot.json");
+  if (existsSync(file)) {
+    try {
+      if (JSON.parse(await readFile(file, "utf8")).snapshot_hash === hash) return false;
+    } catch {
+      // Unreadable: overwrite it.
+    }
+  }
+  await mkdir(path.dirname(file), { recursive: true });
+  const body = {
+    snapshot_hash: hash,
+    serverInfo: snapshot.serverInfo ?? {},
+    capturedAt: snapshot.capturedAt,
+    source: snapshot.source,
+    tools: snapshot.tools
+  };
+  await writeFile(file, `${JSON.stringify(body, null, 2)}\n`, "utf8");
+  return true;
 }
 
 async function mapWithConcurrency(items, limit, fn) {
@@ -387,8 +427,15 @@ async function main() {
   if (args.pending) return retryPending(args);
 
   const seeds = parse(await readFile(path.join(DATA, "seeds/servers.yaml"), "utf8"));
-  const targets = args.slug ? seeds.filter((s) => s.slug === args.slug) : seeds;
-  if (targets.length === 0) throw new Error(`No seed matches --slug ${args.slug}`);
+  // Probe cadence is per tier (TIER_POLICY in apps/web/lib/llm/config.ts):
+  // scan.yml's daily and hourly schedules pass the tiers that are due.
+  const due = args.tiers ? seeds.filter((s) => args.tiers.has(s.tier ?? "directory")) : seeds;
+  const targets = args.slug ? due.filter((s) => s.slug === args.slug) : due;
+  if (targets.length === 0) {
+    if (args.slug) throw new Error(`No seed matches --slug ${args.slug}`);
+    console.log(`No server in tiers ${[...args.tiers].join(", ")}; nothing to scan.`);
+    return;
+  }
 
   const now = new Date();
   const results = await mapWithConcurrency(targets, args.concurrency, async (seed) => {
@@ -398,6 +445,7 @@ async function main() {
     // that we did look lives in the workflow run and the summary below; a file
     // rewritten only to bump a timestamp would force a commit and a deploy.
     if (outcome.changed) await write(outcome.result, outcome.outcome === "ok");
+    if (outcome.surface) await writeSnapshot(seed.slug, outcome.surface);
     const ms = Date.now() - started;
     console.log(
       `${outcome.outcome.padEnd(14)} ${seed.slug.padEnd(20)} ${String(ms).padStart(6)}ms` +
