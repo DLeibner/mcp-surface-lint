@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 /**
  * Directory scanner. Reads data/seeds/servers.yaml, obtains each server's
- * tools/list, lints it, and writes data/results/{slug}/.
+ * tools/list, lints it, and writes data/results/{slug}/: the scorecard data
+ * (latest.json and dated copies) and the surface itself (snapshot.json), which
+ * the LLM evals read and anyone can re-lint with the CLI.
  *
  * Two hard rules, both inherited from the product:
  *   1. Only `initialize` and `tools/list` are ever sent. No tool is invoked.
@@ -291,19 +293,25 @@ async function scanOne(seed, now, options = {}) {
   if (unchanged) {
     // Idempotence: same surface, same engine. Do not touch `scanned_at` — the
     // sitemap's lastmod is derived from it and must reflect real change.
-    return settle("unchanged", { ...previous, last_attempt_at: attemptedAt, last_error: null });
+    return {
+      ...settle("unchanged", { ...previous, last_attempt_at: attemptedAt, last_error: null }),
+      surface: { hash, snapshot }
+    };
   }
 
-  return settle("ok", {
-    slug: seed.slug,
-    scanned_at: attemptedAt,
-    engine_version: ENGINE_VERSION,
-    status: "ok",
-    last_error: null,
-    last_attempt_at: attemptedAt,
-    snapshot_hash: hash,
-    ...lint(snapshot)
-  });
+  return {
+    ...settle("ok", {
+      slug: seed.slug,
+      scanned_at: attemptedAt,
+      engine_version: ENGINE_VERSION,
+      status: "ok",
+      last_error: null,
+      last_attempt_at: attemptedAt,
+      snapshot_hash: hash,
+      ...lint(snapshot)
+    }),
+    surface: { hash, snapshot }
+  };
 }
 
 function emptyResult(seed, at) {
@@ -334,6 +342,36 @@ async function write(result, writeDated) {
     const date = validated.scanned_at.slice(0, 10);
     await writeFile(path.join(dir, `${date}.json`), json, "utf8");
   }
+}
+
+/**
+ * The full tools/list the score was computed from. The LLM evals read it (a
+ * stdio surface cannot be re-read outside this scanner's sandbox), and anyone
+ * can reproduce the score from it with `mcp-surface-lint snapshot.json`.
+ *
+ * Rewritten only when the surface itself changes, like the result: an
+ * unchanged scan must leave the working tree clean. A missing file is written
+ * even for an unchanged surface, which is how existing results gain one.
+ */
+async function writeSnapshot(slug, { hash, snapshot }) {
+  const file = path.join(RESULTS, slug, "snapshot.json");
+  if (existsSync(file)) {
+    try {
+      if (JSON.parse(await readFile(file, "utf8")).snapshot_hash === hash) return false;
+    } catch {
+      // Unreadable: overwrite it.
+    }
+  }
+  await mkdir(path.dirname(file), { recursive: true });
+  const body = {
+    snapshot_hash: hash,
+    serverInfo: snapshot.serverInfo ?? {},
+    capturedAt: snapshot.capturedAt,
+    source: snapshot.source,
+    tools: snapshot.tools
+  };
+  await writeFile(file, `${JSON.stringify(body, null, 2)}\n`, "utf8");
+  return true;
 }
 
 async function mapWithConcurrency(items, limit, fn) {
@@ -398,6 +436,7 @@ async function main() {
     // that we did look lives in the workflow run and the summary below; a file
     // rewritten only to bump a timestamp would force a commit and a deploy.
     if (outcome.changed) await write(outcome.result, outcome.outcome === "ok");
+    if (outcome.surface) await writeSnapshot(seed.slug, outcome.surface);
     const ms = Date.now() - started;
     console.log(
       `${outcome.outcome.padEnd(14)} ${seed.slug.padEnd(20)} ${String(ms).padStart(6)}ms` +

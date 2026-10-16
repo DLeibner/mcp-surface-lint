@@ -688,6 +688,16 @@ footer {
   font-weight: 600;
 }
 
+.verdict-claude {
+  margin: 1.1rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.verdict-claude .verdict-label {
+  margin: 0 0 0.5rem;
+}
+
 .verdict-meta {
   margin: 1rem 0 0;
   color: var(--muted);

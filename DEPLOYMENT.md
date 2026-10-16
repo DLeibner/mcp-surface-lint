@@ -179,6 +179,30 @@ it returns 404 in production. Add it to the Vercel Production environment:
 openssl rand -base64 24 # ADMIN_PASSWORD
 ```
 
+**GitHub.** `.github/workflows/evals.yml` runs the evals every six hours. Create a GitHub
+Environment named exactly `Evals`, with no required reviewer, and add two secrets:
+
+| Name | Value |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | The `mcplint` workspace key from the Console |
+| `DATABASE_URL` | A Neon connection string for a role limited to the ledger tables |
+
+The evals job only needs the four `llm_*` tables, so give it a role that cannot touch `runs`:
+
+```sql
+create role mcplint_evals with login password '…';
+grant select, insert, update on llm_usage, llm_batches, llm_jobs, llm_events to mcplint_evals;
+grant usage on sequence llm_usage_id_seq to mcplint_evals;
+```
+
+The workflow commits results under `data/evals/` and deploys through the `Content` environment,
+like the scan. Its commit job needs the same branch-protection bypass as the scan's.
+
+**Surfaces.** The evals read each server's full `tools/list` from
+`data/results/{slug}/snapshot.json`, which the scanner now writes next to every result. Existing
+results gain one on the next scan, so run the `Directory scan` workflow once by hand after this
+lands, then the `LLM evals` workflow.
+
 **Smoke test.** With `DATABASE_URL` exported, record one synthetic call and check that
 `/admin/budget` prices it at exactly $0.0300 (10,000 input and 1,000 output tokens on Sonnet 5.5):
 

@@ -140,9 +140,18 @@ jobs:
           # Pass the message via a file so nothing in it is evaluated by the shell.
           printf '%s\n' "$SUMMARY" > "$RUNNER_TEMP/scan-commit-message"
           git commit --file "$RUNNER_TEMP/scan-commit-message"
-          # The credential lives only in this command, never in .git/config.
-          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
-          echo "committed=true" >> "$GITHUB_OUTPUT"
+          # The credential lives only in the push command, never in .git/config.
+          # evals.yml pushes to main too; the two touch disjoint directories, so
+          # a rejected push only needs a rebase onto whatever landed first.
+          for attempt in 1 2 3; do
+            if git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main; then
+              echo "committed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            git pull --rebase "https://github.com/${GITHUB_REPOSITORY}.git" main
+          done
+          echo "Could not push after three attempts." >&2
+          exit 1
 
   deploy:
     name: Deploy the directory

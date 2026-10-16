@@ -3,17 +3,23 @@
  * web app's request path: the web app only reads what this writes.
  *
  * Usage (from the repository root):
- *   npm run evals -- budget        this cycle's spend, reservations and gate level
- *   npm run evals -- fake-usage    record one synthetic call, to check /admin/budget end to end
+ *   npm run evals -- run [--slug x]    do whatever is due, and write data/evals
+ *   npm run evals -- plan [--slug x]   show what is due without calling the API
+ *   npm run evals -- budget            this cycle's spend, reservations and gate level
+ *   npm run evals -- fake-usage        record one synthetic call, to check /admin/budget
  *
- * Reads DATABASE_URL for the ledger. Without it the ledger is in memory and
- * nothing survives the process — fine for a dry run, useless for real spend.
+ * Reads ANTHROPIC_API_KEY for the API and DATABASE_URL for the ledger. Without
+ * a database the ledger is in memory and nothing survives the process — fine
+ * for `plan`, useless for real spend.
  */
+import { appendFileSync } from "node:fs";
 import { parseArgs } from "node:util";
 import { budgetState, exhaustedEventKey, cycleWindow } from "../lib/llm/budget";
+import { sdkClient } from "../lib/llm/client";
 import { BUDGET, SONNET, MODEL_LABELS } from "../lib/llm/config";
 import { getLedger, type LlmLedger } from "../lib/llm/ledger";
 import { costUsd, type TokenUsage } from "../lib/llm/pricing";
+import { runEvals, type RunReport } from "../lib/llm/runner";
 
 function usd(value: number): string {
   return `$${value.toFixed(4)}`;
@@ -71,13 +77,55 @@ async function recordFakeUsage(ledger: LlmLedger): Promise<void> {
   );
 }
 
+function reportLines(report: RunReport): string[] {
+  const lines = report.footprints
+    .filter((f) => f.outcome !== "current")
+    .map((f) => `footprint  ${f.outcome.padEnd(9)} ${f.slug}${f.detail ? `  ${f.detail}` : ""}`);
+  const current = report.footprints.filter((f) => f.outcome === "current").length;
+  if (current > 0) lines.push(`footprint  ${current} already current`);
+  if (report.exhausted) lines.push("The API reported the credit exhausted; paid jobs wait for the next cycle.");
+  lines.push(`${report.written.length} file(s) written under data/evals.`);
+  return lines;
+}
+
+/** The same report on the workflow run's summary page, and the slugs to commit and ping. */
+function writeWorkflowOutputs(report: RunReport): void {
+  const summary = process.env.GITHUB_STEP_SUMMARY;
+  if (summary) {
+    appendFileSync(summary, `## LLM evals\n\n\`\`\`\n${reportLines(report).join("\n")}\n\`\`\`\n`);
+  }
+  const output = process.env.GITHUB_OUTPUT;
+  if (output) {
+    const changed = [...new Set(report.written.map((file) => file.split("/")[2]))].sort();
+    appendFileSync(output, `changed=${changed.join(",")}\n`);
+  }
+}
+
 async function main(): Promise<void> {
-  const { positionals } = parseArgs({ allowPositionals: true, options: {} });
+  const { positionals, values } = parseArgs({
+    allowPositionals: true,
+    options: { slug: { type: "string", multiple: true } }
+  });
   const command = positionals[0] ?? "budget";
   const ledger = getLedger();
   const now = new Date();
+  const only = values.slug?.length ? new Set(values.slug) : undefined;
 
   switch (command) {
+    case "run":
+    case "plan": {
+      const report = await runEvals({
+        client: command === "run" ? sdkClient() : undefined,
+        ledger,
+        now,
+        only,
+        log: (line) => console.log(line)
+      });
+      console.log(reportLines(report).join("\n"));
+      writeWorkflowOutputs(report);
+      await printBudget(ledger, now);
+      return;
+    }
     case "budget":
       await printBudget(ledger, now);
       return;
@@ -86,7 +134,9 @@ async function main(): Promise<void> {
       await printBudget(ledger, now);
       return;
     default:
-      throw new Error(`Unknown command "${command}". Expected one of: budget, fake-usage.`);
+      throw new Error(
+        `Unknown command "${command}". Expected one of: run, plan, budget, fake-usage.`
+      );
   }
 }
 

@@ -1,3 +1,4 @@
+import { readEvalFile, type Footprint } from "../llm/results";
 import { loadRedirects, loadResult, loadSeeds } from "./data";
 import {
   CATEGORIES,
@@ -14,6 +15,12 @@ export interface DirectoryEntry {
   result?: ScanResult;
   /** Present only when a scan actually produced a tool surface. */
   scanned?: ScannedResult;
+  /**
+   * Claude's own token counts for the scanned surface. Absent until the eval
+   * layer has counted this exact surface — a count for an older surface is
+   * never shown against a newer score.
+   */
+  footprint?: Footprint;
 }
 
 export interface CategoryStats {
@@ -49,10 +56,16 @@ export function loadCatalog(): Catalog {
 
   const entries: DirectoryEntry[] = loadSeeds().map((seed) => {
     const result = loadResult(seed.slug);
+    const scanned = result && hasSurface(result) ? result : undefined;
+    const footprint = readEvalFile(seed.slug, "footprint");
     return {
       seed,
       result,
-      scanned: result && hasSurface(result) ? result : undefined
+      scanned,
+      footprint:
+        scanned && footprint && !footprint.error && footprint.tools_hash === scanned.snapshot_hash
+          ? footprint
+          : undefined
     };
   });
 
