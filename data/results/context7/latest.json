@@ -1,14 +1,14 @@
 {
   "slug": "context7",
-  "scanned_at": "2026-10-12T10:03:59.755Z",
+  "scanned_at": "2026-10-19T08:21:14.695Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-10-12T10:03:59.755Z",
-  "snapshot_hash": "sha256:0350e9233fcc891f5eb4c52fa69d88c08831de71ee52694fcf55446f3762fd12",
+  "last_attempt_at": "2026-10-19T08:21:14.695Z",
+  "snapshot_hash": "sha256:36dee0f3fbf80c4ed815e2b82cdfeb444188e7e941177d3124e31a3e0d6d91d6",
   "server_info": {
     "name": "Context7",
-    "version": "4.3.0"
+    "version": "4.4.3"
   },
   "score": {
     "composite": 99,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 1136,
+    "tokens": 1132,
     "tokenizer": "o200k_base"
   },
   "tool_count": 2,
@@ -59,7 +59,7 @@
       "property_count": 3,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 491
+      "tokens": 487
     }
   ]
 }

@@ -1,14 +1,14 @@
 {
   "slug": "memory",
-  "scanned_at": "2026-10-12T10:03:59.755Z",
+  "scanned_at": "2026-10-19T08:21:14.695Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-10-12T10:03:59.755Z",
-  "snapshot_hash": "sha256:087eeac6c2ad4e187d4fdcf2b93d00bf0dd902ba861ec77e265b0491a3406ced",
+  "last_attempt_at": "2026-10-19T08:21:14.695Z",
+  "snapshot_hash": "sha256:11b7c9f3ec06f0140a6a7d06ae31b34c8f6f486be8f70eb0c5bb67ee7fd0749c",
   "server_info": {
     "name": "memory-server",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "score": {
     "composite": 96,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 2430,
+    "tokens": 2394,
     "tokenizer": "o200k_base"
   },
   "tool_count": 9,
@@ -106,7 +106,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 4,
-      "tokens": 356
+      "tokens": 352
     },
     {
       "name": "create_relations",
@@ -115,7 +115,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 3,
-      "tokens": 292
+      "tokens": 288
     },
     {
       "name": "add_observations",
@@ -124,7 +124,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 4,
-      "tokens": 247
+      "tokens": 243
     },
     {
       "name": "delete_entities",
@@ -133,7 +133,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 164
+      "tokens": 160
     },
     {
       "name": "delete_observations",
@@ -142,7 +142,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 4,
-      "tokens": 210
+      "tokens": 206
     },
     {
       "name": "delete_relations",
@@ -151,7 +151,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 3,
-      "tokens": 223
+      "tokens": 219
     },
     {
       "name": "read_graph",
@@ -160,7 +160,7 @@
       "property_count": 0,
       "required_count": 0,
       "max_depth": 0,
-      "tokens": 289
+      "tokens": 285
     },
     {
       "name": "search_nodes",
@@ -169,7 +169,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 327
+      "tokens": 323
     },
     {
       "name": "open_nodes",
@@ -178,7 +178,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 320
+      "tokens": 316
     }
   ]
 }

@@ -1,14 +1,14 @@
 {
   "slug": "exa",
-  "scanned_at": "2026-09-28T09:13:17.638Z",
+  "scanned_at": "2026-10-19T08:21:14.695Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-09-28T09:13:17.638Z",
-  "snapshot_hash": "sha256:6786a32a1c87da5fe37eecbdbd76d5a41d45f8a1d008e70f23f222269b6430b3",
+  "last_attempt_at": "2026-10-19T08:21:14.695Z",
+  "snapshot_hash": "sha256:f7de8833772a4a7f0dab1c76291b2f87401c6e7d543f644028337894a954dbb7",
   "server_info": {
     "name": "exa-search-server",
-    "version": "3.2.1"
+    "version": "3.5.0"
   },
   "score": {
     "composite": 100,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 538,
+    "tokens": 549,
     "tokenizer": "o200k_base"
   },
   "tool_count": 2,
@@ -35,7 +35,7 @@
       "property_count": 3,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 341
+      "tokens": 346
     },
     {
       "name": "web_fetch_exa",
@@ -44,7 +44,7 @@
       "property_count": 2,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 195
+      "tokens": 201
     }
   ]
 }

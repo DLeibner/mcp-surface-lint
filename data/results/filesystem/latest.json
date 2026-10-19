@@ -1,14 +1,14 @@
 {
   "slug": "filesystem",
-  "scanned_at": "2026-10-12T10:03:59.755Z",
+  "scanned_at": "2026-10-19T08:21:14.695Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-10-12T10:03:59.755Z",
-  "snapshot_hash": "sha256:65e3d4fdaf35655854eb411d2e8f9732b5a9258c4cd4a8164b40976d1537b9c0",
+  "last_attempt_at": "2026-10-19T08:21:14.695Z",
+  "snapshot_hash": "sha256:a42a695ea1e00d8f729d4b7ec277cf3fdd36a422274e27899284422209df696f",
   "server_info": {
     "name": "secure-filesystem-server",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "score": {
     "composite": 96,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 2853,
+    "tokens": 2741,
     "tokenizer": "o200k_base"
   },
   "tool_count": 14,
@@ -204,7 +204,7 @@
       "property_count": 3,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 181
+      "tokens": 173
     },
     {
       "name": "read_text_file",
@@ -213,7 +213,7 @@
       "property_count": 3,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 258
+      "tokens": 250
     },
     {
       "name": "read_media_file",
@@ -222,7 +222,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 292
+      "tokens": 284
     },
     {
       "name": "read_multiple_files",
@@ -231,7 +231,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 213
+      "tokens": 205
     },
     {
       "name": "write_file",
@@ -240,7 +240,7 @@
       "property_count": 2,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 176
+      "tokens": 168
     },
     {
       "name": "edit_file",
@@ -249,7 +249,7 @@
       "property_count": 3,
       "required_count": 2,
       "max_depth": 3,
-      "tokens": 247
+      "tokens": 239
     },
     {
       "name": "create_directory",
@@ -258,7 +258,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 179
+      "tokens": 171
     },
     {
       "name": "list_directory",
@@ -267,7 +267,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 168
+      "tokens": 160
     },
     {
       "name": "list_directory_with_sizes",
@@ -276,7 +276,7 @@
       "property_count": 2,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 203
+      "tokens": 195
     },
     {
       "name": "directory_tree",
@@ -285,7 +285,7 @@
       "property_count": 2,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 204
+      "tokens": 196
     },
     {
       "name": "move_file",
@@ -294,7 +294,7 @@
       "property_count": 2,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 194
+      "tokens": 186
     },
     {
       "name": "search_files",
@@ -303,7 +303,7 @@
       "property_count": 3,
       "required_count": 2,
       "max_depth": 2,
-      "tokens": 221
+      "tokens": 213
     },
     {
       "name": "get_file_info",
@@ -312,7 +312,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 164
+      "tokens": 156
     },
     {
       "name": "list_allowed_directories",
@@ -321,7 +321,7 @@
       "property_count": 0,
       "required_count": 0,
       "max_depth": 0,
-      "tokens": 151
+      "tokens": 143
     }
   ]
 }

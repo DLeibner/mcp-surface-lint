@@ -1,14 +1,14 @@
 {
   "slug": "supabase",
-  "scanned_at": "2026-09-28T09:13:17.638Z",
+  "scanned_at": "2026-10-19T08:21:14.695Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-09-28T09:13:17.638Z",
-  "snapshot_hash": "sha256:6df6340718bbd924e900a1a04fbf2b30fe69c6d5939cff4992150ea2db33e3be",
+  "last_attempt_at": "2026-10-19T08:21:14.695Z",
+  "snapshot_hash": "sha256:702b28afe804cae84186995451f55652b0f6b62cbd60e0dd6c257c6e31c22b3a",
   "server_info": {
     "name": "supabase",
-    "version": "0.13.0"
+    "version": "0.14.0"
   },
   "score": {
     "composite": 96,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 3394,
+    "tokens": 3402,
     "tokenizer": "o200k_base"
   },
   "tool_count": 19,
@@ -222,6 +222,14 @@
       "category": "design",
       "message": "Enum [project, branch] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
       "evidence": "get_cost/properties/type; confirm_cost/properties/type"
+    },
+    {
+      "rule_id": "design/negative-guidance-present",
+      "severity": "info",
+      "category": "design",
+      "tool_name": "confirm_cost",
+      "message": "Good pattern: \"confirm_cost\" documents when NOT to use it. Preserve this in any consolidation.",
+      "evidence": "Only call this after the user has explicitly agreed to that cost in the conversation."
     }
   ],
   "tools": [
@@ -281,12 +289,12 @@
     },
     {
       "name": "confirm_cost",
-      "description_length": 220,
+      "description_length": 227,
       "has_annotations": true,
       "property_count": 3,
       "required_count": 3,
       "max_depth": 1,
-      "tokens": 161
+      "tokens": 163
     },
     {
       "name": "list_tables",
@@ -335,12 +343,12 @@
     },
     {
       "name": "get_advisors",
-      "description_length": 385,
+      "description_length": 401,
       "has_annotations": true,
       "property_count": 2,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 180
+      "tokens": 186
     },
     {
       "name": "get_project_url",

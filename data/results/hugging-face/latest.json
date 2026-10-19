@@ -1,14 +1,14 @@
 {
   "slug": "hugging-face",
-  "scanned_at": "2026-10-05T09:52:55.308Z",
+  "scanned_at": "2026-10-19T08:21:14.695Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-10-05T09:52:55.308Z",
-  "snapshot_hash": "sha256:f9c9f006eb05f286f1f01eb7582ce5d059c776a0b87b5c9e2120ecdb43b33e5f",
+  "last_attempt_at": "2026-10-19T08:21:14.695Z",
+  "snapshot_hash": "sha256:5dc6106413b3d6681f2884f0773e63d228a6ff61a555b1ad3723e333815e0396",
   "server_info": {
     "name": "huggingface.co/mcp",
-    "version": "0.4.27"
+    "version": "0.4.30"
   },
   "score": {
     "composite": 98,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 4911,
+    "tokens": 5037,
     "tokenizer": "o200k_base"
   },
   "tool_count": 4,
@@ -32,7 +32,7 @@
       "severity": "warn",
       "category": "descriptions",
       "tool_name": "hf_fs",
-      "message": "Description is 2875 chars (maximum 1500) — move detail into parameter descriptions."
+      "message": "Description is 3324 chars (maximum 1500) — move detail into parameter descriptions."
     },
     {
       "rule_id": "design/list-no-limit",
@@ -93,12 +93,12 @@
     },
     {
       "name": "hf_fs",
-      "description_length": 2875,
+      "description_length": 3324,
       "has_annotations": true,
       "property_count": 1,
       "required_count": 1,
       "max_depth": 4,
-      "tokens": 2151
+      "tokens": 2277
     }
   ]
 }

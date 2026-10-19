@@ -1,14 +1,14 @@
 {
   "slug": "chrome-devtools",
-  "scanned_at": "2026-09-28T09:13:17.638Z",
+  "scanned_at": "2026-10-19T08:21:14.695Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-09-28T09:13:17.638Z",
-  "snapshot_hash": "sha256:35e1e6eefabc3d09e7c0e72e7bc281982ee0f61f2f602ef4bb78888fe465e0d5",
+  "last_attempt_at": "2026-10-19T08:21:14.695Z",
+  "snapshot_hash": "sha256:7a2c870da0a5ad0729761a9d15daf3c27f0a02eec9e1d0d3e05f30529e3fc02c",
   "server_info": {
     "name": "chrome_devtools",
-    "version": "1.10.1"
+    "version": "1.11.0"
   },
   "score": {
     "composite": 97,
@@ -22,10 +22,10 @@
     }
   },
   "token_footprint": {
-    "tokens": 5750,
+    "tokens": 6373,
     "tokenizer": "o200k_base"
   },
-  "tool_count": 30,
+  "tool_count": 32,
   "findings": [
     {
       "rule_id": "design/list-no-limit",
@@ -38,7 +38,7 @@
       "rule_id": "surface/tool-budget",
       "severity": "warn",
       "category": "surface",
-      "message": "Server exposes 30 tools (warn threshold 20 exceeded). Consider consolidating into fewer intent-shaped tools."
+      "message": "Server exposes 32 tools (warn threshold 20 exceeded). Consider consolidating into fewer intent-shaped tools."
     },
     {
       "rule_id": "annotations/missing-hints",
@@ -63,7 +63,7 @@
       "property_count": 4,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 144
+      "tokens": 143
     },
     {
       "name": "close_page",
@@ -72,7 +72,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 95
+      "tokens": 94
     },
     {
       "name": "drag",
@@ -81,25 +81,25 @@
       "property_count": 4,
       "required_count": 3,
       "max_depth": 1,
-      "tokens": 142
+      "tokens": 141
     },
     {
       "name": "emulate",
-      "description_length": 45,
+      "description_length": 161,
       "has_annotations": true,
-      "property_count": 8,
+      "property_count": 11,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 402
+      "tokens": 584
     },
     {
       "name": "evaluate_script",
-      "description_length": 133,
+      "description_length": 185,
       "has_annotations": true,
-      "property_count": 6,
-      "required_count": 2,
+      "property_count": 8,
+      "required_count": 1,
       "max_depth": 2,
-      "tokens": 306
+      "tokens": 438
     },
     {
       "name": "fill",
@@ -108,7 +108,7 @@
       "property_count": 4,
       "required_count": 3,
       "max_depth": 1,
-      "tokens": 174
+      "tokens": 173
     },
     {
       "name": "fill_form",
@@ -117,7 +117,7 @@
       "property_count": 3,
       "required_count": 2,
       "max_depth": 3,
-      "tokens": 257
+      "tokens": 256
     },
     {
       "name": "get_console_message",
@@ -126,16 +126,16 @@
       "property_count": 2,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 119
+      "tokens": 118
     },
     {
       "name": "get_css_styles",
-      "description_length": 361,
+      "description_length": 608,
       "has_annotations": true,
       "property_count": 4,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 259
+      "tokens": 315
     },
     {
       "name": "get_network_request",
@@ -144,7 +144,7 @@
       "property_count": 4,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 227
+      "tokens": 226
     },
     {
       "name": "handle_dialog",
@@ -153,7 +153,7 @@
       "property_count": 3,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 129
+      "tokens": 128
     },
     {
       "name": "hover",
@@ -162,16 +162,16 @@
       "property_count": 3,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 123
+      "tokens": 122
     },
     {
       "name": "lighthouse_audit",
-      "description_length": 173,
+      "description_length": 239,
       "has_annotations": true,
       "property_count": 4,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 182
+      "tokens": 196
     },
     {
       "name": "list_console_messages",
@@ -180,7 +180,7 @@
       "property_count": 7,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 336
+      "tokens": 335
     },
     {
       "name": "list_network_requests",
@@ -189,7 +189,7 @@
       "property_count": 5,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 281
+      "tokens": 280
     },
     {
       "name": "list_pages",
@@ -198,7 +198,7 @@
       "property_count": 0,
       "required_count": 0,
       "max_depth": 0,
-      "tokens": 60
+      "tokens": 59
     },
     {
       "name": "navigate_page",
@@ -207,7 +207,7 @@
       "property_count": 7,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 271
+      "tokens": 270
     },
     {
       "name": "new_page",
@@ -216,7 +216,7 @@
       "property_count": 4,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 225
+      "tokens": 224
     },
     {
       "name": "performance_analyze_insight",
@@ -225,16 +225,16 @@
       "property_count": 3,
       "required_count": 3,
       "max_depth": 1,
-      "tokens": 177
+      "tokens": 176
     },
     {
       "name": "performance_start_trace",
       "description_length": 151,
       "has_annotations": true,
-      "property_count": 4,
+      "property_count": 5,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 238
+      "tokens": 273
     },
     {
       "name": "performance_stop_trace",
@@ -243,7 +243,7 @@
       "property_count": 2,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 132
+      "tokens": 131
     },
     {
       "name": "press_key",
@@ -252,7 +252,7 @@
       "property_count": 3,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 178
+      "tokens": 177
     },
     {
       "name": "resize_page",
@@ -261,7 +261,25 @@
       "property_count": 3,
       "required_count": 3,
       "max_depth": 1,
-      "tokens": 112
+      "tokens": 139
+    },
+    {
+      "name": "screencast_start",
+      "description_length": 57,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 116
+    },
+    {
+      "name": "screencast_stop",
+      "description_length": 57,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 85
     },
     {
       "name": "select_page",
@@ -270,7 +288,7 @@
       "property_count": 2,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 113
+      "tokens": 112
     },
     {
       "name": "take_heapsnapshot",
@@ -279,7 +297,7 @@
       "property_count": 2,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 126
+      "tokens": 125
     },
     {
       "name": "take_screenshot",
@@ -288,7 +306,7 @@
       "property_count": 6,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 263
+      "tokens": 262
     },
     {
       "name": "take_snapshot",
@@ -297,7 +315,7 @@
       "property_count": 3,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 198
+      "tokens": 197
     },
     {
       "name": "type_text",
@@ -306,7 +324,7 @@
       "property_count": 3,
       "required_count": 2,
       "max_depth": 1,
-      "tokens": 126
+      "tokens": 125
     },
     {
       "name": "upload_file",
@@ -315,7 +333,7 @@
       "property_count": 4,
       "required_count": 3,
       "max_depth": 2,
-      "tokens": 185
+      "tokens": 184
     },
     {
       "name": "wait_for",
@@ -324,7 +342,7 @@
       "property_count": 3,
       "required_count": 2,
       "max_depth": 2,
-      "tokens": 168
+      "tokens": 167
     }
   ]
 }

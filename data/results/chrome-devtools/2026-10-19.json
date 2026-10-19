@@ -1,0 +1,348 @@
+{
+  "slug": "chrome-devtools",
+  "scanned_at": "2026-10-19T08:21:14.695Z",
+  "engine_version": "0.4.0",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-10-19T08:21:14.695Z",
+  "snapshot_hash": "sha256:7a2c870da0a5ad0729761a9d15daf3c27f0a02eec9e1d0d3e05f30529e3fc02c",
+  "server_info": {
+    "name": "chrome_devtools",
+    "version": "1.11.0"
+  },
+  "score": {
+    "composite": 97,
+    "categories": {
+      "surface": 85,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 100,
+      "annotations": 100,
+      "design": 97
+    }
+  },
+  "token_footprint": {
+    "tokens": 6373,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 32,
+  "findings": [
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "list_pages",
+      "message": "\"list_pages\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "surface/tool-budget",
+      "severity": "warn",
+      "category": "surface",
+      "message": "Server exposes 32 tools (warn threshold 20 exceeded). Consider consolidating into fewer intent-shaped tools."
+    },
+    {
+      "rule_id": "annotations/missing-hints",
+      "severity": "info",
+      "category": "annotations",
+      "tool_name": "upload_file",
+      "message": "Mutating tool \"upload_file\" has no title — clients show the raw name in confirmation prompts."
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [accept, dismiss] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "handle_dialog/properties/action; navigate_page/properties/handleBeforeUnload"
+    }
+  ],
+  "tools": [
+    {
+      "name": "click",
+      "description_length": 30,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 143
+    },
+    {
+      "name": "close_page",
+      "description_length": 66,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 94
+    },
+    {
+      "name": "drag",
+      "description_length": 36,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 141
+    },
+    {
+      "name": "emulate",
+      "description_length": 161,
+      "has_annotations": true,
+      "property_count": 11,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 584
+    },
+    {
+      "name": "evaluate_script",
+      "description_length": 185,
+      "has_annotations": true,
+      "property_count": 8,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 438
+    },
+    {
+      "name": "fill",
+      "description_length": 79,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 173
+    },
+    {
+      "name": "fill_form",
+      "description_length": 318,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 3,
+      "tokens": 256
+    },
+    {
+      "name": "get_console_message",
+      "description_length": 92,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 118
+    },
+    {
+      "name": "get_css_styles",
+      "description_length": 608,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 315
+    },
+    {
+      "name": "get_network_request",
+      "description_length": 246,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 226
+    },
+    {
+      "name": "handle_dialog",
+      "description_length": 61,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 128
+    },
+    {
+      "name": "hover",
+      "description_length": 31,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 122
+    },
+    {
+      "name": "lighthouse_audit",
+      "description_length": 239,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 196
+    },
+    {
+      "name": "list_console_messages",
+      "description_length": 72,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 335
+    },
+    {
+      "name": "list_network_requests",
+      "description_length": 77,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 280
+    },
+    {
+      "name": "list_pages",
+      "description_length": 40,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 59
+    },
+    {
+      "name": "navigate_page",
+      "description_length": 85,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 270
+    },
+    {
+      "name": "new_page",
+      "description_length": 74,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 224
+    },
+    {
+      "name": "performance_analyze_insight",
+      "description_length": 144,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 176
+    },
+    {
+      "name": "performance_start_trace",
+      "description_length": 151,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 273
+    },
+    {
+      "name": "performance_stop_trace",
+      "description_length": 66,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 131
+    },
+    {
+      "name": "press_key",
+      "description_length": 166,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 177
+    },
+    {
+      "name": "resize_page",
+      "description_length": 66,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 1,
+      "tokens": 139
+    },
+    {
+      "name": "screencast_start",
+      "description_length": 57,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 116
+    },
+    {
+      "name": "screencast_stop",
+      "description_length": 57,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 85
+    },
+    {
+      "name": "select_page",
+      "description_length": 49,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 112
+    },
+    {
+      "name": "take_heapsnapshot",
+      "description_length": 128,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 125
+    },
+    {
+      "name": "take_screenshot",
+      "description_length": 41,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 262
+    },
+    {
+      "name": "take_snapshot",
+      "description_length": 302,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 197
+    },
+    {
+      "name": "type_text",
+      "description_length": 56,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 125
+    },
+    {
+      "name": "upload_file",
+      "description_length": 41,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 3,
+      "max_depth": 2,
+      "tokens": 184
+    },
+    {
+      "name": "wait_for",
+      "description_length": 59,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 167
+    }
+  ]
+}
