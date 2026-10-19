@@ -1,0 +1,2321 @@
+{
+  "serverInfo": {
+    "name": "hotel-universe",
+    "version": "0.1.0"
+  },
+  "tools": [
+    {
+      "name": "search_hotels",
+      "description": "WHAT IT DOES: Searches the hotel catalogue. Accepts structured filters, a free-form natural-language `query` (the server extracts filters from it), or lat/lon/radius proximity — combinable; explicit structured filters override query-extracted ones. Returns previews with pagination and the effective filters used, so you can refine and re-issue. For area queries like \"hotels in Soho\", first call `geocode_location` to obtain a `geometryRef`, then pass it as `geometry` here. Use `pageToken` to fetch subsequent pages. Do not call `get_hotel` afterwards to enrich results — previews already contain `googlePlaceId`, `lat`, `lon`, and `address`.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Hotel name (partial match)."
+          },
+          "country": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "minLength": 2,
+              "maxLength": 2,
+              "enum": [
+                "AD",
+                "AE",
+                "AF",
+                "AG",
+                "AI",
+                "AL",
+                "AM",
+                "AO",
+                "AQ",
+                "AR",
+                "AS",
+                "AT",
+                "AU",
+                "AW",
+                "AX",
+                "AZ",
+                "BA",
+                "BB",
+                "BD",
+                "BE",
+                "BF",
+                "BG",
+                "BH",
+                "BI",
+                "BJ",
+                "BL",
+                "BM",
+                "BN",
+                "BO",
+                "BQ",
+                "BR",
+                "BS",
+                "BT",
+                "BV",
+                "BW",
+                "BY",
+                "BZ",
+                "CA",
+                "CC",
+                "CD",
+                "CF",
+                "CG",
+                "CH",
+                "CI",
+                "CK",
+                "CL",
+                "CM",
+                "CN",
+                "CO",
+                "CR",
+                "CU",
+                "CV",
+                "CW",
+                "CX",
+                "CY",
+                "CZ",
+                "DE",
+                "DJ",
+                "DK",
+                "DM",
+                "DO",
+                "DZ",
+                "EC",
+                "EE",
+                "EG",
+                "EH",
+                "ER",
+                "ES",
+                "ET",
+                "FI",
+                "FJ",
+                "FK",
+                "FM",
+                "FO",
+                "FR",
+                "GA",
+                "GB",
+                "GD",
+                "GE",
+                "GF",
+                "GG",
+                "GH",
+                "GI",
+                "GL",
+                "GM",
+                "GN",
+                "GP",
+                "GQ",
+                "GR",
+                "GS",
+                "GT",
+                "GU",
+                "GW",
+                "GY",
+                "HK",
+                "HM",
+                "HN",
+                "HR",
+                "HT",
+                "HU",
+                "ID",
+                "IE",
+                "IL",
+                "IM",
+                "IN",
+                "IO",
+                "IQ",
+                "IR",
+                "IS",
+                "IT",
+                "JE",
+                "JM",
+                "JO",
+                "JP",
+                "KE",
+                "KG",
+                "KH",
+                "KI",
+                "KM",
+                "KN",
+                "KP",
+                "KR",
+                "KW",
+                "KY",
+                "KZ",
+                "LA",
+                "LB",
+                "LC",
+                "LI",
+                "LK",
+                "LR",
+                "LS",
+                "LT",
+                "LU",
+                "LV",
+                "LY",
+                "MA",
+                "MC",
+                "MD",
+                "ME",
+                "MF",
+                "MG",
+                "MH",
+                "MK",
+                "ML",
+                "MM",
+                "MN",
+                "MO",
+                "MP",
+                "MQ",
+                "MR",
+                "MS",
+                "MT",
+                "MU",
+                "MV",
+                "MW",
+                "MX",
+                "MY",
+                "MZ",
+                "NA",
+                "NC",
+                "NE",
+                "NF",
+                "NG",
+                "NI",
+                "NL",
+                "NO",
+                "NP",
+                "NR",
+                "NU",
+                "NZ",
+                "OM",
+                "PA",
+                "PE",
+                "PF",
+                "PG",
+                "PH",
+                "PK",
+                "PL",
+                "PM",
+                "PN",
+                "PR",
+                "PS",
+                "PT",
+                "PW",
+                "PY",
+                "QA",
+                "RE",
+                "RO",
+                "RS",
+                "RU",
+                "RW",
+                "SA",
+                "SB",
+                "SC",
+                "SD",
+                "SE",
+                "SG",
+                "SH",
+                "SI",
+                "SJ",
+                "SK",
+                "SL",
+                "SM",
+                "SN",
+                "SO",
+                "SR",
+                "SS",
+                "ST",
+                "SV",
+                "SX",
+                "SY",
+                "SZ",
+                "TC",
+                "TD",
+                "TF",
+                "TG",
+                "TH",
+                "TJ",
+                "TK",
+                "TL",
+                "TM",
+                "TN",
+                "TO",
+                "TR",
+                "TT",
+                "TV",
+                "TW",
+                "TZ",
+                "UA",
+                "UG",
+                "UM",
+                "US",
+                "UY",
+                "UZ",
+                "VA",
+                "VC",
+                "VE",
+                "VG",
+                "VI",
+                "VN",
+                "VU",
+                "WF",
+                "WS",
+                "XK",
+                "YE",
+                "YT",
+                "ZA",
+                "ZM",
+                "ZW"
+              ]
+            },
+            "description": "ISO 3166-1 alpha-2 country codes (e.g. [\"US\", \"GB\"])."
+          },
+          "city": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "City names. Multiple values are OR-combined."
+          },
+          "state": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "State/province/region names."
+          },
+          "postalCode": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "maxLength": 20
+            },
+            "description": "Postal/ZIP codes."
+          },
+          "stars": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "description": "Star ratings (0-5). 0 means non-rated."
+          },
+          "features": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "Amenity keywords (e.g. \"pool\", \"wifi\", \"parking\")."
+          },
+          "propertyType": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "hotel",
+                "hostel",
+                "motel",
+                "bed_and_breakfast",
+                "resort",
+                "vacation_rental",
+                "cottage",
+                "camp",
+                "unique_stay",
+                "lodging",
+                "other"
+              ]
+            },
+            "description": "Property type codes (e.g. \"hotel\", \"hostel\", \"resort\")."
+          },
+          "brand": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "description": "Hotel brand names (e.g. \"Marriott\", \"Hilton\")."
+          },
+          "minRating": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 5,
+            "description": "Minimum aggregate user rating (0-5)."
+          },
+          "minReviews": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Minimum number of user reviews."
+          },
+          "languagesSpoken": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "enum": [
+                "aa",
+                "ab",
+                "ae",
+                "af",
+                "ak",
+                "am",
+                "an",
+                "ar",
+                "as",
+                "av",
+                "ay",
+                "az",
+                "ba",
+                "be",
+                "bg",
+                "bh",
+                "bi",
+                "bm",
+                "bn",
+                "bo",
+                "br",
+                "bs",
+                "ca",
+                "ce",
+                "ch",
+                "co",
+                "cr",
+                "cs",
+                "cu",
+                "cv",
+                "cy",
+                "da",
+                "de",
+                "dv",
+                "dz",
+                "ee",
+                "el",
+                "en",
+                "eo",
+                "es",
+                "et",
+                "eu",
+                "fa",
+                "ff",
+                "fi",
+                "fj",
+                "fo",
+                "fr",
+                "fy",
+                "ga",
+                "gd",
+                "gl",
+                "gn",
+                "gu",
+                "gv",
+                "ha",
+                "he",
+                "hi",
+                "ho",
+                "hr",
+                "ht",
+                "hu",
+                "hy",
+                "hz",
+                "ia",
+                "id",
+                "ie",
+                "ig",
+                "ii",
+                "ik",
+                "io",
+                "is",
+                "it",
+                "iu",
+                "ja",
+                "jv",
+                "ka",
+                "kg",
+                "ki",
+                "kj",
+                "kk",
+                "kl",
+                "km",
+                "kn",
+                "ko",
+                "kr",
+                "ks",
+                "ku",
+                "kv",
+                "kw",
+                "ky",
+                "la",
+                "lb",
+                "lg",
+                "li",
+                "ln",
+                "lo",
+                "lt",
+                "lu",
+                "lv",
+                "mg",
+                "mh",
+                "mi",
+                "mk",
+                "ml",
+                "mn",
+                "mr",
+                "ms",
+                "mt",
+                "my",
+                "na",
+                "nb",
+                "nd",
+                "ne",
+                "ng",
+                "nl",
+                "nn",
+                "no",
+                "nr",
+                "nv",
+                "ny",
+                "oc",
+                "oj",
+                "om",
+                "or",
+                "os",
+                "pa",
+                "pi",
+                "pl",
+                "ps",
+                "pt",
+                "qu",
+                "rm",
+                "rn",
+                "ro",
+                "ru",
+                "rw",
+                "sa",
+                "sc",
+                "sd",
+                "se",
+                "sg",
+                "si",
+                "sk",
+                "sl",
+                "sm",
+                "sn",
+                "so",
+                "sq",
+                "sr",
+                "ss",
+                "st",
+                "su",
+                "sv",
+                "sw",
+                "ta",
+                "te",
+                "tg",
+                "th",
+                "ti",
+                "tk",
+                "tl",
+                "tn",
+                "to",
+                "tr",
+                "ts",
+                "tt",
+                "tw",
+                "ty",
+                "ug",
+                "uk",
+                "ur",
+                "uz",
+                "ve",
+                "vi",
+                "vo",
+                "wa",
+                "wo",
+                "xh",
+                "yi",
+                "yo",
+                "za",
+                "zh",
+                "zu"
+              ]
+            },
+            "description": "ISO 639-1 alpha-2 language codes."
+          },
+          "minRooms": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Minimum number of rooms."
+          },
+          "maxRooms": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of rooms."
+          },
+          "hotelIdType": {
+            "type": "string",
+            "enum": [
+              "huId",
+              "GooglePlaces",
+              "GoogleHotels",
+              "Booking",
+              "TripAdvisor",
+              "Expedia",
+              "AllTopHotels",
+              "DirectPricing",
+              "DirectWebsite",
+              "Trivago",
+              "agoda",
+              "allmytour",
+              "asiayo",
+              "bluepillow",
+              "closesthotel",
+              "despegar",
+              "edreamsodigeo",
+              "goseek",
+              "holidaycheck",
+              "holisto",
+              "hotel_de",
+              "hotels_com",
+              "hotwire",
+              "hrs",
+              "kayak",
+              "luxuryescapes",
+              "marriott",
+              "müvai",
+              "oyo",
+              "priceline",
+              "qantas",
+              "splitty",
+              "stayforless/whitelabel",
+              "stayforlong",
+              "super",
+              "tiket",
+              "traveloka",
+              "trip",
+              "trivagodeals",
+              "vio",
+              "zenhotels"
+            ],
+            "description": "Hotel ID scope: `huId` for canonical id; a DsName (e.g. \"GoogleHotels\", \"Booking\"); or extra OTA slug."
+          },
+          "hotelId": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "description": "Specific hotel IDs to include or exclude (max 50). List scope and rich-content subscription filters use a separate unbounded path; see param notes in code."
+          },
+          "hotelIdFilterMode": {
+            "type": "string",
+            "enum": [
+              "include",
+              "exclude"
+            ],
+            "description": "Whether `hotelId` is an inclusion or exclusion list. Default: include."
+          },
+          "hasLocation": {
+            "type": "boolean",
+            "description": "Only return hotels with a location."
+          },
+          "hasFeatures": {
+            "type": "boolean",
+            "description": "Only return hotels with at least one feature."
+          },
+          "hasRating": {
+            "type": "boolean",
+            "description": "Only return hotels with a rating."
+          },
+          "hasReviews": {
+            "type": "boolean",
+            "description": "Only return hotels with reviews."
+          },
+          "hasImages": {
+            "type": "boolean",
+            "description": "Only return hotels with images."
+          },
+          "hasRooms": {
+            "type": "boolean",
+            "description": "Only return hotels with room data."
+          },
+          "hasDirectWebsite": {
+            "type": "boolean",
+            "description": "Only return hotels with direct website data."
+          },
+          "directPricingOnly": {
+            "type": "boolean",
+            "description": "When true, only return hotels that have a DirectPricing main ref."
+          },
+          "richContentSubscribed": {
+            "type": "boolean",
+            "description": "Rich-content subscription filter: true = subscribed only, false = not subscribed only. Omit to disable this filter."
+          },
+          "pageToken": {
+            "type": "string",
+            "description": "Pagination cursor returned by a previous call as `nextPageToken`."
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90,
+            "description": "Latitude of the search location. Must be used with lon and radius."
+          },
+          "lon": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180,
+            "description": "Longitude of the search location. Must be used with lat and radius."
+          },
+          "radius": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 10000000,
+            "description": "Radius of the search location in meters. Must be used with lat and lon."
+          },
+          "geometry": {
+            "type": "string",
+            "description": "Geometry reference as \"{locationId}-{place_id}\". Obtain values from the /geocode endpoint. Hotels within the polygon will be returned."
+          },
+          "geometryMultiplier": {
+            "type": "number",
+            "minimum": 0.01,
+            "description": "Scale factor for the polygon area. 2 makes the area 2x bigger, 0.5 makes it 2x smaller. Only applies when geometry is provided."
+          },
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000,
+            "description": "Free-form description of the hotels you are looking for (e.g. \"4-star resorts in Sicily with a pool\"). The server extracts structured filters from it; any explicit filter parameters override the extracted ones."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 200,
+            "description": "Maximum number of hotels to return for a proximity-only search (lat/lon/radius with no other filters). Defaults to 50. Ignored otherwise."
+          }
+        },
+        "dependentRequired": {
+          "lat": [
+            "lon",
+            "radius"
+          ],
+          "lon": [
+            "lat",
+            "radius"
+          ],
+          "radius": [
+            "lat",
+            "lon"
+          ],
+          "geometryMultiplier": [
+            "geometry"
+          ]
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Search hotels",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_hotel",
+      "description": "IMPORTANT: Only call this for hotels the user explicitly wants details on. DO NOT call speculatively to enrich search results — `search_hotels` previews already contain `googlePlaceId`, `lat`, `lon`, and `address`, which are sufficient to render a map and link list. Each hotel counts against the trial quota (100 unique full profiles).\n\nWHAT IT DOES: Gets the canonical profile for 1–25 hotels by Hotel Universe ID, optionally with photo galleries, guest reviews, an AI hotel summary, and an AI review summary via `include`. Returns full profiles when entitled; paid-tier orgs without a rich-content subscription for a hotel receive a preview instead. Sections the organisation's tier or the caller's permissions do not allow are omitted with a notice instead of failing the call.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "huIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 25,
+            "description": "Hotel Universe IDs (e.g. \"HU123ABC\") to fetch."
+          },
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "images",
+                "reviews",
+                "ai_summary",
+                "review_summary"
+              ]
+            },
+            "description": "Extra sections to return per hotel. The profile is always returned. `reviews` and `review_summary` require the reviews permission and a reviews-enabled tier; `ai_summary` is not available on the trial tier."
+          },
+          "reviewLimit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "description": "Maximum reviews to return per hotel (default 20). Only with `include: [\"reviews\"]`."
+          },
+          "reviewOffset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of reviews to skip from the start (default 0). Only with `include: [\"reviews\"]`."
+          },
+          "reviewTopic": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100,
+            "description": "Optional free-text topic (e.g. \"parking\", \"breakfast\"); returns only reviews semantically relevant to it, ranked by relevance. Only with `include: [\"reviews\"]`."
+          },
+          "refresh": {
+            "type": "boolean",
+            "description": "Regenerate AI summaries, bypassing the cache (default false)."
+          }
+        },
+        "required": [
+          "huIds"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get hotel details",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "find_competitors",
+      "description": "Find competitor hotels near a given hotel, ranked by similarity (best match first).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "huId": {
+            "type": "string",
+            "description": "Hotel Universe ID of the source hotel."
+          },
+          "radius": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Search radius in km (default 10)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "description": "Max competitors to return (default 20)."
+          }
+        },
+        "required": [
+          "huId"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Find competitor hotels",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "geocode_location",
+      "description": "Resolve a free-text location (e.g. \"Baker Street, London\") into a `geometryRef`, centre coordinates, and a bounding box. Pass the returned `geometryRef` as `geometry` to `search_hotels` to constrain results to that polygon (the full polygon is held server-side — you do not need to inspect it), or use `lat`/`lon` with a `radius` for a circular search. Use `boundingBox` (south, north, west, east) to gauge how large the area is before deciding on `radius` or pagination.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Free-text location query."
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Geocode a location",
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_lists",
+      "description": "WHAT IT DOES: Reads the organisation's hotel lists. Without `listId`, pages through all lists (10 per page, filterable by creator). With `listId`, returns that list's metadata (including the saved search query for dynamic lists) plus any `include` sections: `hotels` (entries with previews, 10 per page via `page`), `stats` (matched / needs-review / unmatched counts), and `diff` (new hotels matching a dynamic list's saved query that are not yet in the list; empty for static lists).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "listId": {
+            "type": "string",
+            "description": "List ID. Omit to page through all lists owned by the organisation."
+          },
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "hotels",
+                "stats",
+                "diff"
+              ]
+            },
+            "description": "Extra sections to return. Only with `listId`."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Without `listId`: lists page. With `include: [\"hotels\"]`: entries page. Default 1."
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "Filter lists by creator user ID. Only without `listId`."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get lists",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "create_list",
+      "description": "WHAT IT DOES: Creates a hotel list from exactly one source: `hotelIds` (static list from specific huIds), `filters` (saved search — `mode` \"dynamic\" keeps it live, \"static\" freezes the current matches), or `includeLists`/`excludeLists` (static union-minus combination of existing lists). Entries populate asynchronously for the hotelIds and combine sources. The name is optional (the server generates one) — never block a save to ask for a name; suggest one and let the user rename later.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "Optional list name. If omitted, the server generates one."
+          },
+          "hotelIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Source A: create a static list from these Hotel Universe IDs."
+          },
+          "filters": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Hotel name (partial match)."
+              },
+              "country": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string",
+                  "minLength": 2,
+                  "maxLength": 2,
+                  "enum": [
+                    "AD",
+                    "AE",
+                    "AF",
+                    "AG",
+                    "AI",
+                    "AL",
+                    "AM",
+                    "AO",
+                    "AQ",
+                    "AR",
+                    "AS",
+                    "AT",
+                    "AU",
+                    "AW",
+                    "AX",
+                    "AZ",
+                    "BA",
+                    "BB",
+                    "BD",
+                    "BE",
+                    "BF",
+                    "BG",
+                    "BH",
+                    "BI",
+                    "BJ",
+                    "BL",
+                    "BM",
+                    "BN",
+                    "BO",
+                    "BQ",
+                    "BR",
+                    "BS",
+                    "BT",
+                    "BV",
+                    "BW",
+                    "BY",
+                    "BZ",
+                    "CA",
+                    "CC",
+                    "CD",
+                    "CF",
+                    "CG",
+                    "CH",
+                    "CI",
+                    "CK",
+                    "CL",
+                    "CM",
+                    "CN",
+                    "CO",
+                    "CR",
+                    "CU",
+                    "CV",
+                    "CW",
+                    "CX",
+                    "CY",
+                    "CZ",
+                    "DE",
+                    "DJ",
+                    "DK",
+                    "DM",
+                    "DO",
+                    "DZ",
+                    "EC",
+                    "EE",
+                    "EG",
+                    "EH",
+                    "ER",
+                    "ES",
+                    "ET",
+                    "FI",
+                    "FJ",
+                    "FK",
+                    "FM",
+                    "FO",
+                    "FR",
+                    "GA",
+                    "GB",
+                    "GD",
+                    "GE",
+                    "GF",
+                    "GG",
+                    "GH",
+                    "GI",
+                    "GL",
+                    "GM",
+                    "GN",
+                    "GP",
+                    "GQ",
+                    "GR",
+                    "GS",
+                    "GT",
+                    "GU",
+                    "GW",
+                    "GY",
+                    "HK",
+                    "HM",
+                    "HN",
+                    "HR",
+                    "HT",
+                    "HU",
+                    "ID",
+                    "IE",
+                    "IL",
+                    "IM",
+                    "IN",
+                    "IO",
+                    "IQ",
+                    "IR",
+                    "IS",
+                    "IT",
+                    "JE",
+                    "JM",
+                    "JO",
+                    "JP",
+                    "KE",
+                    "KG",
+                    "KH",
+                    "KI",
+                    "KM",
+                    "KN",
+                    "KP",
+                    "KR",
+                    "KW",
+                    "KY",
+                    "KZ",
+                    "LA",
+                    "LB",
+                    "LC",
+                    "LI",
+                    "LK",
+                    "LR",
+                    "LS",
+                    "LT",
+                    "LU",
+                    "LV",
+                    "LY",
+                    "MA",
+                    "MC",
+                    "MD",
+                    "ME",
+                    "MF",
+                    "MG",
+                    "MH",
+                    "MK",
+                    "ML",
+                    "MM",
+                    "MN",
+                    "MO",
+                    "MP",
+                    "MQ",
+                    "MR",
+                    "MS",
+                    "MT",
+                    "MU",
+                    "MV",
+                    "MW",
+                    "MX",
+                    "MY",
+                    "MZ",
+                    "NA",
+                    "NC",
+                    "NE",
+                    "NF",
+                    "NG",
+                    "NI",
+                    "NL",
+                    "NO",
+                    "NP",
+                    "NR",
+                    "NU",
+                    "NZ",
+                    "OM",
+                    "PA",
+                    "PE",
+                    "PF",
+                    "PG",
+                    "PH",
+                    "PK",
+                    "PL",
+                    "PM",
+                    "PN",
+                    "PR",
+                    "PS",
+                    "PT",
+                    "PW",
+                    "PY",
+                    "QA",
+                    "RE",
+                    "RO",
+                    "RS",
+                    "RU",
+                    "RW",
+                    "SA",
+                    "SB",
+                    "SC",
+                    "SD",
+                    "SE",
+                    "SG",
+                    "SH",
+                    "SI",
+                    "SJ",
+                    "SK",
+                    "SL",
+                    "SM",
+                    "SN",
+                    "SO",
+                    "SR",
+                    "SS",
+                    "ST",
+                    "SV",
+                    "SX",
+                    "SY",
+                    "SZ",
+                    "TC",
+                    "TD",
+                    "TF",
+                    "TG",
+                    "TH",
+                    "TJ",
+                    "TK",
+                    "TL",
+                    "TM",
+                    "TN",
+                    "TO",
+                    "TR",
+                    "TT",
+                    "TV",
+                    "TW",
+                    "TZ",
+                    "UA",
+                    "UG",
+                    "UM",
+                    "US",
+                    "UY",
+                    "UZ",
+                    "VA",
+                    "VC",
+                    "VE",
+                    "VG",
+                    "VI",
+                    "VN",
+                    "VU",
+                    "WF",
+                    "WS",
+                    "XK",
+                    "YE",
+                    "YT",
+                    "ZA",
+                    "ZM",
+                    "ZW"
+                  ]
+                },
+                "description": "ISO 3166-1 alpha-2 country codes (e.g. [\"US\", \"GB\"])."
+              },
+              "city": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "description": "City names. Multiple values are OR-combined."
+              },
+              "state": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "description": "State/province/region names."
+              },
+              "postalCode": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string",
+                  "maxLength": 20
+                },
+                "description": "Postal/ZIP codes."
+              },
+              "stars": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 5
+                },
+                "description": "Star ratings (0-5). 0 means non-rated."
+              },
+              "features": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "description": "Amenity keywords (e.g. \"pool\", \"wifi\", \"parking\")."
+              },
+              "propertyType": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "hotel",
+                    "hostel",
+                    "motel",
+                    "bed_and_breakfast",
+                    "resort",
+                    "vacation_rental",
+                    "cottage",
+                    "camp",
+                    "unique_stay",
+                    "lodging",
+                    "other"
+                  ]
+                },
+                "description": "Property type codes (e.g. \"hotel\", \"hostel\", \"resort\")."
+              },
+              "brand": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string",
+                  "maxLength": 100
+                },
+                "description": "Hotel brand names (e.g. \"Marriott\", \"Hilton\")."
+              },
+              "minRating": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 5,
+                "description": "Minimum aggregate user rating (0-5)."
+              },
+              "minReviews": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Minimum number of user reviews."
+              },
+              "languagesSpoken": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "aa",
+                    "ab",
+                    "ae",
+                    "af",
+                    "ak",
+                    "am",
+                    "an",
+                    "ar",
+                    "as",
+                    "av",
+                    "ay",
+                    "az",
+                    "ba",
+                    "be",
+                    "bg",
+                    "bh",
+                    "bi",
+                    "bm",
+                    "bn",
+                    "bo",
+                    "br",
+                    "bs",
+                    "ca",
+                    "ce",
+                    "ch",
+                    "co",
+                    "cr",
+                    "cs",
+                    "cu",
+                    "cv",
+                    "cy",
+                    "da",
+                    "de",
+                    "dv",
+                    "dz",
+                    "ee",
+                    "el",
+                    "en",
+                    "eo",
+                    "es",
+                    "et",
+                    "eu",
+                    "fa",
+                    "ff",
+                    "fi",
+                    "fj",
+                    "fo",
+                    "fr",
+                    "fy",
+                    "ga",
+                    "gd",
+                    "gl",
+                    "gn",
+                    "gu",
+                    "gv",
+                    "ha",
+                    "he",
+                    "hi",
+                    "ho",
+                    "hr",
+                    "ht",
+                    "hu",
+                    "hy",
+                    "hz",
+                    "ia",
+                    "id",
+                    "ie",
+                    "ig",
+                    "ii",
+                    "ik",
+                    "io",
+                    "is",
+                    "it",
+                    "iu",
+                    "ja",
+                    "jv",
+                    "ka",
+                    "kg",
+                    "ki",
+                    "kj",
+                    "kk",
+                    "kl",
+                    "km",
+                    "kn",
+                    "ko",
+                    "kr",
+                    "ks",
+                    "ku",
+                    "kv",
+                    "kw",
+                    "ky",
+                    "la",
+                    "lb",
+                    "lg",
+                    "li",
+                    "ln",
+                    "lo",
+                    "lt",
+                    "lu",
+                    "lv",
+                    "mg",
+                    "mh",
+                    "mi",
+                    "mk",
+                    "ml",
+                    "mn",
+                    "mr",
+                    "ms",
+                    "mt",
+                    "my",
+                    "na",
+                    "nb",
+                    "nd",
+                    "ne",
+                    "ng",
+                    "nl",
+                    "nn",
+                    "no",
+                    "nr",
+                    "nv",
+                    "ny",
+                    "oc",
+                    "oj",
+                    "om",
+                    "or",
+                    "os",
+                    "pa",
+                    "pi",
+                    "pl",
+                    "ps",
+                    "pt",
+                    "qu",
+                    "rm",
+                    "rn",
+                    "ro",
+                    "ru",
+                    "rw",
+                    "sa",
+                    "sc",
+                    "sd",
+                    "se",
+                    "sg",
+                    "si",
+                    "sk",
+                    "sl",
+                    "sm",
+                    "sn",
+                    "so",
+                    "sq",
+                    "sr",
+                    "ss",
+                    "st",
+                    "su",
+                    "sv",
+                    "sw",
+                    "ta",
+                    "te",
+                    "tg",
+                    "th",
+                    "ti",
+                    "tk",
+                    "tl",
+                    "tn",
+                    "to",
+                    "tr",
+                    "ts",
+                    "tt",
+                    "tw",
+                    "ty",
+                    "ug",
+                    "uk",
+                    "ur",
+                    "uz",
+                    "ve",
+                    "vi",
+                    "vo",
+                    "wa",
+                    "wo",
+                    "xh",
+                    "yi",
+                    "yo",
+                    "za",
+                    "zh",
+                    "zu"
+                  ]
+                },
+                "description": "ISO 639-1 alpha-2 language codes."
+              },
+              "minRooms": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Minimum number of rooms."
+              },
+              "maxRooms": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Maximum number of rooms."
+              },
+              "hotelIdType": {
+                "type": "string",
+                "enum": [
+                  "huId",
+                  "GooglePlaces",
+                  "GoogleHotels",
+                  "Booking",
+                  "TripAdvisor",
+                  "Expedia",
+                  "AllTopHotels",
+                  "DirectPricing",
+                  "DirectWebsite",
+                  "Trivago",
+                  "agoda",
+                  "allmytour",
+                  "asiayo",
+                  "bluepillow",
+                  "closesthotel",
+                  "despegar",
+                  "edreamsodigeo",
+                  "goseek",
+                  "holidaycheck",
+                  "holisto",
+                  "hotel_de",
+                  "hotels_com",
+                  "hotwire",
+                  "hrs",
+                  "kayak",
+                  "luxuryescapes",
+                  "marriott",
+                  "müvai",
+                  "oyo",
+                  "priceline",
+                  "qantas",
+                  "splitty",
+                  "stayforless/whitelabel",
+                  "stayforlong",
+                  "super",
+                  "tiket",
+                  "traveloka",
+                  "trip",
+                  "trivagodeals",
+                  "vio",
+                  "zenhotels"
+                ],
+                "description": "Hotel ID scope: `huId` for canonical id; a DsName (e.g. \"GoogleHotels\", \"Booking\"); or extra OTA slug."
+              },
+              "hotelId": {
+                "type": "array",
+                "maxItems": 50,
+                "items": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "description": "Specific hotel IDs to include or exclude (max 50). List scope and rich-content subscription filters use a separate unbounded path; see param notes in code."
+              },
+              "hotelIdFilterMode": {
+                "type": "string",
+                "enum": [
+                  "include",
+                  "exclude"
+                ],
+                "description": "Whether `hotelId` is an inclusion or exclusion list. Default: include."
+              },
+              "hasLocation": {
+                "type": "boolean",
+                "description": "Only return hotels with a location."
+              },
+              "hasFeatures": {
+                "type": "boolean",
+                "description": "Only return hotels with at least one feature."
+              },
+              "hasRating": {
+                "type": "boolean",
+                "description": "Only return hotels with a rating."
+              },
+              "hasReviews": {
+                "type": "boolean",
+                "description": "Only return hotels with reviews."
+              },
+              "hasImages": {
+                "type": "boolean",
+                "description": "Only return hotels with images."
+              },
+              "hasRooms": {
+                "type": "boolean",
+                "description": "Only return hotels with room data."
+              },
+              "hasDirectWebsite": {
+                "type": "boolean",
+                "description": "Only return hotels with direct website data."
+              },
+              "directPricingOnly": {
+                "type": "boolean",
+                "description": "When true, only return hotels that have a DirectPricing main ref."
+              },
+              "richContentSubscribed": {
+                "type": "boolean",
+                "description": "Rich-content subscription filter: true = subscribed only, false = not subscribed only. Omit to disable this filter."
+              },
+              "pageToken": {
+                "type": "string",
+                "description": "Pagination cursor returned by a previous call as `nextPageToken`."
+              },
+              "lat": {
+                "type": "number",
+                "minimum": -90,
+                "maximum": 90,
+                "description": "Latitude of the search location. Must be used with lon and radius."
+              },
+              "lon": {
+                "type": "number",
+                "minimum": -180,
+                "maximum": 180,
+                "description": "Longitude of the search location. Must be used with lat and radius."
+              },
+              "radius": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 10000000,
+                "description": "Radius of the search location in meters. Must be used with lat and lon."
+              },
+              "geometry": {
+                "type": "string",
+                "description": "Geometry reference as \"{locationId}-{place_id}\". Obtain values from the /geocode endpoint. Hotels within the polygon will be returned."
+              },
+              "geometryMultiplier": {
+                "type": "number",
+                "minimum": 0.01,
+                "description": "Scale factor for the polygon area. 2 makes the area 2x bigger, 0.5 makes it 2x smaller. Only applies when geometry is provided."
+              }
+            },
+            "dependentRequired": {
+              "lat": [
+                "lon",
+                "radius"
+              ],
+              "lon": [
+                "lat",
+                "radius"
+              ],
+              "radius": [
+                "lat",
+                "lon"
+              ],
+              "geometryMultiplier": [
+                "geometry"
+              ]
+            },
+            "additionalProperties": false,
+            "description": "Source B: save a search as a list (same shape as `search_hotels` input)."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "dynamic",
+              "static"
+            ],
+            "description": "Only with `filters`. \"dynamic\" (default) keeps the saved query live; \"static\" freezes the current matches."
+          },
+          "includeLists": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Source C: create a static list from the union of these list IDs…"
+          },
+          "excludeLists": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "…minus any entries in these list IDs. Only with `includeLists`."
+          }
+        },
+        "dependentRequired": {
+          "excludeLists": [
+            "includeLists"
+          ],
+          "mode": [
+            "filters"
+          ]
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Create a list",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "update_list",
+      "description": "WHAT IT DOES: Modifies an existing list. `rename` (needs `name`); `make_static` clears a dynamic list's saved query — entries are kept but it stops auto-updating; `append_entries` adds hotels (needs `hotelIds`); `delete_entry` removes one entry (needs `entryId`); `delete` removes the list, its entries, and its exports — irreversible; only call after the user has explicitly confirmed. Do not `make_static` a dynamic list the user actively relies on without confirming.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "listId": {
+            "type": "string",
+            "description": "List ID."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "rename",
+              "make_static",
+              "append_entries",
+              "delete_entry",
+              "delete"
+            ],
+            "description": "Modification to apply."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "description": "New list name. Required for `rename`."
+          },
+          "hotelIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Hotel Universe IDs to append. Required for `append_entries`."
+          },
+          "entryId": {
+            "type": "string",
+            "description": "List entry ID. Required for `delete_entry`."
+          }
+        },
+        "required": [
+          "listId",
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Update or delete a list",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "review_list_matches",
+      "description": "WHAT IT DOES: Resolves fuzzy-match candidates for list entries. `decision` \"approve\" confirms each entry resolves to the given huId; \"reject\" marks each pair as not a match. Use the needs-review entries from `get_lists` with `include: [\"stats\"]` to find candidates.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "listId": {
+            "type": "string",
+            "description": "List ID."
+          },
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "reject"
+            ],
+            "description": "Whether the given entry/huId pairs are correct matches."
+          },
+          "matches": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "properties": {
+                "entryId": {
+                  "type": "string",
+                  "description": "List entry ID from the needs-review set."
+                },
+                "huId": {
+                  "type": "string",
+                  "description": "Hotel Universe ID this entry should resolve to."
+                }
+              },
+              "required": [
+                "entryId",
+                "huId"
+              ],
+              "additionalProperties": false
+            },
+            "description": "Entry/huId pairs to resolve."
+          }
+        },
+        "required": [
+          "listId",
+          "decision",
+          "matches"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Review list match candidates",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "manage_exports",
+      "description": "WHAT IT DOES: Manages exports of a list. `list` shows the list's export jobs; `request` (needs `type`) creates a new export job; `download` (needs `exportId`) returns the download URL, or a processing/expired/error status when the export is not ready. Typical flow: request, then poll with download.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "listId": {
+            "type": "string",
+            "description": "List ID the exports belong to."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "list",
+              "request",
+              "download"
+            ],
+            "description": "Operation to perform."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "full",
+              "preview",
+              "reviews",
+              "source_data"
+            ],
+            "description": "Export type: full, preview, reviews, or source_data. Required for `request`."
+          },
+          "exportId": {
+            "type": "string",
+            "description": "Export ID. Required for `download`."
+          }
+        },
+        "required": [
+          "listId",
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Manage list exports",
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_metasearch_pricing",
+      "description": "Get live booking offers (price, provider, refundability) for a hotel on a given check-in date. Subject to per-org rate limits; orgs without a paid metasearch subscription get a lower free-tier limit.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "hotelIdType": {
+            "type": "string",
+            "enum": [
+              "huId",
+              "GoogleHotels"
+            ],
+            "default": "huId",
+            "description": "`huId` (canonical id) or `GoogleHotels` (main ref id for Google Hotels)."
+          },
+          "hotelId": {
+            "type": "string",
+            "description": "Hotel ID."
+          },
+          "checkIn": {
+            "type": "string",
+            "format": "date",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+            "description": "Check-in date in YYYY-MM-DD format."
+          },
+          "nights": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of nights."
+          },
+          "adults": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Number of adult guests."
+          },
+          "children": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of children."
+          },
+          "rateType": {
+            "type": "string",
+            "enum": [
+              "cheapest",
+              "refundable"
+            ],
+            "default": "cheapest",
+            "description": "Rate type. Default \"cheapest\"."
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "minLength": 3,
+            "maxLength": 3,
+            "default": "GBP",
+            "description": "ISO 4217 currency code: three uppercase letters (e.g. \"GBP\"). Default \"GBP\"."
+          },
+          "locale": {
+            "type": "string",
+            "default": "us",
+            "description": "Locale code. Default \"us\"."
+          },
+          "deviceType": {
+            "type": "string",
+            "enum": [
+              "desktop",
+              "mobile"
+            ],
+            "default": "desktop",
+            "description": "Device type. Default \"desktop\"."
+          }
+        },
+        "required": [
+          "hotelIdType",
+          "hotelId",
+          "checkIn",
+          "nights",
+          "adults",
+          "children"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get live metasearch pricing",
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_direct_pricing",
+      "description": "WHAT IT DOES: Reads the org's Smart Feed direct-pricing data. With neither `huId` nor `batchId`: lists linked hotels (`enabledOnly`, `limit`, `offset`). With `huId`: returns that hotel's direct-pricing detail, plus stored per-check-in-date prices when `include: [\"prices\"]` is set (tune the range with `startDate`/`interval`/`nights`/`guests`). With `batchId`: polls an async price batch started by `manage_direct_pricing` action \"refresh\" for progress and completed per-date results. Do not pass both `huId` and `batchId`.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "huId": {
+            "type": "string",
+            "description": "Hotel Universe ID — hotel detail mode."
+          },
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "prices"
+              ]
+            },
+            "description": "With `huId`: also return stored prices per check-in date."
+          },
+          "batchId": {
+            "type": "string",
+            "description": "Smart Feed batch id from `manage_direct_pricing` action \"refresh\" — poll mode."
+          },
+          "enabledOnly": {
+            "type": "boolean",
+            "description": "List mode: only hotels enabled by this client (default false)."
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000,
+            "description": "List mode page size (default 100)."
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "List mode items to skip (default 0)."
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Prices: first check-in date (YYYY-MM-DD), defaults to today (UTC)."
+          },
+          "interval": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365,
+            "description": "Prices: number of consecutive check-in dates (default 180)."
+          },
+          "nights": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Prices: nights per stay (default 1)."
+          },
+          "guests": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Prices: number of guests."
+          }
+        },
+        "dependentRequired": {
+          "include": [
+            "huId"
+          ],
+          "startDate": [
+            "huId"
+          ],
+          "interval": [
+            "huId"
+          ],
+          "nights": [
+            "huId"
+          ],
+          "guests": [
+            "huId"
+          ]
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get direct pricing",
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "manage_direct_pricing",
+      "description": "WHAT IT DOES: Manages the org's Smart Feed direct-pricing integration. `link` connects up to 100 hotels by `huIds`. `enable`/`disable` turn pricing on/off for `huIds` (max 100) OR a `listId` — never both; enabling incurs charges and disabling takes effect at the next billing cycle, so always confirm with the user before either. `pull` fetches fresh pricing now for one enabled hotel (`huId`). `refresh` starts an async re-crawl over a forward date range and returns a `batchId` to poll via `get_direct_pricing`.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "enable",
+              "disable",
+              "link",
+              "pull",
+              "refresh"
+            ],
+            "description": "Operation to perform."
+          },
+          "huIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "maxItems": 100,
+            "description": "Hotel Universe IDs. For `enable`/`disable` (alternative to `listId`) and `link`."
+          },
+          "listId": {
+            "type": "string",
+            "description": "For `enable`/`disable` instead of `huIds` — applies to all hotels in the list."
+          },
+          "huId": {
+            "type": "string",
+            "description": "Single Hotel Universe ID. Required for `pull`/`refresh`."
+          },
+          "startDate": {
+            "type": "string",
+            "description": "Refresh: first check-in date (YYYY-MM-DD), defaults to today (UTC)."
+          },
+          "interval": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365,
+            "description": "Refresh: number of consecutive check-in dates (default 180)."
+          },
+          "nights": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Refresh: nights per stay (default 1)."
+          },
+          "guests": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Refresh: number of guests."
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Manage direct pricing",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "get_account",
+      "description": "WHAT IT DOES: Reads the current user's account context. `include` selects sections and defaults to `[\"profile\",\"orgs\"]`: `profile` is the authenticated user's profile; `orgs` lists the organisations they belong to, with tier and billing; `access_stats` returns access-log action counts for an organisation over a time range — it REQUIRES `startDate` and `endDate` (timestamps in ms) and defaults to the authenticated org unless `orgId` is set.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "profile",
+                "orgs",
+                "access_stats"
+              ]
+            },
+            "description": "Sections to return. Defaults to [\"profile\",\"orgs\"]."
+          },
+          "startDate": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "access_stats: start date, timestamp in ms. Required for `access_stats`."
+          },
+          "endDate": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "access_stats: end date, timestamp in ms. Required for `access_stats`."
+          },
+          "orgId": {
+            "type": "string",
+            "description": "access_stats: organisation ID (defaults to the authenticated org)."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get account",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "manage_organization",
+      "description": "WHAT IT DOES: Manages the current organisation, its members, and its invitations. `create` makes a new org owned by the user (needs `name`); `rename` renames the current org (needs `name`); `delete` permanently removes the current org — irreversible, and the user must restate the exact org name in `confirmOrganizationName` or the call is rejected. `get_members` lists members; `remove_member` removes one by `memberId`; `add_subscribed_hotels` subscribes `huIds`. `list_invitations` lists pending invites; `invite` invites someone by `email`; `accept_invitation` accepts an invite by `id`; `cancel_invitation` cancels a pending invite by `id`. Confirm destructive or money-adjacent actions (delete, remove_member, invite) with the user before calling.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "create",
+              "rename",
+              "delete",
+              "get_members",
+              "remove_member",
+              "add_subscribed_hotels",
+              "list_invitations",
+              "invite",
+              "accept_invitation",
+              "cancel_invitation"
+            ],
+            "description": "Operation to perform."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Organisation name. Required for `create` and `rename`."
+          },
+          "confirmOrganizationName": {
+            "type": "string",
+            "description": "The exact current organisation name, restated by the user to confirm deletion. Required for `delete`."
+          },
+          "memberId": {
+            "type": "string",
+            "description": "User ID of the member to remove. Required for `remove_member`."
+          },
+          "huIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "description": "Hotel Universe IDs to subscribe. Required for `add_subscribed_hotels`."
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address to invite. Required for `invite`."
+          },
+          "id": {
+            "type": "string",
+            "description": "Invitation ID. Required for `accept_invitation` and `cancel_invitation`."
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Manage organization",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "manage_access_tokens",
+      "description": "WHAT IT DOES: Manages the current organisation's API access tokens (PATs). `list` returns all tokens (secrets are never included). `create` issues a new token (needs `name`) and returns its `secret` ONLY in that response — surface it to the user once and warn it cannot be retrieved again. `rename` renames a token (needs `id` and `name`). `delete` revokes a token by `id` — irreversible. Confirm `create` and `delete` with the user before calling.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "list",
+              "create",
+              "rename",
+              "delete"
+            ],
+            "description": "Operation to perform."
+          },
+          "id": {
+            "type": "string",
+            "description": "Access token ID. Required for `rename` and `delete`."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Token name. Required for `create` and `rename`."
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Manage access tokens",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "get_billing",
+      "description": "WHAT IT DOES: Reads the current organisation's billing. `include` selects sections and defaults to `[\"subscription\"]`: `subscription` returns billing, access tier, subscriptions, and usage; `plans` returns the tiers and limits available for a product and REQUIRES `product`; `invoices` lists invoices, optionally filtered by subscription `group`.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "subscription",
+                "plans",
+                "invoices"
+              ]
+            },
+            "description": "Sections to return. Defaults to [\"subscription\"]."
+          },
+          "product": {
+            "type": "string",
+            "enum": [
+              "smartFeed",
+              "metasearch",
+              "richContent"
+            ],
+            "description": "Billing product. Required for `plans`."
+          },
+          "group": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "richContent"
+            ],
+            "description": "invoices: optional billing subscription group filter."
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Get billing",
+        "readOnlyHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "manage_billing",
+      "description": "WHAT IT DOES: Changes the current organisation's billing. `checkout` creates a Stripe Checkout session for a `product`+`tier` and returns a URL the user must open to pay. `change_tier` upgrades/downgrades a `product` to a different `tier` (prorated, renewal date preserved). `cancel` schedules a `product` subscription to cancel at period end; `reactivate` undoes a scheduled cancellation. `management_portal` returns a Stripe Customer Portal URL for self-service. Every action changes what the org is billed — always confirm product and tier with the user before calling.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "checkout",
+              "change_tier",
+              "cancel",
+              "reactivate",
+              "management_portal"
+            ],
+            "description": "Operation to perform."
+          },
+          "product": {
+            "type": "string",
+            "enum": [
+              "smartFeed",
+              "metasearch",
+              "richContent"
+            ],
+            "description": "Billing product. Required for all actions except `management_portal`."
+          },
+          "tier": {
+            "type": "string",
+            "enum": [
+              "experience",
+              "consume",
+              "deliver",
+              "grow"
+            ],
+            "description": "Plan tier. Required for `checkout` and `change_tier`."
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Manage billing",
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "product_support",
+      "description": "Look up Hotel Universe product knowledge to answer questions about the portal, the user's account/access/billing, plans, or how to complete a task. Call this BEFORE answering any product-support question, then answer from what it returns. Takes no arguments.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "title": "Product support knowledge",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

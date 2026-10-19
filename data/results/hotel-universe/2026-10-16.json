@@ -1,0 +1,254 @@
+{
+  "slug": "hotel-universe",
+  "scanned_at": "2026-10-16T07:39:32.376Z",
+  "engine_version": "0.4.0",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-10-16T07:39:32.376Z",
+  "snapshot_hash": "sha256:097f5dca75302bb1d9b715ca2c9a7c5fa1213a67867df70f2916f56e6c93cf13",
+  "server_info": {
+    "name": "hotel-universe",
+    "version": "0.1.0"
+  },
+  "score": {
+    "composite": 99,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 97,
+      "annotations": 100,
+      "design": 96
+    }
+  },
+  "token_footprint": {
+    "tokens": 9603,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 18,
+  "findings": [
+    {
+      "rule_id": "design/crud-mirror",
+      "severity": "warn",
+      "category": "design",
+      "message": "CRUD mirror over \"list\": 3 tools spanning 3 verb classes — one-tool-per-endpoint shape. Consider a workflow-shaped consolidation.",
+      "evidence": "get_lists, create_list, update_list"
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "search_hotels",
+      "message": "Input schema has 34 top-level properties (budget 12)."
+    },
+    {
+      "rule_id": "design/client-directives",
+      "severity": "info",
+      "category": "design",
+      "tool_name": "search_hotels",
+      "message": "Description contains 1 client-directive sentence(s) (~31 tokens) about rendering or other tools — describe what the tool does; put client behaviour elsewhere.",
+      "evidence": "Do not call `get_hotel` afterwards to enrich results — previews already contain `googlePlaceId`, `lat`, `lon`, and `address`."
+    },
+    {
+      "rule_id": "design/client-directives",
+      "severity": "info",
+      "category": "design",
+      "tool_name": "get_hotel",
+      "message": "Description contains 1 client-directive sentence(s) (~45 tokens) about rendering or other tools — describe what the tool does; put client behaviour elsewhere.",
+      "evidence": "DO NOT call speculatively to enrich search results — `search_hotels` previews already contain `googlePlaceId`, `lat`, `lon`, and `address`, which are sufficient to render a map and link list."
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [huId, GooglePlaces, GoogleHotels, Booking, TripAdvisor, Expedia, AllTopHotels, DirectPricing, DirectWebsite, Trivago, agoda, allmytour, asiayo, bluepillow, closesthotel, despegar, edreamsodigeo, goseek, holidaycheck, holisto, hotel_de, hotels_com, hotwire, hrs, kayak, luxuryescapes, marriott, müvai, oyo, priceline, qantas, splitty, stayforless/whitelabel, stayforlong, super, tiket, traveloka, trip, trivagodeals, vio, zenhotels] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "search_hotels/properties/hotelIdType; create_list/properties/filters/properties/hotelIdType"
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [include, exclude] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "search_hotels/properties/hotelIdFilterMode; create_list/properties/filters/properties/hotelIdFilterMode"
+    },
+    {
+      "rule_id": "design/enum-combination-unencoded",
+      "severity": "info",
+      "category": "design",
+      "message": "Enum [smartFeed, metasearch, richContent] is shared across 2 tools. If not every combination is valid, the schema cannot express it — encode constraints or document the invalid pairs.",
+      "evidence": "get_billing/properties/product; manage_billing/properties/product"
+    },
+    {
+      "rule_id": "design/negative-guidance-present",
+      "severity": "info",
+      "category": "design",
+      "tool_name": "get_hotel",
+      "message": "Good pattern: \"get_hotel\" documents when NOT to use it. Preserve this in any consolidation.",
+      "evidence": "IMPORTANT: Only call this for hotels the user explicitly wants details on."
+    }
+  ],
+  "tools": [
+    {
+      "name": "search_hotels",
+      "description_length": 644,
+      "has_annotations": true,
+      "property_count": 34,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 2362
+    },
+    {
+      "name": "get_hotel",
+      "description_length": 781,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 485
+    },
+    {
+      "name": "find_competitors",
+      "description_length": 83,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 139
+    },
+    {
+      "name": "geocode_location",
+      "description_length": 471,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 188
+    },
+    {
+      "name": "get_lists",
+      "description_length": 484,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 281
+    },
+    {
+      "name": "create_list",
+      "description_length": 488,
+      "has_annotations": true,
+      "property_count": 6,
+      "required_count": 0,
+      "max_depth": 3,
+      "tokens": 2462
+    },
+    {
+      "name": "update_list",
+      "description_length": 470,
+      "has_annotations": true,
+      "property_count": 5,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 303
+    },
+    {
+      "name": "review_list_matches",
+      "description_length": 265,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 3,
+      "max_depth": 3,
+      "tokens": 255
+    },
+    {
+      "name": "manage_exports",
+      "description_length": 299,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 235
+    },
+    {
+      "name": "get_metasearch_pricing",
+      "description_length": 199,
+      "has_annotations": true,
+      "property_count": 10,
+      "required_count": 6,
+      "max_depth": 1,
+      "tokens": 410
+    },
+    {
+      "name": "get_direct_pricing",
+      "description_length": 523,
+      "has_annotations": true,
+      "property_count": 10,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 481
+    },
+    {
+      "name": "manage_direct_pricing",
+      "description_length": 513,
+      "has_annotations": true,
+      "property_count": 8,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 432
+    },
+    {
+      "name": "get_account",
+      "description_length": 443,
+      "has_annotations": true,
+      "property_count": 4,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 270
+    },
+    {
+      "name": "manage_organization",
+      "description_length": 753,
+      "has_annotations": true,
+      "property_count": 7,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 457
+    },
+    {
+      "name": "manage_access_tokens",
+      "description_length": 448,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 247
+    },
+    {
+      "name": "get_billing",
+      "description_length": 346,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 209
+    },
+    {
+      "name": "manage_billing",
+      "description_length": 572,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 291
+    },
+    {
+      "name": "product_support",
+      "description_length": 258,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 94
+    }
+  ]
+}
