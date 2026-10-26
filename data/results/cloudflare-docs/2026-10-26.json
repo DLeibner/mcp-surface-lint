@@ -1,0 +1,72 @@
+{
+  "slug": "cloudflare-docs",
+  "scanned_at": "2026-10-26T08:21:35.292Z",
+  "engine_version": "0.4.0",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-10-26T08:21:35.292Z",
+  "snapshot_hash": "sha256:2887f1944f655625b0360f8d0a25a0648eea261560b467caabe00bd651ec10c0",
+  "server_info": {
+    "name": "docs-ai-search",
+    "version": "0.5.0"
+  },
+  "score": {
+    "composite": 99,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 95,
+      "annotations": 100,
+      "design": 97
+    }
+  },
+  "token_footprint": {
+    "tokens": 406,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 2,
+  "findings": [
+    {
+      "rule_id": "design/list-no-limit",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "search_cloudflare_documentation",
+      "message": "\"search_cloudflare_documentation\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+    },
+    {
+      "rule_id": "schemas/loose",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "migrate_pages_to_workers_guide",
+      "message": "Bare \"type: object\" with no properties at /inputSchema — the model has nothing to go on."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "search_cloudflare_documentation",
+      "message": "Parameter \"query\" has no description."
+    }
+  ],
+  "tools": [
+    {
+      "name": "search_cloudflare_documentation",
+      "description_length": 538,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 335
+    },
+    {
+      "name": "migrate_pages_to_workers_guide",
+      "description_length": 66,
+      "has_annotations": true,
+      "property_count": 0,
+      "required_count": 0,
+      "max_depth": 0,
+      "tokens": 69
+    }
+  ]
+}

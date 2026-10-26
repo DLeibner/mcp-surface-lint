@@ -1,14 +1,14 @@
 {
   "slug": "cloudflare-docs",
-  "scanned_at": "2026-09-28T09:13:17.638Z",
+  "scanned_at": "2026-10-26T08:21:35.292Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-09-28T09:13:17.638Z",
-  "snapshot_hash": "sha256:73a71bc7e7c992186b518bdd19debbd387ffb80cc13508d0b489c76e1000cab7",
+  "last_attempt_at": "2026-10-26T08:21:35.292Z",
+  "snapshot_hash": "sha256:2887f1944f655625b0360f8d0a25a0648eea261560b467caabe00bd651ec10c0",
   "server_info": {
     "name": "docs-ai-search",
-    "version": "0.4.13"
+    "version": "0.5.0"
   },
   "score": {
     "composite": 99,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 421,
+    "tokens": 406,
     "tokenizer": "o200k_base"
   },
   "tool_count": 2,
@@ -57,7 +57,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 350
+      "tokens": 335
     },
     {
       "name": "migrate_pages_to_workers_guide",

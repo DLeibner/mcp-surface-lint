@@ -1,14 +1,14 @@
 {
   "slug": "chrome-devtools",
-  "scanned_at": "2026-10-19T08:21:14.695Z",
+  "scanned_at": "2026-10-26T08:21:35.292Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-10-19T08:21:14.695Z",
-  "snapshot_hash": "sha256:7a2c870da0a5ad0729761a9d15daf3c27f0a02eec9e1d0d3e05f30529e3fc02c",
+  "last_attempt_at": "2026-10-26T08:21:35.292Z",
+  "snapshot_hash": "sha256:f735aacb51c510929cb160dcc61bca912c37b0224e67d953bc9844e798c644f8",
   "server_info": {
     "name": "chrome_devtools",
-    "version": "1.11.0"
+    "version": "1.12.0"
   },
   "score": {
     "composite": 97,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 6373,
+    "tokens": 6443,
     "tokenizer": "o200k_base"
   },
   "tool_count": 32,
@@ -180,7 +180,7 @@
       "property_count": 7,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 335
+      "tokens": 347
     },
     {
       "name": "list_network_requests",
@@ -189,7 +189,7 @@
       "property_count": 5,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 280
+      "tokens": 285
     },
     {
       "name": "list_pages",
@@ -337,12 +337,12 @@
     },
     {
       "name": "wait_for",
-      "description_length": 59,
+      "description_length": 163,
       "has_annotations": true,
-      "property_count": 3,
+      "property_count": 4,
       "required_count": 2,
       "max_depth": 2,
-      "tokens": 167
+      "tokens": 220
     }
   ]
 }
