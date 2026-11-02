@@ -1,14 +1,14 @@
 {
   "slug": "playwright",
-  "scanned_at": "2026-10-05T09:52:55.308Z",
+  "scanned_at": "2026-11-02T10:23:54.469Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-10-05T09:52:55.308Z",
-  "snapshot_hash": "sha256:031d2a957c439e17981835b0f5cb29aecbc24f322331ddecb4a42d416094120f",
+  "last_attempt_at": "2026-11-02T10:23:54.469Z",
+  "snapshot_hash": "sha256:ad5248814b9ef5ae4d23730df7d64c195dd7193827da45103034234fa949722b",
   "server_info": {
     "name": "Playwright",
-    "version": "1.64.0-alpha-1790635538000"
+    "version": "1.65.0-alpha-2026-10-30"
   },
   "score": {
     "composite": 96,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 4397,
+    "tokens": 4552,
     "tokenizer": "o200k_base"
   },
   "tool_count": 25,
@@ -142,10 +142,10 @@
       "name": "browser_find",
       "description_length": 340,
       "has_annotations": true,
-      "property_count": 3,
+      "property_count": 4,
       "required_count": 0,
       "max_depth": 1,
-      "tokens": 253
+      "tokens": 277
     },
     {
       "name": "browser_fill_form",
@@ -196,10 +196,10 @@
       "name": "browser_network_requests",
       "description_length": 132,
       "has_annotations": true,
-      "property_count": 3,
+      "property_count": 4,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 194
+      "tokens": 225
     },
     {
       "name": "browser_network_request",
@@ -277,19 +277,19 @@
       "name": "browser_tabs",
       "description_length": 45,
       "has_annotations": true,
-      "property_count": 3,
+      "property_count": 4,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 153
+      "tokens": 215
     },
     {
       "name": "browser_wait_for",
-      "description_length": 64,
+      "description_length": 141,
       "has_annotations": true,
       "property_count": 3,
       "required_count": 0,
       "max_depth": 1,
-      "tokens": 133
+      "tokens": 171
     }
   ]
 }

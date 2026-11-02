@@ -1,14 +1,14 @@
 {
   "slug": "filesystem",
-  "scanned_at": "2026-10-19T08:21:14.695Z",
+  "scanned_at": "2026-11-02T10:23:54.469Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-10-19T08:21:14.695Z",
-  "snapshot_hash": "sha256:a42a695ea1e00d8f729d4b7ec277cf3fdd36a422274e27899284422209df696f",
+  "last_attempt_at": "2026-11-02T10:23:54.469Z",
+  "snapshot_hash": "sha256:d3094e2e2f21ebf2cec31864b00a76016c47fb47c82cd64f951920a323f55b25",
   "server_info": {
     "name": "secure-filesystem-server",
-    "version": "2.0.0"
+    "version": "2.1.0"
   },
   "score": {
     "composite": 96,
@@ -22,7 +22,7 @@
     }
   },
   "token_footprint": {
-    "tokens": 2741,
+    "tokens": 2744,
     "tokenizer": "o200k_base"
   },
   "tool_count": 14,
@@ -307,12 +307,12 @@
     },
     {
       "name": "get_file_info",
-      "description_length": 296,
+      "description_length": 312,
       "has_annotations": true,
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 156
+      "tokens": 159
     },
     {
       "name": "list_allowed_directories",
