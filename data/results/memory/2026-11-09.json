@@ -1,0 +1,178 @@
+{
+  "slug": "memory",
+  "scanned_at": "2026-11-09T10:44:28.688Z",
+  "engine_version": "0.4.0",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-11-09T10:44:28.688Z",
+  "snapshot_hash": "sha256:b90b2a5b24f007f69e0578bc60d805c498efed07d8b7d509ec2c79d8551115dd",
+  "server_info": {
+    "name": "memory-server",
+    "version": "2.1.0"
+  },
+  "score": {
+    "composite": 96,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 83,
+      "annotations": 100,
+      "design": 93
+    }
+  },
+  "token_footprint": {
+    "tokens": 3070,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 9,
+  "findings": [
+    {
+      "rule_id": "design/enum-in-prose",
+      "severity": "warn",
+      "category": "design",
+      "tool_name": "read_graph",
+      "message": "Parameter \"entityTypes\" enumerates its values in prose but declares no enum.",
+      "evidence": "Return only entities whose entityType is one of these (exact match), and only the relations that touch one of them. Omit to return every entity."
+    },
+    {
+      "rule_id": "design/overlap-cluster",
+      "severity": "warn",
+      "category": "design",
+      "message": "2 tools have overlapping descriptions (trigram Jaccard up to 0.61) — consolidation candidates.",
+      "evidence": "delete_entities, delete_relations"
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_entities",
+      "message": "Input schema nests 4 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "add_observations",
+      "message": "Input schema nests 4 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/complexity-budget",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "delete_observations",
+      "message": "Input schema nests 4 levels deep (budget 3)."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_entities",
+      "message": "Parameter \"entities\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "create_relations",
+      "message": "Parameter \"relations\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "add_observations",
+      "message": "Parameter \"observations\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "delete_observations",
+      "message": "Parameter \"deletions\" has no description."
+    }
+  ],
+  "tools": [
+    {
+      "name": "create_entities",
+      "description_length": 296,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 4,
+      "tokens": 352
+    },
+    {
+      "name": "create_relations",
+      "description_length": 106,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 3,
+      "tokens": 288
+    },
+    {
+      "name": "add_observations",
+      "description_length": 64,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 4,
+      "tokens": 243
+    },
+    {
+      "name": "delete_entities",
+      "description_length": 80,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 160
+    },
+    {
+      "name": "delete_observations",
+      "description_length": 65,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 4,
+      "tokens": 206
+    },
+    {
+      "name": "delete_relations",
+      "description_length": 50,
+      "has_annotations": true,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 3,
+      "tokens": 219
+    },
+    {
+      "name": "read_graph",
+      "description_length": 266,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 0,
+      "max_depth": 2,
+      "tokens": 513
+    },
+    {
+      "name": "search_nodes",
+      "description_length": 389,
+      "has_annotations": true,
+      "property_count": 3,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 573
+    },
+    {
+      "name": "open_nodes",
+      "description_length": 373,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 1,
+      "max_depth": 2,
+      "tokens": 514
+    }
+  ]
+}

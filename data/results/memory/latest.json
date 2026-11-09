@@ -1,14 +1,14 @@
 {
   "slug": "memory",
-  "scanned_at": "2026-10-19T08:21:14.695Z",
+  "scanned_at": "2026-11-09T10:44:28.688Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-10-19T08:21:14.695Z",
-  "snapshot_hash": "sha256:11b7c9f3ec06f0140a6a7d06ae31b34c8f6f486be8f70eb0c5bb67ee7fd0749c",
+  "last_attempt_at": "2026-11-09T10:44:28.688Z",
+  "snapshot_hash": "sha256:b90b2a5b24f007f69e0578bc60d805c498efed07d8b7d509ec2c79d8551115dd",
   "server_info": {
     "name": "memory-server",
-    "version": "2.0.0"
+    "version": "2.1.0"
   },
   "score": {
     "composite": 96,
@@ -16,23 +16,24 @@
       "surface": 100,
       "naming": 100,
       "descriptions": 100,
-      "schemas": 80,
+      "schemas": 83,
       "annotations": 100,
       "design": 93
     }
   },
   "token_footprint": {
-    "tokens": 2394,
+    "tokens": 3070,
     "tokenizer": "o200k_base"
   },
   "tool_count": 9,
   "findings": [
     {
-      "rule_id": "design/list-no-limit",
+      "rule_id": "design/enum-in-prose",
       "severity": "warn",
       "category": "design",
-      "tool_name": "search_nodes",
-      "message": "\"search_nodes\" implies list/search output but has no limit or pagination parameter — result size is unbounded."
+      "tool_name": "read_graph",
+      "message": "Parameter \"entityTypes\" enumerates its values in prose but declares no enum.",
+      "evidence": "Return only entities whose entityType is one of these (exact match), and only the relations that touch one of them. Omit to return every entity."
     },
     {
       "rule_id": "design/overlap-cluster",
@@ -61,13 +62,6 @@
       "category": "schemas",
       "tool_name": "delete_observations",
       "message": "Input schema nests 4 levels deep (budget 3)."
-    },
-    {
-      "rule_id": "schemas/loose",
-      "severity": "warn",
-      "category": "schemas",
-      "tool_name": "read_graph",
-      "message": "Bare \"type: object\" with no properties at /inputSchema — the model has nothing to go on."
     },
     {
       "rule_id": "schemas/param-desc-missing",
@@ -155,30 +149,30 @@
     },
     {
       "name": "read_graph",
-      "description_length": 31,
+      "description_length": 266,
       "has_annotations": true,
-      "property_count": 0,
+      "property_count": 2,
       "required_count": 0,
-      "max_depth": 0,
-      "tokens": 285
+      "max_depth": 2,
+      "tokens": 513
     },
     {
       "name": "search_nodes",
-      "description_length": 56,
+      "description_length": 389,
       "has_annotations": true,
-      "property_count": 1,
+      "property_count": 3,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 323
+      "tokens": 573
     },
     {
       "name": "open_nodes",
-      "description_length": 57,
+      "description_length": 373,
       "has_annotations": true,
-      "property_count": 1,
+      "property_count": 2,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 316
+      "tokens": 514
     }
   ]
 }

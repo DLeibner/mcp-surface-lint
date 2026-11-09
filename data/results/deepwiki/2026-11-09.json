@@ -1,0 +1,59 @@
+{
+  "slug": "deepwiki",
+  "scanned_at": "2026-11-09T10:44:28.688Z",
+  "engine_version": "0.4.0",
+  "status": "ok",
+  "last_error": null,
+  "last_attempt_at": "2026-11-09T10:44:28.688Z",
+  "snapshot_hash": "sha256:ef01c7f7897ce763f77e208ecec4e92151760bc384f8b80dfc9ec21802903da0",
+  "server_info": {
+    "name": "DeepWiki",
+    "version": "4.0.2"
+  },
+  "score": {
+    "composite": 100,
+    "categories": {
+      "surface": 100,
+      "naming": 100,
+      "descriptions": 100,
+      "schemas": 100,
+      "annotations": 100,
+      "design": 100
+    }
+  },
+  "token_footprint": {
+    "tokens": 394,
+    "tokenizer": "o200k_base"
+  },
+  "tool_count": 3,
+  "findings": [],
+  "tools": [
+    {
+      "name": "ask_wiki_question",
+      "description_length": 108,
+      "has_annotations": false,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 2,
+      "tokens": 165
+    },
+    {
+      "name": "read_wiki_contents",
+      "description_length": 45,
+      "has_annotations": false,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 113
+    },
+    {
+      "name": "read_wiki_structure",
+      "description_length": 59,
+      "has_annotations": false,
+      "property_count": 1,
+      "required_count": 1,
+      "max_depth": 1,
+      "tokens": 117
+    }
+  ]
+}

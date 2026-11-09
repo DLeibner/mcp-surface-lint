@@ -1,14 +1,14 @@
 {
   "slug": "filesystem",
-  "scanned_at": "2026-11-02T10:23:54.469Z",
+  "scanned_at": "2026-11-09T10:44:28.688Z",
   "engine_version": "0.4.0",
   "status": "ok",
   "last_error": null,
-  "last_attempt_at": "2026-11-02T10:23:54.469Z",
-  "snapshot_hash": "sha256:d3094e2e2f21ebf2cec31864b00a76016c47fb47c82cd64f951920a323f55b25",
+  "last_attempt_at": "2026-11-09T10:44:28.688Z",
+  "snapshot_hash": "sha256:0d610691206ba9eaab8f9736ca4310271464f47d430ff71bc36e3f07af95cc54",
   "server_info": {
     "name": "secure-filesystem-server",
-    "version": "2.1.0"
+    "version": "2.2.0"
   },
   "score": {
     "composite": 96,
@@ -22,10 +22,10 @@
     }
   },
   "token_footprint": {
-    "tokens": 2744,
+    "tokens": 3579,
     "tokenizer": "o200k_base"
   },
-  "tool_count": 14,
+  "tool_count": 16,
   "findings": [
     {
       "rule_id": "design/list-no-limit",
@@ -103,6 +103,13 @@
       "category": "schemas",
       "tool_name": "write_file",
       "message": "Parameter \"content\" has no description."
+    },
+    {
+      "rule_id": "schemas/param-desc-missing",
+      "severity": "warn",
+      "category": "schemas",
+      "tool_name": "append_file",
+      "message": "Parameter \"path\" has no description."
     },
     {
       "rule_id": "schemas/param-desc-missing",
@@ -204,7 +211,7 @@
       "property_count": 3,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 173
+      "tokens": 211
     },
     {
       "name": "read_text_file",
@@ -213,7 +220,7 @@
       "property_count": 3,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 250
+      "tokens": 288
     },
     {
       "name": "read_media_file",
@@ -222,7 +229,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 284
+      "tokens": 297
     },
     {
       "name": "read_multiple_files",
@@ -231,7 +238,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 205
+      "tokens": 218
     },
     {
       "name": "write_file",
@@ -243,13 +250,22 @@
       "tokens": 168
     },
     {
+      "name": "append_file",
+      "description_length": 316,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 228
+    },
+    {
       "name": "edit_file",
-      "description_length": 185,
+      "description_length": 693,
       "has_annotations": true,
       "property_count": 3,
       "required_count": 2,
       "max_depth": 3,
-      "tokens": 239
+      "tokens": 355
     },
     {
       "name": "create_directory",
@@ -267,7 +283,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 160
+      "tokens": 173
     },
     {
       "name": "list_directory_with_sizes",
@@ -276,16 +292,16 @@
       "property_count": 2,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 195
+      "tokens": 208
     },
     {
       "name": "directory_tree",
-      "description_length": 360,
+      "description_length": 474,
       "has_annotations": true,
-      "property_count": 2,
+      "property_count": 3,
       "required_count": 1,
       "max_depth": 2,
-      "tokens": 196
+      "tokens": 290
     },
     {
       "name": "move_file",
@@ -297,13 +313,22 @@
       "tokens": 186
     },
     {
+      "name": "copy_file",
+      "description_length": 318,
+      "has_annotations": true,
+      "property_count": 2,
+      "required_count": 2,
+      "max_depth": 1,
+      "tokens": 208
+    },
+    {
       "name": "search_files",
-      "description_length": 424,
+      "description_length": 473,
       "has_annotations": true,
       "property_count": 3,
       "required_count": 2,
       "max_depth": 2,
-      "tokens": 213
+      "tokens": 248
     },
     {
       "name": "get_file_info",
@@ -312,7 +337,7 @@
       "property_count": 1,
       "required_count": 1,
       "max_depth": 1,
-      "tokens": 159
+      "tokens": 172
     },
     {
       "name": "list_allowed_directories",
@@ -321,7 +346,7 @@
       "property_count": 0,
       "required_count": 0,
       "max_depth": 0,
-      "tokens": 143
+      "tokens": 156
     }
   ]
 }
