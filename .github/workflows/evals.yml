@@ -1,0 +1,218 @@
+name: LLM evals
+
+# Spends the Max plan's API credit on model-based evals of the directory's
+# tool surfaces, commits what it learns under data/evals/, and ships it. The
+# whole spending policy lives in apps/web/lib/llm/config.ts; this file only
+# decides when the runner wakes up.
+#
+# Separate from scan.yml on purpose. The scan job executes third-party
+# packages, so it holds no secrets. This job executes only our own code and
+# holds the API key and the ledger's database URL; it reads tool surfaces as
+# text and never runs them. Its results still cross an artifact boundary to the
+# one job that can write to the repository, as the scan's do.
+
+on:
+  schedule:
+    # Every six hours: collect batches that have ended, then do what is due.
+    - cron: "40 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "Limit the run to one server (leave empty for all)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: llm-evals
+  cancel-in-progress: false
+
+env:
+  NODE_VERSION: "24"
+  VERCEL_CLI_VERSION: "56.3.2"
+
+jobs:
+  evals:
+    name: Run due evals
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Holds ANTHROPIC_API_KEY (the mcplint workspace key), DATABASE_URL, and the
+    # optional alert and PostHog settings.
+    environment: Evals
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.run.outputs.changed }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          # Evals always read and update the current main branch.
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the engine
+        run: npm run build -w mcp-surface-lint
+
+      - name: Run
+        id: run
+        shell: bash
+        # The slug arrives through the environment, never by interpolation into
+        # the command: a workflow_dispatch input is user-controlled text.
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          # Optional: alert emails (budget stops, regressions) through Resend.
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ALERT_EMAIL_TO: ${{ vars.ALERT_EMAIL_TO }}
+          ALERT_EMAIL_FROM: ${{ vars.ALERT_EMAIL_FROM }}
+          # Optional: rank scorecards by pageviews for the end-of-cycle Opus pass.
+          POSTHOG_PERSONAL_API_KEY: ${{ secrets.POSTHOG_PERSONAL_API_KEY }}
+          POSTHOG_PROJECT_ID: ${{ vars.POSTHOG_PROJECT_ID }}
+          EVAL_SLUG: ${{ inputs.slug }}
+        run: |
+          set -euo pipefail
+          if [ -n "${EVAL_SLUG:-}" ]; then
+            npm run evals -- run --slug "$EVAL_SLUG"
+          else
+            npm run evals -- run
+          fi
+
+      # Also after a failed run: whatever it already bought and wrote must reach main.
+      - name: Upload results
+        if: ${{ !cancelled() && steps.run.outputs.changed != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: data/evals
+          retention-days: 7
+
+  commit:
+    name: Commit results
+    needs: evals
+    if: ${{ !cancelled() && needs.evals.outputs.changed != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      committed: ${{ steps.commit.outputs.committed }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Download results
+        uses: actions/download-artifact@v4
+        with:
+          name: eval-results
+          path: data/evals
+
+      - name: Commit and push
+        id: commit
+        shell: bash
+        env:
+          CHANGED: ${{ needs.evals.outputs.changed }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Only ever stage eval output: this job holds a write token.
+          git add data/evals
+          if git diff --cached --quiet; then
+            echo "No result changed; nothing to deploy."
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          printf 'evals: %s\n' "$CHANGED" > "$RUNNER_TEMP/evals-commit-message"
+          git commit --file "$RUNNER_TEMP/evals-commit-message"
+          # scan.yml pushes to main too; the two touch disjoint directories, so
+          # a rejected push only needs a rebase onto whatever landed first.
+          for attempt in 1 2 3; do
+            if git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main; then
+              echo "committed=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            if ! git pull --rebase "https://github.com/${GITHUB_REPOSITORY}.git" main; then
+              git rebase --abort 2>/dev/null || true
+            fi
+          done
+          echo "Could not push after three attempts." >&2
+          exit 1
+
+  deploy:
+    name: Deploy the directory
+    needs:
+      - evals
+      - commit
+    if: ${{ !cancelled() && needs.commit.outputs.committed == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: Content
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+      INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Pull Vercel production settings
+        run: npx "vercel@${VERCEL_CLI_VERSION}" pull --yes --environment=production --token "$VERCEL_TOKEN"
+
+      - name: Build with Vercel production settings
+        run: npx "vercel@${VERCEL_CLI_VERSION}" build --prod --token "$VERCEL_TOKEN"
+
+      - name: Deploy prebuilt production artifact
+        shell: bash
+        run: |
+          set -euo pipefail
+          deployment_url="$(npx "vercel@${VERCEL_CLI_VERSION}" deploy --prebuilt --prod --token "$VERCEL_TOKEN")"
+          case "$deployment_url" in
+            https://*) echo "Deployed $deployment_url" ;;
+            *) echo "Vercel did not return a deployment URL." >&2; exit 1 ;;
+          esac
+
+      - name: Smoke-test production
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${NEXT_PUBLIC_SITE_URL:-}" ]; then
+            echo "The Content environment variable NEXT_PUBLIC_SITE_URL is required." >&2
+            exit 1
+          fi
+          node scripts/smoke-production.mjs "$NEXT_PUBLIC_SITE_URL"
+
+      - name: Ping IndexNow
+        continue-on-error: true
+        env:
+          CHANGED_SLUGS: ${{ needs.evals.outputs.changed }}
+        run: node scripts/indexnow.mjs "$CHANGED_SLUGS"

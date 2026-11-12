@@ -42,9 +42,44 @@ local mode. Whatever the mode, the scanner sends `initialize` and `tools/list` a
 never invokes a tool and never authenticates. Servers behind OAuth are recorded as
 `needs-snapshot` and left out of the index.
 
-Results are written to `data/results/{slug}/`. A scan only rewrites a result when the tool surface
-or the engine version actually changed, so the dates on the pages — and in the sitemap — mean
-something.
+Results are written to `data/results/{slug}/`: the scorecard data, and `snapshot.json`, the full
+`tools/list` the score was computed from (`mcp-surface-lint data/results/{slug}/snapshot.json`
+reproduces it). A scan only rewrites a result when the tool surface or the engine version actually
+changed, so the dates on the pages — and in the sitemap — mean something.
+
+## LLM evals
+
+The score never involves a model. Alongside it, `.github/workflows/evals.yml` spends the Max plan's
+monthly API credit on what code cannot compute: how Claude actually handles each surface. It counts
+every surface's tokens per Claude model, has a small model write realistic requests for the surface,
+and measures which tool each model under test reaches for — grading the tool call, never executing
+it. A model also reviews each surface's definitions and writes a short summary of its scorecard.
+Results land in `data/evals/{slug}/`, which the server pages render, labelled as model-written.
+
+The workflow wakes every six hours: it collects the batches that ended, then runs what is due —
+on the standard API for tiers that want answers now, as half-price batches for the rest. A result
+is keyed by (server, tools_hash, model, scenario set, prompt version) and never bought twice.
+
+| Tier | Probes (`scan.yml`) | Selection evals | Shown publicly |
+| --- | --- | --- | --- |
+| `directory` (unclaimed) | weekly | Sonnet 5.5, batch, at most monthly | Sonnet |
+| `claimed` | daily | Sonnet 5.5, batch, at most weekly | every model run |
+| `paid` | hourly | Sonnet 5.5 on change (standard API); Opus 5.5 weekly, batch | every model run |
+| `showcase` (ours) | hourly | Haiku, Sonnet and Opus 5.5, daily, standard API | every model run |
+
+A drop of ten points or more in a model's accuracy against its previous run is emailed, as are the
+budget's hard stop and an exhausted credit. Late in a quiet cycle the unspent credit buys an Opus
+5.5 batch over the most-viewed scorecards.
+
+```bash
+npm run evals -- plan     # what is due, without calling the API
+npm run evals -- budget   # this cycle's spend against the credit
+```
+
+Models, prices, the budget's stops and each tier's cadence live in
+[`apps/web/lib/llm/config.ts`](apps/web/lib/llm/config.ts). Spend is recorded per call in Postgres
+and shown at `/admin/budget`. When the budget runs out the evals wait for the next cycle; the scans
+never depend on them.
 
 Servers that cannot be audited are parked in [`data/seeds/pending.yaml`](data/seeds/pending.yaml),
 which the app does not read: the directory only ever shows servers with a real surface, because a

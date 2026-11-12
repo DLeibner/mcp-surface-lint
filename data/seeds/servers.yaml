@@ -12,6 +12,10 @@
 # The scanner only ever calls `initialize` and `tools/list`. It never invokes a
 # tool, and it never authenticates with a real credential.
 #
+# `tier` (default `directory`) decides what the LLM evals do for the server and
+# how often: see TIER_POLICY in apps/web/lib/llm/config.ts. `showcase` is for
+# servers we run ourselves; `claimed` and `paid` arrive with claiming.
+#
 # `stdio_command` deliberately floats (`@latest`, unpinned `uvx`, a mutable
 # Docker tag). The directory exists to report what a server publishes *today*,
 # so pinning would freeze every page against a stale surface and turn 30 seed
@@ -330,3 +334,24 @@
   snapshot_override: null
   description: "Official Grafana server for dashboards, Prometheus and Loki queries, alerts and incidents."
   tags: [official, metrics, logs]
+
+# --- other ---------------------------------------------------------------------
+
+# Showcase: our own server. Its endpoint requires auth and the scanner never
+# authenticates, so it is audited from a committed snapshot.
+- slug: hotel-universe
+  name: Hotel Universe
+  vendor: Hotel Universe
+  category: other
+  official_url: https://hoteluniverse.ai
+  repo_url: null
+  docs_url: null
+  transport: remote
+  endpoint: https://api.hoteluniverse.ai/mcp
+  auth: oauth
+  stdio_command: null
+  stdio_env: {}
+  snapshot_override: snapshots/hotel-universe.json
+  description: "Hotel data for distributors and hoteliers: search, competitor sets, saved lists, and metasearch and direct pricing."
+  tags: [showcase, travel, pricing]
+  tier: showcase

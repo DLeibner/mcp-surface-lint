@@ -14,8 +14,9 @@ export default function robots(): MetadataRoute.Robots {
         // combination that actually deindexes.
         //
         // `/api/` has no HTML to carry a directive, so blocking is right there.
+        // The same goes for `/admin/`, which answers crawlers with a 401.
         // AI crawlers are not blocked at all: a citation is the point.
-        disallow: ["/api/"]
+        disallow: ["/api/", "/admin/"]
       }
     ],
     sitemap: canonicalUrl("/sitemap.xml"),

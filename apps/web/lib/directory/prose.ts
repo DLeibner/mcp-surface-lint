@@ -1,4 +1,6 @@
 import { RuleRegistry, Scorer, type Category } from "mcp-surface-lint";
+import { HAIKU, MODEL_LABELS, OPUS, SONNET } from "../llm/config";
+import type { Footprint } from "../llm/results";
 import { RULE_CATEGORY_FRAGMENTS } from "../rule-categories";
 import { rankInCategory, relatedServers, type Catalog, type DirectoryEntry } from "./catalog";
 import { CATEGORY_LABELS, type ScanFinding, type ScannedResult } from "./types";
@@ -205,7 +207,38 @@ function footprintProse(
     );
   }
 
-  return [`${scale} ${density}`, comparison];
+  const claude = entry.footprint ? claudeFootprintProse(entry.footprint, tokens, slug) : [];
+  return [`${scale} ${density}`, comparison, ...claude];
+}
+
+/**
+ * The same surface as Claude counts it. o200k_base is a convenient common
+ * yardstick, but no Claude model uses it, and the tokenizer that arrived with
+ * Opus 4.7 counts noticeably more than older ones — so the bill a Claude user
+ * actually pays is stated per model.
+ */
+function claudeFootprintProse(footprint: Footprint, o200k: number, slug: string): string[] {
+  const sonnet = footprint.models[SONNET];
+  const haiku = footprint.models[HAIKU];
+  const opus = footprint.models[OPUS];
+  if (sonnet === undefined || haiku === undefined || opus === undefined) return [];
+
+  const delta = o200k === 0 ? 0 : pct(sonnet - o200k, o200k);
+  const versus =
+    delta === 0
+      ? "level with the o200k_base estimate"
+      : `${Math.abs(delta)}% ${delta > 0 ? "above" : "below"} the o200k_base estimate`;
+  const lead = pick(
+    [
+      `Claude's own tokenizers count it differently. Through Anthropic's token-counting endpoint, this tools/list adds ${n(sonnet)} tokens to every ${MODEL_LABELS[SONNET]} request, ${versus}, ${n(opus)} on ${MODEL_LABELS[OPUS]} and ${n(haiku)} on ${MODEL_LABELS[HAIKU]}.`,
+      `Counted by Claude rather than estimated, the surface costs ${n(sonnet)} tokens per request on ${MODEL_LABELS[SONNET]} — ${versus} — with ${n(opus)} on ${MODEL_LABELS[OPUS]} and ${n(haiku)} on ${MODEL_LABELS[HAIKU]}.`
+    ],
+    slug,
+    "claude-footprint"
+  );
+  return [
+    `${lead} Those figures include the short tool-use system prompt the API adds whenever any tool is present.`
+  ];
 }
 
 function findingsProse(entry: DirectoryEntry, scanned: ScannedResult): string[] {

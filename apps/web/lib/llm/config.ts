@@ -1,0 +1,268 @@
+/**
+ * The LLM layer's spending policy, on one screen: models, prices, the budget
+ * and its stops. Call sites never hardcode any of these, so a price change or a
+ * new threshold is a one-line diff here.
+ *
+ * The layer only buys what code cannot compute — what a model actually does
+ * when handed a tool surface. Everything code *can* compute (the handshake,
+ * schema checks, the lint score) stays in the deterministic scanner, which
+ * never waits on or pays for a model. An exhausted budget therefore pauses the
+ * evals and nothing else.
+ */
+
+export const HAIKU = "claude-haiku-5-5";
+export const SONNET = "claude-sonnet-5-5";
+export const OPUS = "claude-opus-5-5";
+
+export const MODELS = [HAIKU, SONNET, OPUS] as const;
+export type ModelId = (typeof MODELS)[number];
+
+export const MODEL_LABELS: Record<ModelId, string> = {
+  [HAIKU]: "Claude Haiku 5.5",
+  [SONNET]: "Claude Sonnet 5.5",
+  [OPUS]: "Claude Opus 5.5"
+};
+
+export function isModelId(value: string): value is ModelId {
+  return (MODELS as readonly string[]).includes(value);
+}
+
+/** USD per million tokens. */
+export interface PriceCard {
+  /** The card applies to prompts (input + cache writes + cache reads) up to this many tokens. */
+  maxPromptTokens: number;
+  input: number;
+  cacheWrite5m: number;
+  cacheWrite1h: number;
+  cacheRead: number;
+  output: number;
+}
+
+/**
+ * Verified against https://platform.claude.com/docs/en/about-claude/pricing in
+ * October 2026. Cards are ordered by `maxPromptTokens`: Haiku 5.5 is the only
+ * model here whose rate depends on prompt length.
+ */
+export const PRICES: Record<ModelId, readonly PriceCard[]> = {
+  [HAIKU]: [
+    {
+      maxPromptTokens: 100_000,
+      input: 0.1,
+      cacheWrite5m: 0.125,
+      cacheWrite1h: 0.2,
+      cacheRead: 0.01,
+      output: 0.5
+    },
+    {
+      maxPromptTokens: Number.POSITIVE_INFINITY,
+      input: 0.5,
+      cacheWrite5m: 0.625,
+      cacheWrite1h: 1,
+      cacheRead: 0.05,
+      output: 2.5
+    }
+  ],
+  [SONNET]: [
+    {
+      maxPromptTokens: Number.POSITIVE_INFINITY,
+      input: 2,
+      cacheWrite5m: 2.5,
+      cacheWrite1h: 4,
+      cacheRead: 0.1,
+      output: 10
+    }
+  ],
+  [OPUS]: [
+    {
+      maxPromptTokens: Number.POSITIVE_INFINITY,
+      input: 4,
+      cacheWrite5m: 5,
+      cacheWrite1h: 8,
+      cacheRead: 0.2,
+      output: 20
+    }
+  ]
+};
+
+/** The Batch API halves every token category, and the cache multipliers stack with it. */
+export const BATCH_DISCOUNT = 0.5;
+
+export const BUDGET = {
+  /** The Max plan's monthly API credit. Unused credit expires; nothing rolls over. */
+  creditUsd: 100,
+  /** What a normal cycle should cost. The admin page compares the projection against it. */
+  targetUsd: 70,
+  /** From 90% of the credit, only protected tiers (paid, showcase) keep their LLM jobs. */
+  softStopRatio: 0.9,
+  /**
+   * From 95%, every LLM job is deferred and one admin email goes out. The
+   * Console workspace spend limit ($95) is the backstop behind this.
+   */
+  hardStopRatio: 0.95,
+  /**
+   * Day of the month the credit refreshes: the Max plan's billing day, which is
+   * not necessarily the 1st. Clamped to the month's length (31 means "last day").
+   */
+  cycleStartDay: 1
+} as const;
+
+/**
+ * Who a server is to us. Only `directory` and `showcase` have members today;
+ * `claimed` and `paid` exist so the gate and the cadence already know how to
+ * treat them when claiming and billing do.
+ */
+export const TIERS = ["directory", "claimed", "paid", "showcase"] as const;
+export type Tier = (typeof TIERS)[number];
+
+/** Tiers whose LLM jobs keep running between the soft and the hard stop. */
+export const PROTECTED_TIERS: readonly Tier[] = ["paid", "showcase"];
+
+export type Mode = "batch" | "standard";
+
+/**
+ * Bump a version whenever its prompt, output schema or request settings
+ * change. The version is part of every result key, so a bump re-runs the job;
+ * results from an older version stay on the page with their version label
+ * instead of being compared with the new ones.
+ */
+export const PROMPT_VERSIONS = { scenarios: 1, selection: 1, review: 1, summary: 1 } as const;
+
+export interface RequestSettings {
+  maxTokens: number;
+  /** `between_tools` is Sonnet 5.5's lowest setting; Opus 5.5 cannot turn thinking off. */
+  thinking: "adaptive" | "disabled" | "between_tools";
+  effort: "low" | "medium" | "high";
+}
+
+/** J2: pick a tool, or none. Covered by PROMPT_VERSIONS.selection. */
+export const SELECTION_SETTINGS: Record<ModelId, RequestSettings> = {
+  [HAIKU]: { maxTokens: 200, thinking: "disabled", effort: "low" },
+  [SONNET]: { maxTokens: 200, thinking: "between_tools", effort: "low" },
+  // Thinking counts toward max_tokens and cannot be turned off on Opus 5.5:
+  // at 200 most calls would end before reaching the tool_use block.
+  [OPUS]: { maxTokens: 1_024, thinking: "adaptive", effort: "low" }
+};
+
+/** J1 and J3: structured JSON out. Covered by their prompt versions. */
+export const GENERATION_SETTINGS: Record<ModelId, RequestSettings> = {
+  [HAIKU]: { maxTokens: 2_000, thinking: "disabled", effort: "medium" },
+  [SONNET]: { maxTokens: 2_000, thinking: "between_tools", effort: "medium" },
+  [OPUS]: { maxTokens: 4_000, thinking: "adaptive", effort: "low" }
+};
+
+/** J4: a few sentences. Covered by PROMPT_VERSIONS.summary. */
+export const SUMMARY_SETTINGS: Record<ModelId, RequestSettings> = {
+  [HAIKU]: { maxTokens: 400, thinking: "disabled", effort: "low" },
+  [SONNET]: { maxTokens: 400, thinking: "between_tools", effort: "low" },
+  [OPUS]: { maxTokens: 1_024, thinking: "adaptive", effort: "low" }
+};
+
+/** The model that writes scenarios: the cheapest one, since it is plumbing, not measurement. */
+export const SCENARIO_MODEL: ModelId = HAIKU;
+
+/** Every scenario set has room for breadth and a fixed number of distractors. */
+export const SCENARIO_RULES = { min: 12, max: 15, distractors: 3 } as const;
+
+export const SURFACE_LIMITS = {
+  /** A tool list larger than this (counted by Sonnet 5.5) is never sent whole. */
+  maxTokens: 20_000,
+  /** How many tools an oversized surface is evaluated on instead. */
+  sampleSize: 25
+} as const;
+
+export interface SelectionPlan {
+  model: ModelId;
+  mode: Mode;
+  /**
+   * Minimum days between two runs for one server and model. Runs happen only
+   * when a result key is new (surface, scenarios or prompt changed), so this
+   * caps how often a churning surface is re-measured.
+   */
+  everyDays: number;
+}
+
+export interface TierPolicy {
+  /** How often scan.yml re-reads tools/list. */
+  probes: "weekly" | "daily" | "hourly";
+  /** How scenarios are generated for this tier's selection runs. */
+  scenarios: Mode;
+  selection: readonly SelectionPlan[];
+  /** Models whose selection results appear on the server's public page. */
+  publicModels: readonly ModelId[];
+  /** J3, rerun whenever the surface changes. */
+  review: { model: ModelId; mode: Mode };
+  /** J4, rerun whenever the surface or the score changes. */
+  summary: { model: ModelId; mode: Mode };
+}
+
+/** Plumbing jobs nobody waits for: the cheapest model, at batch prices. */
+const CHEAP = { model: HAIKU, mode: "batch" } as const;
+
+export const TIER_POLICY: Record<Tier, TierPolicy> = {
+  // Unclaimed servers are measured with the model most people run, and only
+  // that model's results are published about someone else's product.
+  directory: {
+    probes: "weekly",
+    scenarios: "batch",
+    selection: [{ model: SONNET, mode: "batch", everyDays: 30 }],
+    publicModels: [SONNET],
+    review: CHEAP,
+    summary: CHEAP
+  },
+  claimed: {
+    probes: "daily",
+    scenarios: "batch",
+    selection: [{ model: SONNET, mode: "batch", everyDays: 7 }],
+    publicModels: MODELS,
+    review: CHEAP,
+    summary: CHEAP
+  },
+  // Runs happen only when a key is new, so the plan's "Sonnet daily, plus an
+  // on-change rerun within the hour" is one standard-API run per change.
+  paid: {
+    probes: "hourly",
+    scenarios: "standard",
+    selection: [
+      { model: SONNET, mode: "standard", everyDays: 0 },
+      { model: OPUS, mode: "batch", everyDays: 7 }
+    ],
+    publicModels: MODELS,
+    review: { model: SONNET, mode: "batch" },
+    summary: CHEAP
+  },
+  showcase: {
+    probes: "hourly",
+    scenarios: "standard",
+    selection: [
+      { model: HAIKU, mode: "standard", everyDays: 1 },
+      { model: SONNET, mode: "standard", everyDays: 1 },
+      { model: OPUS, mode: "standard", everyDays: 1 }
+    ],
+    publicModels: MODELS,
+    review: CHEAP,
+    summary: CHEAP
+  }
+};
+
+/** Order in which tiers are served when the budget is tight. */
+export const TIER_PRIORITY: readonly Tier[] = ["showcase", "paid", "claimed", "directory"];
+
+/**
+ * Unused credit expires, so late in a quiet cycle the slack buys an Opus 5.5
+ * measurement of the scorecards people actually read.
+ */
+export const USE_IT_OR_LOSE_IT = {
+  /** Day of the credit cycle from which the pass may run (once per cycle). */
+  cycleDay: 25,
+  /** Only when less than this share of the credit has been spent. */
+  belowRatio: 0.6,
+  /** The most-viewed scorecards it covers. */
+  servers: 50,
+  model: OPUS,
+  mode: "batch"
+} as const satisfies { model: ModelId; mode: Mode } & Record<string, unknown>;
+
+export const ALERTS = {
+  /** Selection-accuracy drop, in points, against the previous run on the same model. */
+  regressionPoints: 10
+} as const;

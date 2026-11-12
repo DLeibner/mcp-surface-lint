@@ -1,5 +1,6 @@
 import { Scorer } from "mcp-surface-lint";
 import { ExternalLinkIcon } from "@/components/ExternalLinkIcon";
+import { MODELS, MODEL_LABELS } from "@/lib/llm/config";
 import type { DirectoryEntry } from "@/lib/directory/catalog";
 import type { ScannedResult } from "@/lib/directory/types";
 
@@ -55,6 +56,25 @@ export function Verdict({
           </div>
         </dl>
       </div>
+
+      {entry.footprint ? (
+        <div className="verdict-claude">
+          <p className="verdict-label" id="claude-tokens">
+            Tokens per request, as each Claude model counts them
+          </p>
+          <dl className="verdict-stats" aria-labelledby="claude-tokens">
+            {MODELS.map((model) => {
+              const tokens = entry.footprint!.models[model];
+              return tokens === undefined ? null : (
+                <div key={model}>
+                  <dt>{MODEL_LABELS[model]}</dt>
+                  <dd>{tokens.toLocaleString("en-US")}</dd>
+                </div>
+              );
+            })}
+          </dl>
+        </div>
+      ) : null}
 
       <p className="verdict-meta">
         Engine <code>mcp-surface-lint@{scanned.engine_version}</code>

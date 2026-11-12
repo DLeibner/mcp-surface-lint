@@ -85,6 +85,7 @@ UPSTASH_REDIS_REST_URL=...   # must be a real https://... Upstash REST URL (not 
 UPSTASH_REDIS_REST_TOKEN=...
 IP_HASH_SALT=...
 CRON_SECRET=...
+ADMIN_PASSWORD=...                # /admin/budget; unset → 404
 GATE_FINDINGS=false
 NEXT_PUBLIC_POSTHOG_KEY=...       # optional
 NEXT_PUBLIC_POSTHOG_HOST=...      # optional
@@ -143,6 +144,86 @@ changed. Unset, both the route 404s and the ping step no-ops — nothing breaks.
 re-scans a single server. Locally, `npm run scan -- --skip-stdio` audits only the public HTTP
 endpoints and spawns nothing, which is the right mode on a workstation — a full scan executes
 third-party packages and belongs in CI's throwaway runner.
+
+## One-time LLM eval setup
+
+The eval layer spends the Max plan's monthly API credit ($100, no rollover) on model-based evals of
+the directory's tool surfaces. Its whole spending policy — models, prices, stops, per-call caps —
+lives in `apps/web/lib/llm/config.ts`. Structural scans never depend on it: an exhausted budget
+pauses the evals and nothing else.
+
+**Console.** In the Claude Console organization linked to the Max plan:
+
+1. Create a workspace named `mcplint`. Every key in the organization draws from the same credit,
+   so the eval layer gets its own workspace and nothing else spends from it.
+2. Set the workspace spend limit to **$95**. The runner defers every job at 95% on its own; the
+   Console limit is the backstop behind it.
+3. Create an API key in that workspace. Only the evals workflow holds it.
+
+The credit refreshes on the plan's billing day, while Console spend limits reset on the 1st of
+the calendar month. Set `BUDGET.cycleStartDay` in `config.ts` to the billing day so the runner's
+month-to-date figures match the credit.
+
+**Database.** Apply the ledger migration (`0001_llm_ledger`) to the Neon database the app uses:
+
+```bash
+export DATABASE_URL='the Neon connection string'
+npm run db:migrate -w mcp-surface-lint-web
+```
+
+**Admin page.** `/admin/budget` shows month-to-date spend by job and model, the projection, and
+open batch submissions. It sits behind HTTP Basic auth (any username); without `ADMIN_PASSWORD`
+it returns 404 in production. Add it to the Vercel Production environment:
+
+```bash
+openssl rand -base64 24 # ADMIN_PASSWORD
+```
+
+**GitHub.** `.github/workflows/evals.yml` runs the evals every six hours. Create a GitHub
+Environment named exactly `Evals`, with no required reviewer, and add two secrets:
+
+| Name | Value |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | The `mcplint` workspace key from the Console |
+| `DATABASE_URL` | A Neon connection string for a role limited to the ledger tables |
+
+The evals job only needs the four `llm_*` tables, so give it a role that cannot touch `runs`:
+
+```sql
+create role mcplint_evals with login password '…';
+grant select, insert, update on llm_usage, llm_batches, llm_jobs, llm_events to mcplint_evals;
+grant usage on sequence llm_usage_id_seq to mcplint_evals;
+```
+
+The workflow commits results under `data/evals/` and deploys through the `Content` environment,
+like the scan. Its commit job needs the same branch-protection bypass as the scan's.
+
+Optional, on the same `Evals` environment:
+
+| Name | Kind | Value |
+| --- | --- | --- |
+| `RESEND_API_KEY` | secret | A Resend API key. With `ALERT_EMAIL_TO`, budget stops, credit exhaustion and accuracy regressions are emailed once each |
+| `ALERT_EMAIL_TO` | variable | Where alerts go. Resend's default sender may only write to the Resend account's own address, which is all this needs |
+| `ALERT_EMAIL_FROM` | variable | A sender on a verified domain, once there is one |
+| `POSTHOG_PERSONAL_API_KEY` | secret | A PostHog personal key with query access, to rank scorecards by pageviews for the end-of-cycle Opus pass |
+| `POSTHOG_PROJECT_ID` | variable | The PostHog project those pageviews land in |
+
+Without them, alerts appear only in the workflow summary, and the Opus pass takes servers in
+directory order — which covers all of them until the directory passes 50.
+
+**Surfaces.** The evals read each server's full `tools/list` from
+`data/results/{slug}/snapshot.json`, which the scanner now writes next to every result. Existing
+results gain one on the next scan, so run the `Directory scan` workflow once by hand after this
+lands, then the `LLM evals` workflow.
+
+**Smoke test.** With `DATABASE_URL` exported, record one synthetic call and check that
+`/admin/budget` prices it at exactly $0.0300 (10,000 input and 1,000 output tokens on Sonnet 5.5):
+
+```bash
+npm run evals -- fake-usage
+```
+
+Remove it afterwards with `delete from llm_usage where job = 'fake';` if the three cents matter.
 
 ## One-time npm setup
 

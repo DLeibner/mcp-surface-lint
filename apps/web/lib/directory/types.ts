@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TIERS } from "../llm/config";
 import {
   scanFindingSchema,
   scanResultSchema,
@@ -63,7 +64,12 @@ export const seedSchema = z.object({
   stdio_env: z.record(z.string()).default({}),
   snapshot_override: z.string().nullable(),
   description: z.string().min(1),
-  tags: z.array(z.string()).default([])
+  tags: z.array(z.string()).default([]),
+  /**
+   * What the LLM eval layer does for this server, and how often — see
+   * TIER_POLICY in lib/llm/config.ts. Every server starts in the directory.
+   */
+  tier: z.enum(TIERS).default("directory")
 });
 
 export type Seed = z.infer<typeof seedSchema>;
